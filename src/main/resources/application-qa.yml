@@ -6,9 +6,9 @@ server:
     port: 8089
 spring:
     datasource:
-        url: jdbc:mysql://168.231.93.145:3306/gymDB
-        username: gym
-        password: Gym2025.
+        url: jdbc:mysql://168.231.93.145:3306/cashTruck
+        username: cashTruck
+        password: cashTruck2026
     application:
         name: ms-truck
 #    security:
