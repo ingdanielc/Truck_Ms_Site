@@ -7,16 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "city")
-public class City {
+@Table(name = "vehicle_brand")
+public class VehicleBrand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 50, unique = true)
     private String name;
-
-    @Column(name = "state", length = 100)
-    private String state;
 }

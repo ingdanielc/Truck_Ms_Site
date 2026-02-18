@@ -1,0 +1,89 @@
+package cash.truck.application.usecases;
+
+import cash.truck.application.utility.filters.FilterRequest;
+import cash.truck.application.utility.filters.GenericSpecification;
+import cash.truck.application.utility.filters.SearchCriteria;
+import cash.truck.application.utility.filters.UtilsFilter;
+import cash.truck.domain.entities.Trip;
+import cash.truck.domain.repositories.TripRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.function.Consumer;
+
+@Service
+public class TripUseCase {
+
+    @Autowired
+    private final TripRepository tripRepository;
+
+    public TripUseCase(TripRepository tripRepository) {
+        this.tripRepository = tripRepository;
+    }
+
+    public List<Trip> getAllTrips() {
+        return tripRepository.findAll();
+    }
+
+    public Trip save(Trip trip) {
+        Trip tripNew;
+
+        if (trip.getId() != null) {
+            tripNew = tripRepository.findById(trip.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Trip not found"));
+        } else {
+            tripNew = new Trip();
+        }
+
+        applyFields(trip, tripNew);
+        return tripRepository.save(tripNew);
+    }
+
+    private void applyFields(Trip source, Trip target) {
+        setIfNotNull(source.getVehicleId(), target::setVehicleId);
+        setIfNotNull(source.getDriverId(), target::setDriverId);
+        setIfNotNull(source.getManifestNumber(), target::setManifestNumber);
+        setIfNotNull(source.getCompany(), target::setCompany);
+        setIfNotNull(source.getOrigin(), target::setOrigin);
+        setIfNotNull(source.getDestination(), target::setDestination);
+        setIfNotNull(source.getStartDate(), target::setStartDate);
+        setIfNotNull(source.getEndDate(), target::setEndDate);
+        setIfNotNull(source.getNumberOfDays(), target::setNumberOfDays);
+        setIfNotNull(source.getLoadType(), target::setLoadType);
+        setIfNotNull(source.getFreight(), target::setFreight);
+        setIfNotNull(source.getAdvancePayment(), target::setAdvancePayment);
+        setIfNotNull(source.getPaidBalance(), target::setPaidBalance);
+        setIfNotNull(source.getStatus(), target::setStatus);
+    }
+
+    private <T> void setIfNotNull(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
+    }
+
+    public Page<Trip> findWithFilterOptional(FilterRequest filterRequest) {
+        Pageable pageable = UtilsFilter.getPageable(filterRequest);
+        List<SearchCriteria> searchCriteriaList = UtilsFilter.getSearchCriteria(filterRequest);
+
+        Specification<Trip> specification = null;
+        if (!searchCriteriaList.isEmpty()) {
+            specification = new GenericSpecification<>(searchCriteriaList);
+        }
+
+        Page<Trip> page;
+        if (specification != null) {
+            page = tripRepository.findAll(specification, pageable);
+        } else {
+            page = tripRepository.findAll(pageable);
+        }
+
+        return new PageImpl<>(page.getContent(), pageable, page.getTotalElements());
+    }
+}

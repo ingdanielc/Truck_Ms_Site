@@ -13,6 +13,7 @@ public class DocumentType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "document_type_id")
     private Long documentTypeId;
+
     @Column(name = "document_type_name")
     private String documentTypeName;
 }
