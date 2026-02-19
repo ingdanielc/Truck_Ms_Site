@@ -52,8 +52,12 @@ public class Owner {
     @Column(name = "age", insertable = false, updatable = false)
     private Integer age;
 
-    @Column(name = "user_id", unique = true)
-    private Integer userId;
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private Users user;
+
+    @org.hibernate.annotations.Formula("(SELECT COUNT(*) FROM vehicle_owner vo WHERE vo.owner_id = id)")
+    private Integer vehicleCount;
 
     @Column(name = "max_vehicles", nullable = false)
     private Integer maxVehicles = 3;

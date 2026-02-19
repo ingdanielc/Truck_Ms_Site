@@ -2,14 +2,16 @@ package cash.truck.infrastructure.controllers;
 
 import cash.truck.application.exception.PartnerException;
 import cash.truck.application.usecases.OwnerUseCase;
+import cash.truck.application.usecases.SecurityUseCase;
 import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.ResponseErrorMessage;
 import cash.truck.application.utility.ResponseMessage;
 import cash.truck.application.utility.filters.FilterRequest;
-import cash.truck.domain.entities.Owner;
-import cash.truck.domain.entities.VehicleOwner;
+import cash.truck.domain.entities.*;
+import cash.truck.domain.repositories.RolesRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Collections;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,11 +20,18 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/owner", produces = MediaType.APPLICATION_JSON_VALUE)
-@CrossOrigin(origins = { "http://localhost:9000", "http://168.231.93.145/", "http://truck.ccsoluciones.com.co/" })
+@CrossOrigin(origins = { "http://localhost:9000", "http://168.231.93.145/", "http://truck.ccsoluciones.com.co/",
+        "https://truck.ccsoluciones.com.co/" })
 public class OwnerController {
 
     @Autowired
     private OwnerUseCase ownerUseCase;
+
+    @Autowired
+    private SecurityUseCase securityUseCase;
+
+    @Autowired
+    private RolesRepository rolesRepository;
 
     @GetMapping("/getAllOwners")
     public ResponseEntity<Object> getAllOwners() {
@@ -34,6 +43,25 @@ public class OwnerController {
     @PostMapping("/save")
     public ResponseEntity<Object> save(@RequestBody Owner owner) {
         try {
+            if (owner.getId() == null) {
+                Users user = new Users();
+                user.setName(owner.getName());
+                user.setEmail(owner.getEmail());
+                String password = owner.getDocumentNumber() != null ? owner.getDocumentNumber() : "123456";
+                user.setPassword(SecurityUseCase.getHashSHA512(password));
+                user.setStatus(Constants.STATUS_ACTIVE);
+
+                Roles role = rolesRepository.findById(2)
+                        .orElseThrow(() -> new EntityNotFoundException("Role Owner not found"));
+
+                UserRole userRole = new UserRole();
+                userRole.setRole(role);
+                userRole.setUser(user);
+                user.setUserRoles(Collections.singletonList(userRole));
+
+                Users savedUser = securityUseCase.saveUser(user);
+                owner.setUser(savedUser);
+            }
             Owner saved = ownerUseCase.save(owner);
             ResponseMessage responseMessage = new ResponseMessage(saved, HttpStatus.CREATED.value(),
                     HttpStatus.CREATED.name(), null, Constants.OWNER_CREATED_OK);

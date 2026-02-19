@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -32,6 +33,7 @@ import java.util.function.Consumer;
 import static cash.truck.application.exception.PartnerException.duplicateEntityException;
 
 @Service
+@Transactional
 public class SecurityUseCase {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityUseCase.class);
@@ -42,8 +44,8 @@ public class SecurityUseCase {
     private final UserRoleRepository userRoleRepository;
 
     public SecurityUseCase(UsersRepository usersRepository,
-                           RolesRepository rolesRepository,
-                           UserRoleRepository userRoleRepository){
+            RolesRepository rolesRepository,
+            UserRoleRepository userRoleRepository) {
         this.usersRepository = usersRepository;
         this.rolesRepository = rolesRepository;
         this.userRoleRepository = userRoleRepository;
@@ -60,8 +62,7 @@ public class SecurityUseCase {
         if (user.getName() != null && user.getEmail() != null) {
             Optional<Users> existingUser = usersRepository.findByNameAndEmail(
                     user.getName(),
-                    user.getEmail()
-            );
+                    user.getEmail());
             if (existingUser.isPresent() &&
                     (user.getId() == null || !existingUser.get().getId().equals(user.getId()))) {
                 throw duplicateEntityException();
@@ -84,7 +85,7 @@ public class SecurityUseCase {
         userNew = usersRepository.save(userNew);
 
         // Set rol user
-        if(user.getId() == null) {
+        if (user.getId() == null && user.getUserRoles() != null && !user.getUserRoles().isEmpty()) {
             UserRole userRole = new UserRole();
             userRole.setUser(userNew);
             userRole.setRole(user.getUserRoles().get(0).getRole());
@@ -109,10 +110,12 @@ public class SecurityUseCase {
     public JSONObject checkAuthentication(Users dataUser) {
         try {
             JSONObject outputToResponse = new JSONObject();
-            Optional<Users> userOpt = usersRepository.findByEmailAndPassword(dataUser.getEmail(), dataUser.getPassword());
+            Optional<Users> userOpt = usersRepository.findByEmailAndPassword(dataUser.getEmail(),
+                    dataUser.getPassword());
             if (userOpt.isPresent()) {
                 Users user = userOpt.get();
-                if (dataUser.getPassword().equals(user.getPassword()) && user.getStatus().equals(Constants.STATUS_ACTIVE)) {
+                if (dataUser.getPassword().equals(user.getPassword())
+                        && user.getStatus().equals(Constants.STATUS_ACTIVE)) {
                     outputToResponse = buildInformation(user);
                 } else {
                     outputToResponse.put(Constants.PARAMETER_AUTHORIZED, Constants.PARAMETER_INVALID_LOGIN);
@@ -126,7 +129,7 @@ public class SecurityUseCase {
                 }
             }
             return outputToResponse;
-        } catch (Exception e){
+        } catch (Exception e) {
             JSONObject outputToResponse = new JSONObject();
             logger.error(e.getMessage());
             outputToResponse.put(Constants.PARAMETER_AUTHORIZED, Constants.PARAMETER_INVALID_KEY);
@@ -157,9 +160,9 @@ public class SecurityUseCase {
         dataInJWT.put(Constants.PARAMETER_EMAIL, user.getEmail());
         dataInJWT.put(Constants.PARAMETER_NAME, user.getName());
 
-        String jwtValid= JWTManager.createJWT(dataInJWT);
+        String jwtValid = JWTManager.createJWT(dataInJWT);
 
-        //Create JWT Header
+        // Create JWT Header
         outputToResponse.put(Constants.PARAMETER_AUTHORIZED, Constants.PARAMETER_OK);
         outputToResponse.put(Constants.PARAMETER_JWT, jwtValid);
         return outputToResponse;

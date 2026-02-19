@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -22,6 +23,7 @@ import java.util.function.Consumer;
 import static cash.truck.application.exception.PartnerException.duplicateEntityException;
 
 @Service
+@Transactional
 public class OwnerUseCase {
 
     @Autowired
@@ -62,7 +64,7 @@ public class OwnerUseCase {
         setIfNotNull(source.getCityId(), target::setCityId);
         setIfNotNull(source.getGenderId(), target::setGenderId);
         setIfNotNull(source.getBirthdate(), target::setBirthdate);
-        setIfNotNull(source.getUserId(), target::setUserId);
+        setIfNotNull(source.getUser(), target::setUser);
         setIfNotNull(source.getMaxVehicles(), target::setMaxVehicles);
     }
 

@@ -61,8 +61,9 @@ public class Driver {
     @Column(name = "license_expiry", nullable = false)
     private Date licenseExpiry;
 
-    @Column(name = "user_id", unique = true)
-    private Integer userId;
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private Users user;
 
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
