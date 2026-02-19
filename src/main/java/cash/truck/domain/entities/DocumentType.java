@@ -11,9 +11,9 @@ import lombok.Setter;
 public class DocumentType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "document_type_id")
-    private Long documentTypeId;
+    @Column(name = "id")
+    private Long id;
 
-    @Column(name = "document_type_name")
-    private String documentTypeName;
+    @Column(name = "name")
+    private String name;
 }

@@ -11,8 +11,8 @@ import lombok.Setter;
 public class Gender {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "gender_id")
-    private Long genderId;
-    @Column(name = "gender_name")
-    private String genderName;
+    @Column(name = "id")
+    private Long id;
+    @Column(name = "name")
+    private String name;
 }
