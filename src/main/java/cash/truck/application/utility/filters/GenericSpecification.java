@@ -28,16 +28,20 @@ public class GenericSpecification<T> implements Specification<T>, Serializable {
                     predicates.add(builder.notEqual(path, criterion.getValue()));
                     break;
                 case "like":
-                    predicates.add(builder.like(builder.lower(path.as(String.class)), "%" + criterion.getValue().toString().toLowerCase() + "%"));
+                    predicates.add(builder.like(builder.lower(path.as(String.class)),
+                            "%" + criterion.getValue().toString().toLowerCase() + "%"));
                     break;
                 case "startswith":
-                    predicates.add(builder.like(builder.lower(path.as(String.class)), criterion.getValue().toString().toLowerCase() + "%"));
+                    predicates.add(builder.like(builder.lower(path.as(String.class)),
+                            criterion.getValue().toString().toLowerCase() + "%"));
                     break;
                 case "endswith":
-                    predicates.add(builder.like(builder.lower(path.as(String.class)), "%" + criterion.getValue().toString().toLowerCase()));
+                    predicates.add(builder.like(builder.lower(path.as(String.class)),
+                            "%" + criterion.getValue().toString().toLowerCase()));
                     break;
                 case "equalsIgnoreCase":
-                    predicates.add(builder.equal(builder.lower(path.as(String.class)), criterion.getValue().toString().toLowerCase()));
+                    predicates.add(builder.equal(builder.lower(path.as(String.class)),
+                            criterion.getValue().toString().toLowerCase()));
                     break;
                 case "in":
                     CriteriaBuilder.In<Object> in = builder.in(path);
@@ -62,19 +66,24 @@ public class GenericSpecification<T> implements Specification<T>, Serializable {
                     predicates.add(builder.isNotNull(path));
                     break;
                 case ">":
-                    predicates.add(builder.greaterThan(root.get(criterion.getKey()).as(String.class), criterion.getValue().toString()));
+                    predicates.add(builder.greaterThan(root.get(criterion.getKey()).as(String.class),
+                            criterion.getValue().toString()));
                     break;
                 case "<":
-                    predicates.add(builder.lessThan(root.get(criterion.getKey()).as(String.class), criterion.getValue().toString()));
+                    predicates.add(builder.lessThan(root.get(criterion.getKey()).as(String.class),
+                            criterion.getValue().toString()));
                     break;
                 case ">=":
-                    predicates.add(builder.greaterThanOrEqualTo(root.get(criterion.getKey()).as(String.class), criterion.getValue().toString()));
+                    predicates.add(builder.greaterThanOrEqualTo(root.get(criterion.getKey()).as(String.class),
+                            criterion.getValue().toString()));
                     break;
                 case "<=":
-                    predicates.add(builder.lessThanOrEqualTo(root.get(criterion.getKey()).as(String.class), criterion.getValue().toString()));
+                    predicates.add(builder.lessThanOrEqualTo(root.get(criterion.getKey()).as(String.class),
+                            criterion.getValue().toString()));
                     break;
                 case "==":
-                    predicates.add(builder.equal(root.get(criterion.getKey()).as(String.class), criterion.getValue().toString()));
+                    predicates.add(builder.equal(root.get(criterion.getKey()).as(String.class),
+                            criterion.getValue().toString()));
                     break;
                 default:
                     throw new IllegalArgumentException("Operación no soportada: " + criterion.getOperation());

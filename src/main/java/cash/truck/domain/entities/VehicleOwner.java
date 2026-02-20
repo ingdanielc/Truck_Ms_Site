@@ -13,10 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Getter
 @Setter
 @Entity
-@Table(
-        name = "vehicle_owner",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"vehicle_id", "owner_id"})
-)
+@Table(name = "vehicle_owner", uniqueConstraints = @UniqueConstraint(columnNames = { "vehicle_id", "owner_id" }))
 public class VehicleOwner {
 
     @Id
@@ -29,6 +26,10 @@ public class VehicleOwner {
 
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "owner_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Owner owner;
 
     @Column(name = "ownership_percentage", precision = 5, scale = 2)
     private BigDecimal ownershipPercentage = new BigDecimal("100.00");

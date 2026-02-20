@@ -17,11 +17,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/vehicle", produces = MediaType.APPLICATION_JSON_VALUE)
-@CrossOrigin(origins = { "http://localhost:9000", "http://168.231.93.145/", "http://truck.ccsoluciones.com.co/", "https://truck.ccsoluciones.com.co/" })
+@CrossOrigin(origins = { "http://localhost:9000", "http://168.231.93.145/", "http://truck.ccsoluciones.com.co/",
+        "https://truck.ccsoluciones.com.co/" })
 public class VehicleController {
 
     @Autowired
     private VehicleUseCase vehicleUseCase;
+
+    @Autowired
+    private cash.truck.application.usecases.VehicleOwnerUseCase vehicleOwnerUseCase;
 
     @GetMapping("/getAllVehicles")
     public ResponseEntity<Object> getAllVehicles() {
@@ -57,6 +61,21 @@ public class VehicleController {
     public ResponseEntity<Object> filter(@RequestBody FilterRequest filterRequest) {
         try {
             Page<Vehicle> page = vehicleUseCase.findWithFilterOptional(filterRequest);
+            ResponseMessage responseMessage = new ResponseMessage(page, HttpStatus.OK.value(),
+                    HttpStatus.OK.name(), null, Constants.VEHICLE_SEARCH_OK);
+            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ResponseErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.name(), Constants.VEHICLE_SEARCH_KO),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/filterVehicleOwner")
+    public ResponseEntity<Object> filterVehicleOwner(@RequestBody FilterRequest filterRequest) {
+        try {
+            Page<Vehicle> page = vehicleOwnerUseCase
+                    .findWithFilterOptional(filterRequest);
             ResponseMessage responseMessage = new ResponseMessage(page, HttpStatus.OK.value(),
                     HttpStatus.OK.name(), null, Constants.VEHICLE_SEARCH_OK);
             return new ResponseEntity<>(responseMessage, HttpStatus.OK);

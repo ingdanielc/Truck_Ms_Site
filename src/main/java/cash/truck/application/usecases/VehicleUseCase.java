@@ -5,6 +5,7 @@ import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.Vehicle;
+import cash.truck.domain.repositories.VehicleOwnerRepository;
 import cash.truck.domain.repositories.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class VehicleUseCase {
     @Autowired
     private final VehicleRepository vehicleRepository;
 
+    @Autowired
+    private VehicleOwnerRepository vehicleOwnerRepository;
+
     public VehicleUseCase(VehicleRepository vehicleRepository) {
         this.vehicleRepository = vehicleRepository;
     }
@@ -31,6 +35,7 @@ public class VehicleUseCase {
         return vehicleRepository.findAll();
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public Vehicle save(Vehicle vehicle) {
         Vehicle vehicleNew;
 
@@ -42,7 +47,17 @@ public class VehicleUseCase {
         }
 
         applyFields(vehicle, vehicleNew);
-        return vehicleRepository.save(vehicleNew);
+        Vehicle savedVehicle = vehicleRepository.save(vehicleNew);
+
+        if (vehicle.getOwnerId() != null) {
+            cash.truck.domain.entities.VehicleOwner vehicleOwner = new cash.truck.domain.entities.VehicleOwner();
+            vehicleOwner.setVehicleId(savedVehicle.getId());
+            vehicleOwner.setOwnerId(vehicle.getOwnerId());
+            vehicleOwner.setOwnershipPercentage(new java.math.BigDecimal("100.00"));
+            vehicleOwnerRepository.save(vehicleOwner);
+        }
+
+        return savedVehicle;
     }
 
     private void applyFields(Vehicle source, Vehicle target) {

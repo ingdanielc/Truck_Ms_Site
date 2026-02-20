@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -23,6 +24,13 @@ public class Vehicle {
     @Lob
     @Column(name = "photo", columnDefinition = "LONGTEXT")
     private String photo;
+
+    @Transient
+    private Long ownerId;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    @JoinColumn(name = "vehicle_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private List<VehicleOwner> owners;
 
     @Column(name = "plate", nullable = false, length = 10, unique = true)
     private String plate;
