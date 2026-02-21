@@ -43,12 +43,11 @@ public class DriverController {
     @PostMapping("/save")
     public ResponseEntity<Object> save(@RequestBody Driver driver) {
         try {
-            if (driver.getId() == null) {
+            if (driver.getId() == null && driver.getPassword() != null && !driver.getPassword().isEmpty()) {
                 Users user = new Users();
                 user.setName(driver.getName());
                 user.setEmail(driver.getEmail());
-                String password = driver.getDocumentNumber() != null ? driver.getDocumentNumber() : "123456";
-                user.setPassword(SecurityUseCase.getHashSHA512(password));
+                user.setPassword(SecurityUseCase.getHashSHA512(driver.getPassword()));
                 user.setStatus(Constants.STATUS_ACTIVE);
 
                 Roles role = rolesRepository.findById(3)

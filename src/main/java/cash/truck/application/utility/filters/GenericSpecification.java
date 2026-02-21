@@ -22,10 +22,18 @@ public class GenericSpecification<T> implements Specification<T>, Serializable {
             Path<Object> path = getPath(root, criterion.getKey());
             switch (criterion.getOperation()) {
                 case "=":
-                    predicates.add(builder.equal(path, criterion.getValue()));
+                    if (criterion.getValue() instanceof String) {
+                        predicates.add(builder.equal(path.as(String.class), criterion.getValue().toString()));
+                    } else {
+                        predicates.add(builder.equal(path, criterion.getValue()));
+                    }
                     break;
                 case "!=":
-                    predicates.add(builder.notEqual(path, criterion.getValue()));
+                    if (criterion.getValue() instanceof String) {
+                        predicates.add(builder.notEqual(path.as(String.class), criterion.getValue().toString()));
+                    } else {
+                        predicates.add(builder.notEqual(path, criterion.getValue()));
+                    }
                     break;
                 case "like":
                     predicates.add(builder.like(builder.lower(path.as(String.class)),
@@ -66,23 +74,23 @@ public class GenericSpecification<T> implements Specification<T>, Serializable {
                     predicates.add(builder.isNotNull(path));
                     break;
                 case ">":
-                    predicates.add(builder.greaterThan(root.get(criterion.getKey()).as(String.class),
+                    predicates.add(builder.greaterThan(path.as(String.class),
                             criterion.getValue().toString()));
                     break;
                 case "<":
-                    predicates.add(builder.lessThan(root.get(criterion.getKey()).as(String.class),
+                    predicates.add(builder.lessThan(path.as(String.class),
                             criterion.getValue().toString()));
                     break;
                 case ">=":
-                    predicates.add(builder.greaterThanOrEqualTo(root.get(criterion.getKey()).as(String.class),
+                    predicates.add(builder.greaterThanOrEqualTo(path.as(String.class),
                             criterion.getValue().toString()));
                     break;
                 case "<=":
-                    predicates.add(builder.lessThanOrEqualTo(root.get(criterion.getKey()).as(String.class),
+                    predicates.add(builder.lessThanOrEqualTo(path.as(String.class),
                             criterion.getValue().toString()));
                     break;
                 case "==":
-                    predicates.add(builder.equal(root.get(criterion.getKey()).as(String.class),
+                    predicates.add(builder.equal(path.as(String.class),
                             criterion.getValue().toString()));
                     break;
                 default:

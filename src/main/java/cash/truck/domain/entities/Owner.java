@@ -59,6 +59,9 @@ public class Owner {
     @org.hibernate.annotations.Formula("(SELECT COUNT(*) FROM vehicle_owner vo WHERE vo.owner_id = id)")
     private Integer vehicleCount;
 
+    @org.hibernate.annotations.Formula("(SELECT COUNT(*) FROM driver d WHERE d.owner_id = id)")
+    private Integer driverCount;
+
     @Column(name = "max_vehicles", nullable = false)
     private Integer maxVehicles = 3;
 

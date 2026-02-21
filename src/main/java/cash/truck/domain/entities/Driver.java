@@ -15,6 +15,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Setter
 public class Driver {
 
+    @Transient
+    private String password;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
