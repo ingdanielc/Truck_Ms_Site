@@ -29,11 +29,14 @@ public class OwnerUseCase {
     @Autowired
     private final OwnerRepository ownerRepository;
     private final VehicleOwnerRepository vehicleOwnerRepository;
+    private final SecurityUseCase securityUseCase;
 
     public OwnerUseCase(OwnerRepository ownerRepository,
-            VehicleOwnerRepository vehicleOwnerRepository) {
+            VehicleOwnerRepository vehicleOwnerRepository,
+            SecurityUseCase securityUseCase) {
         this.ownerRepository = ownerRepository;
         this.vehicleOwnerRepository = vehicleOwnerRepository;
+        this.securityUseCase = securityUseCase;
     }
 
     public List<Owner> getAllOwners() {
@@ -46,11 +49,32 @@ public class OwnerUseCase {
         if (owner.getId() != null) {
             ownerNew = ownerRepository.findById(owner.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Owner not found"));
+
+            // Synchronize email and name with User entity if they are changing
+            if (ownerNew.getUser() != null) {
+                boolean changed = false;
+                if (owner.getEmail() != null && !owner.getEmail().equals(ownerNew.getEmail())) {
+                    ownerNew.getUser().setEmail(owner.getEmail());
+                    changed = true;
+                }
+                if (owner.getName() != null && !owner.getName().equals(ownerNew.getName())) {
+                    ownerNew.getUser().setName(owner.getName());
+                    changed = true;
+                }
+                if (changed) {
+                    securityUseCase.saveUser(ownerNew.getUser());
+                }
+            }
         } else {
             ownerNew = new Owner();
         }
 
         applyFields(owner, ownerNew);
+
+        if (ownerNew.getMaxVehicles() == null) {
+            ownerNew.setMaxVehicles(3);
+        }
+
         return ownerRepository.save(ownerNew);
     }
 

@@ -24,9 +24,11 @@ public class DriverUseCase {
 
     @Autowired
     private final DriverRepository driverRepository;
+    private final SecurityUseCase securityUseCase;
 
-    public DriverUseCase(DriverRepository driverRepository) {
+    public DriverUseCase(DriverRepository driverRepository, SecurityUseCase securityUseCase) {
         this.driverRepository = driverRepository;
+        this.securityUseCase = securityUseCase;
     }
 
     public List<Driver> getAllDrivers() {
@@ -39,6 +41,22 @@ public class DriverUseCase {
         if (driver.getId() != null) {
             driverNew = driverRepository.findById(driver.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Driver not found"));
+
+            // Synchronize email and name with User entity if they are changing
+            if (driverNew.getUser() != null) {
+                boolean changed = false;
+                if (driver.getEmail() != null && !driver.getEmail().equals(driverNew.getEmail())) {
+                    driverNew.getUser().setEmail(driver.getEmail());
+                    changed = true;
+                }
+                if (driver.getName() != null && !driver.getName().equals(driverNew.getName())) {
+                    driverNew.getUser().setName(driver.getName());
+                    changed = true;
+                }
+                if (changed) {
+                    securityUseCase.saveUser(driverNew.getUser());
+                }
+            }
         } else {
             driverNew = new Driver();
         }

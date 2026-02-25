@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Getter
 @Setter
@@ -25,11 +25,22 @@ public class Trip {
     @Column(name = "vehicle_id", nullable = false)
     private Long vehicleId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "vehicle_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Vehicle vehicle;
+
     @Column(name = "driver_id", nullable = false)
     private Long driverId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "driver_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Driver driver;
+
     @Column(name = "manifest_number", nullable = false, length = 100)
     private String manifestNumber;
+
+    @Column(name = "number_trip", length = 50, nullable = false)
+    private String numberTrip;
 
     @Column(name = "company", length = 100)
     private String company;
@@ -41,9 +52,11 @@ public class Trip {
     private String destination;
 
     @Column(name = "start_date", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
     @Column(name = "end_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
     @Column(name = "number_of_days", nullable = false)
@@ -65,10 +78,8 @@ public class Trip {
     @Column(name = "paid_balance", nullable = false)
     private Boolean paidBalance = false;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition =
-            "ENUM('Planeado','En Curso','Completado','Cancelado','Pendiente')")
-    private Status status = Status.Planeado;
+    @Column(name = "status")
+    private String status;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -80,11 +91,5 @@ public class Trip {
     @Column(name = "update_date", insertable = false, updatable = false)
     private Date updateDate;
 
-    public enum Status {
-        Planeado,
-        En_Curso,
-        Completado,
-        Cancelado,
-        Pendiente
-    }
+
 }

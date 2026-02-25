@@ -63,7 +63,7 @@ public class Owner {
     private Integer driverCount;
 
     @Column(name = "max_vehicles", nullable = false)
-    private Integer maxVehicles = 3;
+    private Integer maxVehicles;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

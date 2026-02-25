@@ -56,8 +56,12 @@ public class Vehicle {
     @Column(name = "number_of_axles", length = 50)
     private String numberOfAxles;
 
-    @Column(name = "current_driver_id", length = 50)
+    @Column(name = "current_driver_id")
     private Integer currentDriverId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "current_driver_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Driver driver;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "ENUM('Activo','En Mantenimiento','Inactivo')")

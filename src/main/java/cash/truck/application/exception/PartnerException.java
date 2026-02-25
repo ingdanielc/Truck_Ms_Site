@@ -7,7 +7,7 @@ public class PartnerException extends RuntimeException {
     }
 
     public static PartnerException duplicateEntityException() {
-        return new PartnerException("A partner with the same document type code and document number already exists.");
+        return new PartnerException("An entity with the same unique identifier or email already exists.");
     }
 
     public static PartnerException notificationNoAvailable(int notificationType) {

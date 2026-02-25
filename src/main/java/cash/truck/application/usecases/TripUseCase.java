@@ -9,7 +9,6 @@ import cash.truck.domain.repositories.TripRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -49,6 +48,7 @@ public class TripUseCase {
         setIfNotNull(source.getVehicleId(), target::setVehicleId);
         setIfNotNull(source.getDriverId(), target::setDriverId);
         setIfNotNull(source.getManifestNumber(), target::setManifestNumber);
+        setIfNotNull(source.getNumberTrip(), target::setNumberTrip);
         setIfNotNull(source.getCompany(), target::setCompany);
         setIfNotNull(source.getOrigin(), target::setOrigin);
         setIfNotNull(source.getDestination(), target::setDestination);
@@ -84,6 +84,6 @@ public class TripUseCase {
             page = tripRepository.findAll(pageable);
         }
 
-        return new PageImpl<>(page.getContent(), pageable, page.getTotalElements());
+        return page;
     }
 }
