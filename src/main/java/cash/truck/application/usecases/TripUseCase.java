@@ -50,8 +50,8 @@ public class TripUseCase {
         setIfNotNull(source.getManifestNumber(), target::setManifestNumber);
         setIfNotNull(source.getNumberTrip(), target::setNumberTrip);
         setIfNotNull(source.getCompany(), target::setCompany);
-        setIfNotNull(source.getOrigin(), target::setOrigin);
-        setIfNotNull(source.getDestination(), target::setDestination);
+        setIfNotNull(source.getOriginId(), target::setOriginId);
+        setIfNotNull(source.getDestinationId(), target::setDestinationId);
         setIfNotNull(source.getStartDate(), target::setStartDate);
         setIfNotNull(source.getEndDate(), target::setEndDate);
         setIfNotNull(source.getNumberOfDays(), target::setNumberOfDays);

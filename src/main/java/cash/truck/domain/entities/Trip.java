@@ -45,11 +45,19 @@ public class Trip {
     @Column(name = "company", length = 100)
     private String company;
 
-    @Column(name = "origin", nullable = false, length = 100)
-    private String origin;
+    @Column(name = "origin_id", nullable = false, length = 100)
+    private String originId;
 
-    @Column(name = "destination", nullable = false, length = 100)
-    private String destination;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "origin_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private City origin;
+
+    @Column(name = "destination_id", nullable = false, length = 100)
+    private String destinationId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "destination_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private City destination;
 
     @Column(name = "start_date", nullable = false)
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -90,6 +98,5 @@ public class Trip {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_date", insertable = false, updatable = false)
     private Date updateDate;
-
 
 }

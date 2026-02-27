@@ -40,6 +40,14 @@ public class Constants {
     public static final String TRIP_SEARCH_KO = "trip.search.ko";
     public static final String TRIP_KO = "trip.ko";
 
+    public static final String EXPENSE_SEARCH_OK = "expense.search.ok";
+    public static final String EXPENSE_SEARCH_NOT_FOUND = "expense.search.not.found";
+    public static final String EXPENSE_SEARCH_NOT_FOUND_ME = "Expense Not Found";
+    public static final String EXPENSE_CREATED_OK = "expense.created.ok";
+    public static final String EXPENSE_SEARCH_KO = "expense.search.ko";
+    public static final String EXPENSE_KO = "expense.ko";
+    public static final String EXPENSE_CATEGORY_SEARCH_OK = "expense_category.search.ok";
+
     public static final String PARTNER_SEARCH_OK = "partner.search.ok";
     public static final String PARTNER_SEARCH_NOT_FOUND = "partner.search.not.found";
     public static final String PARTNER_SEARCH_NOT_FOUND_ME = "Partner Not Found";
