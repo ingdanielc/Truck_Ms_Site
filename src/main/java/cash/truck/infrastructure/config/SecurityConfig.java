@@ -22,8 +22,7 @@ public class SecurityConfig {
                         .requestMatchers("/security/authentication").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().authenticated()
-                );
+                        .anyRequest().authenticated());
 
         return http.build();
     }

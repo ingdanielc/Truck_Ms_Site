@@ -54,6 +54,22 @@ public class ExpenseUseCase {
         return expenseCategoryRepository.findAll();
     }
 
+    public Page<ExpenseCategory> findExpenseCategoriesWithFilter(FilterRequest filterRequest) {
+        Pageable pageable = UtilsFilter.getPageable(filterRequest);
+        List<SearchCriteria> searchCriteriaList = UtilsFilter.getSearchCriteria(filterRequest);
+
+        Specification<ExpenseCategory> specification = null;
+        if (!searchCriteriaList.isEmpty()) {
+            specification = new GenericSpecification<>(searchCriteriaList);
+        }
+
+        if (specification != null) {
+            return expenseCategoryRepository.findAll(specification, pageable);
+        } else {
+            return expenseCategoryRepository.findAll(pageable);
+        }
+    }
+
     public Page<Expense> findWithFilterOptional(FilterRequest filterRequest) {
         Pageable pageable = UtilsFilter.getPageable(filterRequest);
         List<SearchCriteria> searchCriteriaList = UtilsFilter.getSearchCriteria(filterRequest);

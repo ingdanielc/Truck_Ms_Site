@@ -68,10 +68,11 @@ public class ExpenseController {
         }
     }
 
-    @GetMapping("/filterExpenseCategory")
-    public ResponseEntity<Object> filterExpenseCategory() {
+    @PostMapping("/filterExpenseCategory")
+    public ResponseEntity<Object> filterExpenseCategory(@RequestBody FilterRequest filterRequest) {
         try {
-            ResponseMessage responseMessage = new ResponseMessage(expenseUseCase.getAllExpenseCategories(),
+            ResponseMessage responseMessage = new ResponseMessage(
+                    expenseUseCase.findExpenseCategoriesWithFilter(filterRequest),
                     HttpStatus.OK.value(),
                     HttpStatus.OK.name(), null, Constants.EXPENSE_CATEGORY_SEARCH_OK);
             return new ResponseEntity<>(responseMessage, HttpStatus.OK);

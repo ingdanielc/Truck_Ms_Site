@@ -11,8 +11,8 @@ import java.io.IOException;
 
 public class CustomHeaderAuthFilter extends OncePerRequestFilter {
 
-private static final String HEADER_NAME = "X-API-KEY";
-    private static final String HEADER_VALUE = "truck-api-key";  // Cambia esto por un valor seguro
+    private static final String HEADER_NAME = "X-API-KEY";
+    private static final String HEADER_VALUE = "truck-api-key"; // Cambia esto por un valor seguro
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
