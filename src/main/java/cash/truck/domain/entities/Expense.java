@@ -30,6 +30,10 @@ public class Expense {
     @Column(name = "category_id", nullable = false)
     private Integer categoryId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ExpenseCategory category;
+
     @Column(name = "amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 

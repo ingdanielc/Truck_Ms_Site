@@ -78,6 +78,8 @@ public class DriverUseCase {
         setIfNotNull(source.getLicenseCategory(), target::setLicenseCategory);
         setIfNotNull(source.getLicenseNumber(), target::setLicenseNumber);
         setIfNotNull(source.getLicenseExpiry(), target::setLicenseExpiry);
+        setIfNotNull(source.getSalaryTypeId(), target::setSalaryTypeId);
+        setIfNotNull(source.getSalary(), target::setSalary);
         setIfNotNull(source.getUser(), target::setUser);
         setIfNotNull(source.getOwnerId(), target::setOwnerId);
     }

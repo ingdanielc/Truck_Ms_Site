@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/common", produces = MediaType.APPLICATION_JSON_VALUE)
-@CrossOrigin(origins = { "http://localhost:9000", "http://168.231.93.145/", "http://truck.ccsoluciones.com.co/", "https://truck.ccsoluciones.com.co/" })
+@CrossOrigin(origins = { "http://localhost:9000", "http://168.231.93.145/", "http://truck.ccsoluciones.com.co/",
+        "https://truck.ccsoluciones.com.co/" })
 public class CommonController {
 
     @Autowired
@@ -51,6 +52,14 @@ public class CommonController {
         ResponseMessage responseMessage = new ResponseMessage(commonUseCase.getAllVehicleBrands(),
                 HttpStatus.OK.value(),
                 HttpStatus.OK.name(), null, Constants.VEHICLE_BRANDS_SEARCH_OK);
+        return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+    }
+
+    @GetMapping("/getSalaryTypes")
+    public ResponseEntity<Object> getSalaryTypes() {
+        ResponseMessage responseMessage = new ResponseMessage(commonUseCase.getAllSalaryTypes(),
+                HttpStatus.OK.value(),
+                HttpStatus.OK.name(), null, Constants.SALARY_TYPES_SEARCH_OK);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
     }
 

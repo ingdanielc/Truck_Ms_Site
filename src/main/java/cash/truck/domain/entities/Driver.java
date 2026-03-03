@@ -55,6 +55,12 @@ public class Driver {
     @Column(name = "age", insertable = false, updatable = false)
     private Integer age;
 
+    @Column(name = "salary_type_id")
+    private Integer salaryTypeId;
+
+    @Column(name = "salary")
+    private Integer salary;
+
     @Column(name = "license_category", nullable = false, length = 5)
     private String licenseCategory;
 

@@ -17,6 +17,7 @@ public class Constants {
     public static final String CITIES_SEARCH_OK = "cities.search.ok";
     public static final String EXPENSE_TYPES_SEARCH_OK = "expense_types.search.ok";
     public static final String VEHICLE_BRANDS_SEARCH_OK = "vehicle_brands.search.ok";
+    public static final String SALARY_TYPES_SEARCH_OK = "salary_types.search.ok";
 
     public static final String OWNER_SEARCH_OK = "owner.search.ok";
     public static final String OWNER_SEARCH_NOT_FOUND = "owner.search.not.found";
