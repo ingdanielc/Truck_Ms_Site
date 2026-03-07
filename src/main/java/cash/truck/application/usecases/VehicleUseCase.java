@@ -50,11 +50,22 @@ public class VehicleUseCase {
         Vehicle savedVehicle = vehicleRepository.save(vehicleNew);
 
         if (vehicle.getOwnerId() != null) {
-            cash.truck.domain.entities.VehicleOwner vehicleOwner = new cash.truck.domain.entities.VehicleOwner();
-            vehicleOwner.setVehicleId(savedVehicle.getId());
-            vehicleOwner.setOwnerId(vehicle.getOwnerId());
-            vehicleOwner.setOwnershipPercentage(new java.math.BigDecimal("100.00"));
-            vehicleOwnerRepository.save(vehicleOwner);
+            boolean ownerExists = false;
+            if (vehicleNew.getOwners() != null) {
+                for (cash.truck.domain.entities.VehicleOwner existingOwner : vehicleNew.getOwners()) {
+                    if (existingOwner.getOwnerId().equals(vehicle.getOwnerId())) {
+                        ownerExists = true;
+                        break;
+                    }
+                }
+            }
+            if (!ownerExists) {
+                cash.truck.domain.entities.VehicleOwner vehicleOwner = new cash.truck.domain.entities.VehicleOwner();
+                vehicleOwner.setVehicleId(savedVehicle.getId());
+                vehicleOwner.setOwnerId(vehicle.getOwnerId());
+                vehicleOwner.setOwnershipPercentage(new java.math.BigDecimal("100.00"));
+                vehicleOwnerRepository.save(vehicleOwner);
+            }
         }
 
         return savedVehicle;
