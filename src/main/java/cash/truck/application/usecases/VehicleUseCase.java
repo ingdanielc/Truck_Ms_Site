@@ -27,8 +27,11 @@ public class VehicleUseCase {
     @Autowired
     private VehicleOwnerRepository vehicleOwnerRepository;
 
-    public VehicleUseCase(VehicleRepository vehicleRepository) {
+    private final InAppNotificationUseCase inAppNotificationUseCase;
+
+    public VehicleUseCase(VehicleRepository vehicleRepository, InAppNotificationUseCase inAppNotificationUseCase) {
         this.vehicleRepository = vehicleRepository;
+        this.inAppNotificationUseCase = inAppNotificationUseCase;
     }
 
     public List<Vehicle> getAllVehicles() {
@@ -38,8 +41,9 @@ public class VehicleUseCase {
     @org.springframework.transaction.annotation.Transactional
     public Vehicle save(Vehicle vehicle) {
         Vehicle vehicleNew;
+        boolean isNew = vehicle.getId() == null;
 
-        if (vehicle.getId() != null) {
+        if (!isNew) {
             vehicleNew = vehicleRepository.findById(vehicle.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Vehicle not found"));
         } else {
@@ -67,6 +71,11 @@ public class VehicleUseCase {
                 vehicleOwnerRepository.save(vehicleOwner);
             }
         }
+
+        String message = isNew ? "Se ha creado un nuevo vehículo con placa: " + savedVehicle.getPlate()
+                : "Se ha actualizado el vehículo con placa: " + savedVehicle.getPlate();
+        inAppNotificationUseCase.createNotification("VEHICLE_EVENT", message, 1, null,
+                savedVehicle.getId().longValue());
 
         return savedVehicle;
     }

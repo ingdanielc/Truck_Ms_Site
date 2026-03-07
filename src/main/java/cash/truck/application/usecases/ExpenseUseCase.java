@@ -27,9 +27,13 @@ public class ExpenseUseCase {
     @Autowired
     private final ExpenseCategoryRepository expenseCategoryRepository;
 
-    public ExpenseUseCase(ExpenseRepository expenseRepository, ExpenseCategoryRepository expenseCategoryRepository) {
+    private final InAppNotificationUseCase inAppNotificationUseCase;
+
+    public ExpenseUseCase(ExpenseRepository expenseRepository, ExpenseCategoryRepository expenseCategoryRepository,
+            InAppNotificationUseCase inAppNotificationUseCase) {
         this.expenseRepository = expenseRepository;
         this.expenseCategoryRepository = expenseCategoryRepository;
+        this.inAppNotificationUseCase = inAppNotificationUseCase;
     }
 
     public List<Expense> getAllExpenses() {
@@ -38,8 +42,9 @@ public class ExpenseUseCase {
 
     public Expense save(Expense expense) {
         Expense expenseNew;
+        boolean isNew = expense.getId() == null;
 
-        if (expense.getId() != null) {
+        if (!isNew) {
             expenseNew = expenseRepository.findById(expense.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Expense not found"));
         } else {
@@ -47,7 +52,13 @@ public class ExpenseUseCase {
         }
 
         applyFields(expense, expenseNew);
-        return expenseRepository.save(expenseNew);
+        Expense savedExpense = expenseRepository.save(expenseNew);
+
+        String message = isNew ? "Se ha registrado un nuevo gasto por el valor de: " + savedExpense.getAmount()
+                : "Se ha actualizado el gasto con ID: " + savedExpense.getId();
+        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", message, 1, null, savedExpense.getId());
+
+        return savedExpense;
     }
 
     public List<ExpenseCategory> getAllExpenseCategories() {

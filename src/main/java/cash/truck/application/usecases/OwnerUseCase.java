@@ -30,13 +30,16 @@ public class OwnerUseCase {
     private final OwnerRepository ownerRepository;
     private final VehicleOwnerRepository vehicleOwnerRepository;
     private final SecurityUseCase securityUseCase;
+    private final InAppNotificationUseCase inAppNotificationUseCase;
 
     public OwnerUseCase(OwnerRepository ownerRepository,
             VehicleOwnerRepository vehicleOwnerRepository,
-            SecurityUseCase securityUseCase) {
+            SecurityUseCase securityUseCase,
+            InAppNotificationUseCase inAppNotificationUseCase) {
         this.ownerRepository = ownerRepository;
         this.vehicleOwnerRepository = vehicleOwnerRepository;
         this.securityUseCase = securityUseCase;
+        this.inAppNotificationUseCase = inAppNotificationUseCase;
     }
 
     public List<Owner> getAllOwners() {
@@ -45,8 +48,9 @@ public class OwnerUseCase {
 
     public Owner save(Owner owner) {
         Owner ownerNew;
+        boolean isNew = owner.getId() == null;
 
-        if (owner.getId() != null) {
+        if (!isNew) {
             ownerNew = ownerRepository.findById(owner.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Owner not found"));
 
@@ -75,7 +79,13 @@ public class OwnerUseCase {
             ownerNew.setMaxVehicles(3);
         }
 
-        return ownerRepository.save(ownerNew);
+        Owner savedOwner = ownerRepository.save(ownerNew);
+
+        String message = isNew ? "Se ha creado un nuevo propietario: " + savedOwner.getName()
+                : "Se ha actualizado el propietario: " + savedOwner.getName();
+        inAppNotificationUseCase.createNotification("OWNER_EVENT", message, 1, null, savedOwner.getId().longValue());
+
+        return savedOwner;
     }
 
     private void applyFields(Owner source, Owner target) {

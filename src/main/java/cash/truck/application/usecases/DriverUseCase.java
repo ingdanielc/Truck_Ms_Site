@@ -25,10 +25,13 @@ public class DriverUseCase {
     @Autowired
     private final DriverRepository driverRepository;
     private final SecurityUseCase securityUseCase;
+    private final InAppNotificationUseCase inAppNotificationUseCase;
 
-    public DriverUseCase(DriverRepository driverRepository, SecurityUseCase securityUseCase) {
+    public DriverUseCase(DriverRepository driverRepository, SecurityUseCase securityUseCase,
+            InAppNotificationUseCase inAppNotificationUseCase) {
         this.driverRepository = driverRepository;
         this.securityUseCase = securityUseCase;
+        this.inAppNotificationUseCase = inAppNotificationUseCase;
     }
 
     public List<Driver> getAllDrivers() {
@@ -37,8 +40,9 @@ public class DriverUseCase {
 
     public Driver save(Driver driver) {
         Driver driverNew;
+        boolean isNew = driver.getId() == null;
 
-        if (driver.getId() != null) {
+        if (!isNew) {
             driverNew = driverRepository.findById(driver.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Driver not found"));
 
@@ -62,7 +66,13 @@ public class DriverUseCase {
         }
 
         applyFields(driver, driverNew);
-        return driverRepository.save(driverNew);
+        Driver savedDriver = driverRepository.save(driverNew);
+
+        String message = isNew ? "Se ha creado un nuevo conductor: " + savedDriver.getName()
+                : "Se ha actualizado el conductor: " + savedDriver.getName();
+        inAppNotificationUseCase.createNotification("DRIVER_EVENT", message, 1, null, savedDriver.getId().longValue());
+
+        return savedDriver;
     }
 
     private void applyFields(Driver source, Driver target) {

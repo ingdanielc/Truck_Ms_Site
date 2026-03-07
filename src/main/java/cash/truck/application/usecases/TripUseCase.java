@@ -21,9 +21,11 @@ public class TripUseCase {
 
     @Autowired
     private final TripRepository tripRepository;
+    private final InAppNotificationUseCase inAppNotificationUseCase;
 
-    public TripUseCase(TripRepository tripRepository) {
+    public TripUseCase(TripRepository tripRepository, InAppNotificationUseCase inAppNotificationUseCase) {
         this.tripRepository = tripRepository;
+        this.inAppNotificationUseCase = inAppNotificationUseCase;
     }
 
     public List<Trip> getAllTrips() {
@@ -32,8 +34,9 @@ public class TripUseCase {
 
     public Trip save(Trip trip) {
         Trip tripNew;
+        boolean isNew = trip.getId() == null;
 
-        if (trip.getId() != null) {
+        if (!isNew) {
             tripNew = tripRepository.findById(trip.getId())
                     .orElseThrow(() -> new EntityNotFoundException("Trip not found"));
         } else {
@@ -41,7 +44,13 @@ public class TripUseCase {
         }
 
         applyFields(trip, tripNew);
-        return tripRepository.save(tripNew);
+        Trip savedTrip = tripRepository.save(tripNew);
+
+        String message = isNew ? "Se ha creado un nuevo viaje con manifiesto: " + savedTrip.getManifestNumber()
+                : "Se ha actualizado el viaje con manifiesto: " + savedTrip.getManifestNumber();
+        inAppNotificationUseCase.createNotification("TRIP_EVENT", message, 1, null, savedTrip.getId());
+
+        return savedTrip;
     }
 
     private void applyFields(Trip source, Trip target) {
