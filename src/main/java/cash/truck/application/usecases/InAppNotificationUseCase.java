@@ -54,13 +54,6 @@ public class InAppNotificationUseCase {
         notificationRepository.save(notification);
     }
 
-    public void deleteNotification(Long id) {
-        notificationRepository.findById(id).ifPresent(notification -> {
-            notification.setIsDeleted(true);
-            notificationRepository.save(notification);
-        });
-    }
-
     public Page<Notification> findWithFilterOptional(FilterRequest filterRequest) {
         Pageable pageable = UtilsFilter.getPageable(filterRequest);
         List<SearchCriteria> searchCriteriaList = UtilsFilter.getSearchCriteria(filterRequest);
