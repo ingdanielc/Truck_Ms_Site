@@ -99,19 +99,4 @@ public class NotificationController {
             return new ResponseEntity<>(responseErrorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable Long id) {
-        try {
-            inAppNotificationUseCase.deleteNotification(id);
-            ResponseMessage responseMessage = new ResponseMessage(null, HttpStatus.OK.value(),
-                    HttpStatus.OK.name(), null, Constants.NOTIFICATION_SEARCH_OK);
-            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
-        } catch (Exception e) {
-            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name(),
-                    Constants.NOTIFICATION_SEARCH_KO);
-            return new ResponseEntity<>(responseErrorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }
