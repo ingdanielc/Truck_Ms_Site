@@ -8,6 +8,7 @@ import cash.truck.domain.entities.Expense;
 import cash.truck.domain.entities.ExpenseCategory;
 import cash.truck.domain.repositories.ExpenseCategoryRepository;
 import cash.truck.domain.repositories.ExpenseRepository;
+import cash.truck.domain.repositories.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,12 +28,16 @@ public class ExpenseUseCase {
     @Autowired
     private final ExpenseCategoryRepository expenseCategoryRepository;
 
+    @Autowired
+    private final VehicleRepository vehicleRepository;
+
     private final InAppNotificationUseCase inAppNotificationUseCase;
 
     public ExpenseUseCase(ExpenseRepository expenseRepository, ExpenseCategoryRepository expenseCategoryRepository,
-            InAppNotificationUseCase inAppNotificationUseCase) {
+            VehicleRepository vehicleRepository, InAppNotificationUseCase inAppNotificationUseCase) {
         this.expenseRepository = expenseRepository;
         this.expenseCategoryRepository = expenseCategoryRepository;
+        this.vehicleRepository = vehicleRepository;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
     }
 
@@ -56,7 +61,17 @@ public class ExpenseUseCase {
 
         String message = isNew ? "Se ha registrado un nuevo gasto por el valor de: " + savedExpense.getAmount()
                 : "Se ha actualizado el gasto con ID: " + savedExpense.getId();
-        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", message, 1, null, savedExpense.getId());
+        Long ownerId = null;
+        try {
+            ownerId = vehicleRepository.findById(savedExpense.getVehicleId())
+                    .map(v -> v.getOwners() != null && !v.getOwners().isEmpty() ? v.getOwners().get(0).getOwnerId()
+                            : null)
+                    .orElse(null);
+        } catch (Exception e) {
+            // Handle error
+        }
+
+        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", message, 1, null, ownerId, savedExpense.getId());
 
         return savedExpense;
     }

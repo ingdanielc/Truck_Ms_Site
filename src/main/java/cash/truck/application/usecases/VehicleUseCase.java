@@ -74,7 +74,7 @@ public class VehicleUseCase {
 
         String message = isNew ? "Se ha creado un nuevo vehículo con placa: " + savedVehicle.getPlate()
                 : "Se ha actualizado el vehículo con placa: " + savedVehicle.getPlate();
-        inAppNotificationUseCase.createNotification("VEHICLE_EVENT", message, 1, null,
+        inAppNotificationUseCase.createNotification("VEHICLE_EVENT", message, 1, null, vehicle.getOwnerId(),
                 savedVehicle.getId().longValue());
 
         return savedVehicle;

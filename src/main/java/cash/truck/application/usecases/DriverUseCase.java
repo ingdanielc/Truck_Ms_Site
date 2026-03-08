@@ -70,7 +70,8 @@ public class DriverUseCase {
 
         String message = isNew ? "Se ha creado un nuevo conductor: " + savedDriver.getName()
                 : "Se ha actualizado el conductor: " + savedDriver.getName();
-        inAppNotificationUseCase.createNotification("DRIVER_EVENT", message, 1, null, savedDriver.getId().longValue());
+        inAppNotificationUseCase.createNotification("DRIVER_EVENT", message, 1, null, savedDriver.getOwnerId(),
+                savedDriver.getId().longValue());
 
         return savedDriver;
     }

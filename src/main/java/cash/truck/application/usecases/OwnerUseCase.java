@@ -83,7 +83,8 @@ public class OwnerUseCase {
 
         String message = isNew ? "Se ha creado un nuevo propietario: " + savedOwner.getName()
                 : "Se ha actualizado el propietario: " + savedOwner.getName();
-        inAppNotificationUseCase.createNotification("OWNER_EVENT", message, 1, null, savedOwner.getId().longValue());
+        inAppNotificationUseCase.createNotification("OWNER_EVENT", message, 1, null, null,
+                savedOwner.getId().longValue());
 
         return savedOwner;
     }

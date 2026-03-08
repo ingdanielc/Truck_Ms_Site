@@ -6,6 +6,7 @@ import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.Notification;
 import cash.truck.domain.repositories.NotificationRepository;
+import cash.truck.domain.repositories.OwnerRepository;
 import cash.truck.domain.repositories.RolesRepository;
 import cash.truck.domain.repositories.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class InAppNotificationUseCase {
     @Autowired
     private RolesRepository rolesRepository;
 
+    @Autowired
+    private OwnerRepository ownerRepository;
+
     public List<Notification> getAllNotifications() {
         return notificationRepository.findAll();
     }
@@ -38,7 +42,7 @@ public class InAppNotificationUseCase {
     }
 
     public void createNotification(String eventType, String message, Integer targetRoleId, Integer targetUserId,
-            Long referenceId) {
+            Long ownerId, Long referenceId) {
         Notification notification = new Notification();
         notification.setEventType(eventType);
         notification.setMessage(message);
@@ -49,6 +53,10 @@ public class InAppNotificationUseCase {
         rolesRepository.findById(targetRoleId).ifPresent(notification::setTargetRole);
         if (targetUserId != null) {
             usersRepository.findById(targetUserId).ifPresent(notification::setTargetUser);
+        }
+
+        if (ownerId != null) {
+            ownerRepository.findById(ownerId).ifPresent(notification::setOwner);
         }
 
         notificationRepository.save(notification);

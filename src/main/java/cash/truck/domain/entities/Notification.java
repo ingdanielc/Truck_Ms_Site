@@ -32,6 +32,10 @@ public class Notification {
     @JoinColumn(name = "target_role_id", nullable = false)
     private Roles targetRole;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private Owner owner;
+
     @Column(name = "reference_id")
     private Long referenceId;
 

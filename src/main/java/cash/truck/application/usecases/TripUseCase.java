@@ -6,6 +6,7 @@ import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.Trip;
 import cash.truck.domain.repositories.TripRepository;
+import cash.truck.domain.repositories.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,10 +22,13 @@ public class TripUseCase {
 
     @Autowired
     private final TripRepository tripRepository;
+    private final VehicleRepository vehicleRepository;
     private final InAppNotificationUseCase inAppNotificationUseCase;
 
-    public TripUseCase(TripRepository tripRepository, InAppNotificationUseCase inAppNotificationUseCase) {
+    public TripUseCase(TripRepository tripRepository, VehicleRepository vehicleRepository,
+            InAppNotificationUseCase inAppNotificationUseCase) {
         this.tripRepository = tripRepository;
+        this.vehicleRepository = vehicleRepository;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
     }
 
@@ -48,7 +52,17 @@ public class TripUseCase {
 
         String message = isNew ? "Se ha creado un nuevo viaje con manifiesto: " + savedTrip.getManifestNumber()
                 : "Se ha actualizado el viaje con manifiesto: " + savedTrip.getManifestNumber();
-        inAppNotificationUseCase.createNotification("TRIP_EVENT", message, 1, null, savedTrip.getId());
+        Long ownerId = null;
+        try {
+            ownerId = vehicleRepository.findById(savedTrip.getVehicleId())
+                    .map(v -> v.getOwners() != null && !v.getOwners().isEmpty() ? v.getOwners().get(0).getOwnerId()
+                            : null)
+                    .orElse(null);
+        } catch (Exception e) {
+            // Log error or handle gracefully
+        }
+
+        inAppNotificationUseCase.createNotification("TRIP_EVENT", message, 1, null, ownerId, savedTrip.getId());
 
         return savedTrip;
     }
