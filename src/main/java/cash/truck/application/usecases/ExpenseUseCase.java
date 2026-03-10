@@ -122,6 +122,26 @@ public class ExpenseUseCase {
         setIfNotNull(source.getReceiptImageUrl(), target::setReceiptImageUrl);
     }
 
+    public ExpenseCategory saveExpenseCategory(ExpenseCategory expenseCategory) {
+        ExpenseCategory expenseCategoryNew;
+        boolean isNew = expenseCategory.getId() == null;
+
+        if (!isNew) {
+            expenseCategoryNew = expenseCategoryRepository.findById(expenseCategory.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Expense Category not found"));
+        } else {
+            expenseCategoryNew = new ExpenseCategory();
+        }
+
+        applyExpenseCategoryFields(expenseCategory, expenseCategoryNew);
+        return expenseCategoryRepository.save(expenseCategoryNew);
+    }
+
+    private void applyExpenseCategoryFields(ExpenseCategory source, ExpenseCategory target) {
+        setIfNotNull(source.getName(), target::setName);
+        setIfNotNull(source.getExpenseTypeId(), target::setExpenseTypeId);
+    }
+
     private <T> void setIfNotNull(T value, Consumer<T> setter) {
         if (value != null) {
             setter.accept(value);

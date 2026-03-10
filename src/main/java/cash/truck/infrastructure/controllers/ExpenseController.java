@@ -7,6 +7,7 @@ import cash.truck.application.utility.ResponseErrorMessage;
 import cash.truck.application.utility.ResponseMessage;
 import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.domain.entities.Expense;
+import cash.truck.domain.entities.ExpenseCategory;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -65,6 +66,29 @@ public class ExpenseController {
             return new ResponseEntity<>(new ResponseErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     HttpStatus.INTERNAL_SERVER_ERROR.name(), Constants.EXPENSE_SEARCH_KO),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/saveExpenseCategory")
+    public ResponseEntity<Object> saveExpenseCategory(@RequestBody ExpenseCategory expenseCategory) {
+        try {
+            ExpenseCategory saved = expenseUseCase.saveExpenseCategory(expenseCategory);
+            ResponseMessage responseMessage = new ResponseMessage(saved, HttpStatus.CREATED.value(),
+                    HttpStatus.CREATED.name(), null, Constants.EXPENSE_CATEGORY_CREATED_OK);
+            return new ResponseEntity<>(responseMessage, HttpStatus.CREATED);
+        } catch (EntityNotFoundException e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(HttpStatus.NOT_FOUND.value(),
+                    Constants.EXPENSE_CATEGORY_SEARCH_NOT_FOUND_ME, Constants.EXPENSE_CATEGORY_SEARCH_NOT_FOUND);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.NOT_FOUND);
+        } catch (PartnerException | IllegalArgumentException e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(HttpStatus.CONFLICT.value(),
+                    e.getMessage(), Constants.EXPENSE_CATEGORY_KO);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.name(), Constants.EXPENSE_CATEGORY_KO);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

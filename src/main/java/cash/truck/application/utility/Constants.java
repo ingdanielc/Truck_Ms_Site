@@ -47,6 +47,10 @@ public class Constants {
     public static final String EXPENSE_SEARCH_KO = "expense.search.ko";
     public static final String EXPENSE_KO = "expense.ko";
     public static final String EXPENSE_CATEGORY_SEARCH_OK = "expense_category.search.ok";
+    public static final String EXPENSE_CATEGORY_SEARCH_NOT_FOUND = "expense_category.search.not.found";
+    public static final String EXPENSE_CATEGORY_SEARCH_NOT_FOUND_ME = "Expense Category Not Found";
+    public static final String EXPENSE_CATEGORY_CREATED_OK = "expense_category.created.ok";
+    public static final String EXPENSE_CATEGORY_KO = "expense_category.ko";
 
     public static final String PARTNER_SEARCH_KO = "partner.search.ko";
 
