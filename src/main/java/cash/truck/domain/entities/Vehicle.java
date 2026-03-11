@@ -22,7 +22,7 @@ public class Vehicle {
     private Long id;
 
     @Lob
-    @Column(name = "photo", columnDefinition = "LONGTEXT")
+    @Column(name = "photo")
     private String photo;
 
     @Transient

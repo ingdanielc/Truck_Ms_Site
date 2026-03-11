@@ -8,6 +8,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import cash.truck.application.utility.ResponseErrorMessage;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @RestController
 @RequestMapping(value = "/common", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -61,6 +69,51 @@ public class CommonController {
                 HttpStatus.OK.value(),
                 HttpStatus.OK.name(), null, Constants.SALARY_TYPES_SEARCH_OK);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/upload-photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> uploadPhoto(
+            @RequestParam("type") String type,
+            @RequestParam("id") Long id,
+            @RequestParam("photo") MultipartFile photo) {
+        try {
+            String subDir;
+            switch (type.toLowerCase()) {
+                case "owner":
+                    subDir = "owner";
+                    break;
+                case "driver":
+                    subDir = "driver";
+                    break;
+                case "vehicle":
+                    subDir = "vehicle";
+                    break;
+                default:
+                    ResponseErrorMessage badRequest = new ResponseErrorMessage(
+                            HttpStatus.BAD_REQUEST.value(),
+                            "Invalid type. Must be owner, driver or vehicle",
+                            Constants.PHOTO_UPLOAD_KO);
+                    return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST);
+            }
+
+            String fileName = "photo" + id + ".jpg";
+            String dirPath = "/var/www/html/truck/images/" + subDir;
+            Path targetDir = Paths.get(dirPath);
+            Files.createDirectories(targetDir);
+            Path targetFile = targetDir.resolve(fileName);
+            Files.copy(photo.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
+
+            String url = "https://ccsoluciones.com.co/truck/images/" + subDir + "/" + fileName;
+            ResponseMessage responseMessage = new ResponseMessage(url,
+                    HttpStatus.OK.value(),
+                    HttpStatus.OK.name(), null, Constants.PHOTO_UPLOAD_OK);
+            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        } catch (IOException e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    e.getMessage(), Constants.PHOTO_UPLOAD_KO);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

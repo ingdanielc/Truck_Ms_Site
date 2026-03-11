@@ -81,4 +81,8 @@ public class Constants {
     // Notifications
     public static final String NOTIFICATION_SEARCH_KO = "notification.search.ko";
     public static final String NOTIFICATION_SEARCH_OK = "notification.search.ok";
+
+    // Photo Upload
+    public static final String PHOTO_UPLOAD_OK = "photo.upload.ok";
+    public static final String PHOTO_UPLOAD_KO = "photo.upload.ko";
 }

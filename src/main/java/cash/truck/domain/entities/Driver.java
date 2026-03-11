@@ -24,7 +24,7 @@ public class Driver {
     private Long id;
 
     @Lob
-    @Column(name = "photo", columnDefinition = "LONGTEXT")
+    @Column(name = "photo")
     private String photo;
 
     @Column(name = "document_type_id", nullable = false)

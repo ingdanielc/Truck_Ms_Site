@@ -39,7 +39,6 @@ public class SecurityController {
     @PostMapping(value = "/authentication", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Object> authenticationUser(@RequestBody Users user) {
         try {
-            logger.info("si");
             JSONObject responseAutorization = securityUseCase.checkAuthentication(user);
             if (responseAutorization.get(Constants.PARAMETER_AUTHORIZED).equals(Constants.PARAMETER_OK)) {
                 HttpHeaders responseHeaders = new HttpHeaders();
