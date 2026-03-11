@@ -103,7 +103,7 @@ public class CommonController {
             Path targetFile = targetDir.resolve(fileName);
             Files.copy(photo.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
 
-            String url = "https://ccsoluciones.com.co/truck/images/" + subDir + "/" + fileName;
+            String url = "https://truck.ccsoluciones.com.co/truck/images/" + subDir + "/" + fileName;
             ResponseMessage responseMessage = new ResponseMessage(url,
                     HttpStatus.OK.value(),
                     HttpStatus.OK.name(), null, Constants.PHOTO_UPLOAD_OK);
