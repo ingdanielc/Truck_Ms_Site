@@ -11,6 +11,10 @@ spring:
         password: cashTruck2026
     application:
         name: ms-truck
+    servlet:
+        multipart:
+            max-file-size: 5MB
+            max-request-size: 5MB
 
 #    jpa:
 #        show-sql: true

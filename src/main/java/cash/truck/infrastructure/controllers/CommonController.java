@@ -11,11 +11,18 @@ import org.springframework.web.bind.annotation.*;
 import cash.truck.application.utility.ResponseErrorMessage;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.Iterator;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import java.awt.image.BufferedImage;
 
 @RestController
 @RequestMapping(value = "/common", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,12 +103,38 @@ public class CommonController {
                     return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST);
             }
 
-            String fileName = "photo" + id + ".jpg";
+            BufferedImage image = ImageIO.read(photo.getInputStream());
+            if (image == null) {
+                ResponseErrorMessage badRequest = new ResponseErrorMessage(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Invalid image file",
+                        Constants.PHOTO_UPLOAD_KO);
+                return new ResponseEntity<>(badRequest, HttpStatus.BAD_REQUEST);
+            }
+
+            String fileName = "photo" + id + ".webp";
             String dirPath = "/var/www/html/truck/images/" + subDir;
             Path targetDir = Paths.get(dirPath);
             Files.createDirectories(targetDir);
             Path targetFile = targetDir.resolve(fileName);
-            Files.copy(photo.getInputStream(), targetFile, StandardCopyOption.REPLACE_EXISTING);
+
+            Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("webp");
+            if (!writers.hasNext()) {
+                throw new IOException("WebP writer not found. Make sure dependencies are correctly loaded.");
+            }
+            ImageWriter writer = writers.next();
+            try (ImageOutputStream ios = ImageIO.createImageOutputStream(new FileOutputStream(targetFile.toFile()))) {
+                writer.setOutput(ios);
+                ImageWriteParam param = writer.getDefaultWriteParam();
+                if (param.canWriteCompressed()) {
+                    param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+                    param.setCompressionType(param.getCompressionTypes()[0]);
+                    param.setCompressionQuality(0.75f);
+                }
+                writer.write(null, new IIOImage(image, null, null), param);
+            } finally {
+                writer.dispose();
+            }
 
             String url = "https://truck.ccsoluciones.com.co/truck/images/" + subDir + "/" + fileName;
             ResponseMessage responseMessage = new ResponseMessage(url,
