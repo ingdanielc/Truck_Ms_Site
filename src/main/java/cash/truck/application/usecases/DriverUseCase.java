@@ -5,9 +5,13 @@ import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.Driver;
+import cash.truck.domain.entities.Roles;
+import cash.truck.domain.entities.UserRole;
+import cash.truck.domain.entities.Users;
 import cash.truck.domain.repositories.DriverRepository;
+import cash.truck.domain.repositories.RolesRepository;
+import cash.truck.application.utility.Constants;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -22,16 +27,17 @@ import java.util.function.Consumer;
 @Transactional
 public class DriverUseCase {
 
-    @Autowired
     private final DriverRepository driverRepository;
     private final SecurityUseCase securityUseCase;
     private final InAppNotificationUseCase inAppNotificationUseCase;
+    private final RolesRepository rolesRepository;
 
     public DriverUseCase(DriverRepository driverRepository, SecurityUseCase securityUseCase,
-            InAppNotificationUseCase inAppNotificationUseCase) {
+            InAppNotificationUseCase inAppNotificationUseCase, RolesRepository rolesRepository) {
         this.driverRepository = driverRepository;
         this.securityUseCase = securityUseCase;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
+        this.rolesRepository = rolesRepository;
     }
 
     public List<Driver> getAllDrivers() {
@@ -63,6 +69,25 @@ public class DriverUseCase {
             }
         } else {
             driverNew = new Driver();
+            // Handle User creation for new Drivers
+            if (driver.getPassword() != null && !driver.getPassword().isEmpty()) {
+                Users user = new Users();
+                user.setName(driver.getName());
+                user.setEmail(driver.getEmail());
+                user.setPassword(SecurityUseCase.getHashSHA512(driver.getPassword()));
+                user.setStatus(Constants.STATUS_ACTIVE);
+
+                Roles role = rolesRepository.findById(3)
+                        .orElseThrow(() -> new EntityNotFoundException("Role Driver not found"));
+
+                UserRole userRole = new UserRole();
+                userRole.setRole(role);
+                userRole.setUser(user);
+                user.setUserRoles(Collections.singletonList(userRole));
+
+                Users savedUser = securityUseCase.saveUser(user);
+                driverNew.setUser(savedUser);
+            }
         }
 
         applyFields(driver, driverNew);

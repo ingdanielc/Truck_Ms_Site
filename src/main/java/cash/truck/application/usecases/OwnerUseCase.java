@@ -5,11 +5,15 @@ import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.Owner;
+import cash.truck.domain.entities.Roles;
+import cash.truck.domain.entities.UserRole;
+import cash.truck.domain.entities.Users;
 import cash.truck.domain.entities.VehicleOwner;
 import cash.truck.domain.repositories.OwnerRepository;
+import cash.truck.domain.repositories.RolesRepository;
 import cash.truck.domain.repositories.VehicleOwnerRepository;
+import cash.truck.application.utility.Constants;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -26,20 +31,22 @@ import static cash.truck.application.exception.PartnerException.duplicateEntityE
 @Transactional
 public class OwnerUseCase {
 
-    @Autowired
     private final OwnerRepository ownerRepository;
     private final VehicleOwnerRepository vehicleOwnerRepository;
     private final SecurityUseCase securityUseCase;
     private final InAppNotificationUseCase inAppNotificationUseCase;
+    private final RolesRepository rolesRepository;
 
     public OwnerUseCase(OwnerRepository ownerRepository,
             VehicleOwnerRepository vehicleOwnerRepository,
             SecurityUseCase securityUseCase,
-            InAppNotificationUseCase inAppNotificationUseCase) {
+            InAppNotificationUseCase inAppNotificationUseCase,
+            RolesRepository rolesRepository) {
         this.ownerRepository = ownerRepository;
         this.vehicleOwnerRepository = vehicleOwnerRepository;
         this.securityUseCase = securityUseCase;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
+        this.rolesRepository = rolesRepository;
     }
 
     public List<Owner> getAllOwners() {
@@ -71,6 +78,25 @@ public class OwnerUseCase {
             }
         } else {
             ownerNew = new Owner();
+            // Handle User creation for new Owners
+            if (owner.getPassword() != null && !owner.getPassword().isEmpty()) {
+                Users user = new Users();
+                user.setName(owner.getName());
+                user.setEmail(owner.getEmail());
+                user.setPassword(SecurityUseCase.getHashSHA512(owner.getPassword()));
+                user.setStatus(Constants.STATUS_ACTIVE);
+
+                Roles role = rolesRepository.findById(2)
+                        .orElseThrow(() -> new EntityNotFoundException("Role Owner not found"));
+
+                UserRole userRole = new UserRole();
+                userRole.setRole(role);
+                userRole.setUser(user);
+                user.setUserRoles(Collections.singletonList(userRole));
+
+                Users savedUser = securityUseCase.saveUser(user);
+                ownerNew.setUser(savedUser);
+            }
         }
 
         applyFields(owner, ownerNew);
