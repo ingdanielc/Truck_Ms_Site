@@ -17,6 +17,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Owner {
 
+    @Transient
+    private String password;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

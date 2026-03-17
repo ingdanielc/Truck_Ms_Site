@@ -47,8 +47,7 @@ public class OwnerController {
                 Users user = new Users();
                 user.setName(owner.getName());
                 user.setEmail(owner.getEmail());
-                String password = owner.getDocumentNumber() != null ? owner.getDocumentNumber() : "123456";
-                user.setPassword(SecurityUseCase.getHashSHA512(password));
+                user.setPassword(SecurityUseCase.getHashSHA512(owner.getPassword()));
                 user.setStatus(Constants.STATUS_ACTIVE);
 
                 Roles role = rolesRepository.findById(2)
