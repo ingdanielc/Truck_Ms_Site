@@ -50,16 +50,34 @@ public class TripUseCase {
         applyFields(trip, tripNew);
         Trip savedTrip = tripRepository.save(tripNew);
 
-        String message = isNew ? "Se ha creado un nuevo viaje con manifiesto: " + savedTrip.getManifestNumber()
-                : "Se ha actualizado el viaje con manifiesto: " + savedTrip.getManifestNumber();
+        String message;
         Long ownerId = null;
         try {
-            ownerId = vehicleRepository.findById(savedTrip.getVehicleId())
-                    .map(v -> v.getOwners() != null && !v.getOwners().isEmpty() ? v.getOwners().get(0).getOwnerId()
-                            : null)
-                    .orElse(null);
+            if (savedTrip.getVehicleId() != null) {
+                var vehicle = vehicleRepository.findById(savedTrip.getVehicleId()).orElse(null);
+                if (vehicle != null) {
+                    String plate = vehicle.getPlate() != null ? vehicle.getPlate().toUpperCase() : null;
+                    if (isNew) {
+                        message = "Se ha creado un nuevo viaje con manifiesto " + savedTrip.getManifestNumber()
+                                + (plate != null ? " para el vehículo de placa " + plate : "");
+                    } else {
+                        message = "Se ha actualizado el viaje con manifiesto " + savedTrip.getManifestNumber()
+                                + (plate != null ? " para el vehículo de placa " + plate : "");
+                    }
+                    if (vehicle.getOwners() != null && !vehicle.getOwners().isEmpty()) {
+                        ownerId = vehicle.getOwners().get(0).getOwnerId();
+                    }
+                } else {
+                    message = isNew ? "Se ha creado un nuevo viaje con manifiesto: " + savedTrip.getManifestNumber()
+                            : "Se ha actualizado el viaje con manifiesto: " + savedTrip.getManifestNumber();
+                }
+            } else {
+                message = isNew ? "Se ha creado un nuevo viaje con manifiesto: " + savedTrip.getManifestNumber()
+                        : "Se ha actualizado el viaje con manifiesto: " + savedTrip.getManifestNumber();
+            }
         } catch (Exception e) {
-            // Log error or handle gracefully
+            message = isNew ? "Se ha creado un nuevo viaje con manifiesto: " + savedTrip.getManifestNumber()
+                    : "Se ha actualizado el viaje con manifiesto: " + savedTrip.getManifestNumber();
         }
 
         inAppNotificationUseCase.createNotification("TRIP_EVENT", message, 1, null, ownerId, savedTrip.getId());

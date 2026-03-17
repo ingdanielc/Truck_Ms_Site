@@ -6,8 +6,11 @@ import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.Expense;
 import cash.truck.domain.entities.ExpenseCategory;
+import cash.truck.domain.entities.Trip;
+import cash.truck.domain.entities.Vehicle;
 import cash.truck.domain.repositories.ExpenseCategoryRepository;
 import cash.truck.domain.repositories.ExpenseRepository;
+import cash.truck.domain.repositories.TripRepository;
 import cash.truck.domain.repositories.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 
 @Service
@@ -31,13 +36,18 @@ public class ExpenseUseCase {
     @Autowired
     private final VehicleRepository vehicleRepository;
 
+    @Autowired
+    private final TripRepository tripRepository;
+
     private final InAppNotificationUseCase inAppNotificationUseCase;
 
     public ExpenseUseCase(ExpenseRepository expenseRepository, ExpenseCategoryRepository expenseCategoryRepository,
-            VehicleRepository vehicleRepository, InAppNotificationUseCase inAppNotificationUseCase) {
+            VehicleRepository vehicleRepository, TripRepository tripRepository,
+            InAppNotificationUseCase inAppNotificationUseCase) {
         this.expenseRepository = expenseRepository;
         this.expenseCategoryRepository = expenseCategoryRepository;
         this.vehicleRepository = vehicleRepository;
+        this.tripRepository = tripRepository;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
     }
 
@@ -59,19 +69,71 @@ public class ExpenseUseCase {
         applyFields(expense, expenseNew);
         Expense savedExpense = expenseRepository.save(expenseNew);
 
-        String message = isNew ? "Se ha registrado un nuevo gasto por el valor de: " + savedExpense.getAmount()
-                : "Se ha actualizado el gasto con ID: " + savedExpense.getId();
+        // Determine type: Mantenimiento (expense_type_id == 4) or Gasto
+        String expenseType = "Gasto";
+        try {
+            if (savedExpense.getCategoryId() != null) {
+                ExpenseCategory category = expenseCategoryRepository.findById(savedExpense.getCategoryId()).orElse(null);
+                if (category != null && Integer.valueOf(4).equals(category.getExpenseTypeId())) {
+                    expenseType = "Mantenimiento";
+                }
+            }
+        } catch (Exception e) {
+            // Use default "Gasto"
+        }
+
+        // Retrieve vehicle plate and owner
+        String plate = null;
         Long ownerId = null;
         try {
-            ownerId = vehicleRepository.findById(savedExpense.getVehicleId())
-                    .map(v -> v.getOwners() != null && !v.getOwners().isEmpty() ? v.getOwners().get(0).getOwnerId()
-                            : null)
-                    .orElse(null);
+            if (savedExpense.getVehicleId() != null) {
+                Vehicle vehicle = vehicleRepository.findById(savedExpense.getVehicleId()).orElse(null);
+                if (vehicle != null) {
+                    plate = vehicle.getPlate() != null ? vehicle.getPlate().toUpperCase() : null;
+                    if (vehicle.getOwners() != null && !vehicle.getOwners().isEmpty()) {
+                        ownerId = vehicle.getOwners().get(0).getOwnerId();
+                    }
+                }
+            }
         } catch (Exception e) {
             // Handle error
         }
 
-        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", message, 1, null, ownerId, savedExpense.getId());
+        // Retrieve trip number
+        String tripNumber = null;
+        try {
+            if (savedExpense.getTripId() != null) {
+                Trip trip = tripRepository.findById(savedExpense.getTripId()).orElse(null);
+                if (trip != null) {
+                    tripNumber = trip.getNumberTrip();
+                }
+            }
+        } catch (Exception e) {
+            // Handle error
+        }
+
+        // Build notification message
+        StringBuilder messageBuilder = new StringBuilder();
+        // Format amount with $ sign and thousand separators (Colombian locale)
+        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("es", "CO"));
+        String formattedAmount = "$" + nf.format(savedExpense.getAmount());
+
+        if (isNew) {
+            messageBuilder.append("Se ha registrado un nuevo ").append(expenseType)
+                    .append(" por el valor de: ").append(formattedAmount);
+        } else {
+            messageBuilder.append("Se ha actualizado el ").append(expenseType)
+                    .append(" por el valor de: ").append(formattedAmount);
+        }
+        // Gasto: include trip number if available; Mantenimiento: skip trip number
+        if (!"Mantenimiento".equals(expenseType) && tripNumber != null) {
+            messageBuilder.append(" para el viaje nro: ").append(tripNumber);
+        }
+        if (plate != null) {
+            messageBuilder.append(" del vehículo de placa: ").append(plate);
+        }
+
+        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", messageBuilder.toString(), 1, null, ownerId, savedExpense.getId());
 
         return savedExpense;
     }
