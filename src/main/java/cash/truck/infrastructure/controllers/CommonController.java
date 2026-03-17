@@ -83,6 +83,7 @@ public class CommonController {
             @RequestParam("type") String type,
             @RequestParam("id") Long id,
             @RequestParam("photo") MultipartFile photo) {
+        ImageIO.scanForPlugins();
         try {
             String subDir;
             switch (type.toLowerCase()) {
@@ -120,7 +121,12 @@ public class CommonController {
 
             Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("webp");
             if (!writers.hasNext()) {
-                throw new IOException("WebP writer not found. Make sure dependencies are correctly loaded.");
+                StringBuilder formats = new StringBuilder();
+                for (String format : ImageIO.getWriterFormatNames()) {
+                    formats.append(format).append(", ");
+                }
+                throw new IOException("WebP writer not found. Available writer formats: " + formats.toString() + 
+                                     ". Make sure dependencies are correctly loaded and the app is restarted.");
             }
             ImageWriter writer = writers.next();
             try (ImageOutputStream ios = ImageIO.createImageOutputStream(new FileOutputStream(targetFile.toFile()))) {
