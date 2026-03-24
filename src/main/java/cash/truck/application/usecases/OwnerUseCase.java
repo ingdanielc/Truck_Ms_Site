@@ -92,8 +92,10 @@ public class OwnerUseCase {
                     securityUseCase.saveUser(ownerNew.getUser());
                 }
 
-                // Update Driver license fields
-                driverRepository.findByOwnerIdAndDocumentNumber(ownerNew.getId(), ownerNew.getDocumentNumber()).ifPresent(driver -> {
+                // Update or Create Driver record
+                java.util.Optional<Driver> driverOpt = driverRepository.findByOwnerIdAndDocumentNumber(ownerNew.getId(), ownerNew.getDocumentNumber());
+                if (driverOpt.isPresent()) {
+                    Driver driver = driverOpt.get();
                     if (owner.getLicenseCategory() != null) driver.setLicenseCategory(owner.getLicenseCategory());
                     if (owner.getLicenseNumber() != null) driver.setLicenseNumber(owner.getLicenseNumber());
                     if (owner.getLicenseExpiry() != null) driver.setLicenseExpiry(owner.getLicenseExpiry());
@@ -110,7 +112,25 @@ public class OwnerUseCase {
                     if (owner.getBirthdate() != null) driver.setBirthdate(owner.getBirthdate());
                     
                     driverRepository.save(driver);
-                });
+                } else {
+                    // Create new Driver record
+                    Driver driver = new Driver();
+                    driver.setPhoto(ownerNew.getPhoto());
+                    driver.setDocumentTypeId(ownerNew.getDocumentTypeId());
+                    driver.setDocumentNumber(ownerNew.getDocumentNumber());
+                    driver.setName(ownerNew.getName());
+                    driver.setEmail(ownerNew.getEmail());
+                    driver.setCellPhone(ownerNew.getCellPhone());
+                    driver.setCityId(ownerNew.getCityId());
+                    driver.setGenderId(ownerNew.getGenderId());
+                    driver.setBirthdate(ownerNew.getBirthdate());
+                    driver.setLicenseCategory(owner.getLicenseCategory());
+                    if (owner.getLicenseNumber() != null) driver.setLicenseNumber(owner.getLicenseNumber());
+                    if (owner.getLicenseExpiry() != null) driver.setLicenseExpiry(owner.getLicenseExpiry());
+                    driver.setUser(ownerNew.getUser());
+                    driver.setOwnerId(ownerNew.getId());
+                    driverRepository.save(driver);
+                }
             }
         } else {
             ownerNew = new Owner();
