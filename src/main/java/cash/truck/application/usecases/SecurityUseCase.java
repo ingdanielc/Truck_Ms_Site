@@ -84,12 +84,14 @@ public class SecurityUseCase {
         createUser(userNew, user);
         userNew = usersRepository.save(userNew);
 
-        // Set rol user
+        // Set roles user
         if (user.getId() == null && user.getUserRoles() != null && !user.getUserRoles().isEmpty()) {
-            UserRole userRole = new UserRole();
-            userRole.setUser(userNew);
-            userRole.setRole(user.getUserRoles().get(0).getRole());
-            userRoleRepository.save(userRole);
+            for (UserRole roleReq : user.getUserRoles()) {
+                UserRole userRole = new UserRole();
+                userRole.setUser(userNew);
+                userRole.setRole(roleReq.getRole());
+                userRoleRepository.save(userRole);
+            }
         }
         return userNew;
     }

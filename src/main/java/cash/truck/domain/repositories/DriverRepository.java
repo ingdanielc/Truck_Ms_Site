@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DriverRepository extends JpaRepository<Driver, Long> {
     Page<Driver> findAll(Specification<Driver> specification, Pageable pageable);
+    java.util.Optional<Driver> findByOwnerIdAndDocumentNumber(Long ownerId, String documentNumber);
 }

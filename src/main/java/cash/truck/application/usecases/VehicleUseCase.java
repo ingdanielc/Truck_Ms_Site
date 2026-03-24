@@ -82,7 +82,7 @@ public class VehicleUseCase {
 
     private void applyFields(Vehicle source, Vehicle target) {
         setIfNotNull(source.getPhoto(), target::setPhoto);
-        setIfNotNull(source.getPlate(), target::setPlate);
+        setIfNotNull(source.getPlate() != null ? source.getPlate().toUpperCase() : null, target::setPlate);
         setIfNotNull(source.getVehicleBrandId(), target::setVehicleBrandId);
         setIfNotNull(source.getModel(), target::setModel);
         setIfNotNull(source.getYear(), target::setYear);

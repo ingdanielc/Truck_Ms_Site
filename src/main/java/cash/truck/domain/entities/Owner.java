@@ -19,6 +19,18 @@ public class Owner {
 
     @Transient
     private String password;
+    
+    @Column(name = "is_driver")
+    private Boolean isDriver;
+
+    @org.hibernate.annotations.Formula("(SELECT d.license_category FROM driver d WHERE d.owner_id = id AND d.document_number = document_number LIMIT 1)")
+    private String licenseCategory;
+
+    @org.hibernate.annotations.Formula("(SELECT d.license_number FROM driver d WHERE d.owner_id = id AND d.document_number = document_number LIMIT 1)")
+    private String licenseNumber;
+
+    @org.hibernate.annotations.Formula("(SELECT d.license_expiry FROM driver d WHERE d.owner_id = id AND d.document_number = document_number LIMIT 1)")
+    private Date licenseExpiry;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

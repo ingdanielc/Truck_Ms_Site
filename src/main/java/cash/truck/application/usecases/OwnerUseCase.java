@@ -4,11 +4,8 @@ import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
-import cash.truck.domain.entities.Owner;
-import cash.truck.domain.entities.Roles;
-import cash.truck.domain.entities.UserRole;
-import cash.truck.domain.entities.Users;
-import cash.truck.domain.entities.VehicleOwner;
+import cash.truck.domain.entities.*;
+import cash.truck.domain.repositories.DriverRepository;
 import cash.truck.domain.repositories.OwnerRepository;
 import cash.truck.domain.repositories.RolesRepository;
 import cash.truck.domain.repositories.VehicleOwnerRepository;
@@ -36,17 +33,20 @@ public class OwnerUseCase {
     private final SecurityUseCase securityUseCase;
     private final InAppNotificationUseCase inAppNotificationUseCase;
     private final RolesRepository rolesRepository;
+    private final DriverRepository driverRepository;
 
     public OwnerUseCase(OwnerRepository ownerRepository,
             VehicleOwnerRepository vehicleOwnerRepository,
             SecurityUseCase securityUseCase,
             InAppNotificationUseCase inAppNotificationUseCase,
-            RolesRepository rolesRepository) {
+            RolesRepository rolesRepository,
+            DriverRepository driverRepository) {
         this.ownerRepository = ownerRepository;
         this.vehicleOwnerRepository = vehicleOwnerRepository;
         this.securityUseCase = securityUseCase;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
         this.rolesRepository = rolesRepository;
+        this.driverRepository = driverRepository;
     }
 
     public List<Owner> getAllOwners() {
@@ -76,6 +76,42 @@ public class OwnerUseCase {
                     securityUseCase.saveUser(ownerNew.getUser());
                 }
             }
+
+            // Sync Driver roles and license fields if isDriver is true
+            if (Boolean.TRUE.equals(owner.getIsDriver())) {
+                // Ensure role 3 (Driver) is assigned to the user
+                boolean hasDriverRole = ownerNew.getUser().getUserRoles().stream()
+                        .anyMatch(ur -> ur.getRole().getId().equals(3));
+                if (!hasDriverRole) {
+                    Roles roleDriver = rolesRepository.findById(3)
+                            .orElseThrow(() -> new EntityNotFoundException("Role Driver not found"));
+                    UserRole userRoleDriver = new UserRole();
+                    userRoleDriver.setRole(roleDriver);
+                    userRoleDriver.setUser(ownerNew.getUser());
+                    ownerNew.getUser().getUserRoles().add(userRoleDriver);
+                    securityUseCase.saveUser(ownerNew.getUser());
+                }
+
+                // Update Driver license fields
+                driverRepository.findByOwnerIdAndDocumentNumber(ownerNew.getId(), ownerNew.getDocumentNumber()).ifPresent(driver -> {
+                    if (owner.getLicenseCategory() != null) driver.setLicenseCategory(owner.getLicenseCategory());
+                    if (owner.getLicenseNumber() != null) driver.setLicenseNumber(owner.getLicenseNumber());
+                    if (owner.getLicenseExpiry() != null) driver.setLicenseExpiry(owner.getLicenseExpiry());
+                    
+                    // Also sync name/email/cellphone if they changed
+                    if (owner.getName() != null) driver.setName(owner.getName());
+                    if (owner.getEmail() != null) driver.setEmail(owner.getEmail());
+                    if (owner.getCellPhone() != null) driver.setCellPhone(owner.getCellPhone());
+                    if (owner.getPhoto() != null) driver.setPhoto(owner.getPhoto());
+                    if (owner.getDocumentTypeId() != null) driver.setDocumentTypeId(owner.getDocumentTypeId());
+                    if (owner.getDocumentNumber() != null) driver.setDocumentNumber(owner.getDocumentNumber());
+                    if (owner.getCityId() != null) driver.setCityId(owner.getCityId());
+                    if (owner.getGenderId() != null) driver.setGenderId(owner.getGenderId());
+                    if (owner.getBirthdate() != null) driver.setBirthdate(owner.getBirthdate());
+                    
+                    driverRepository.save(driver);
+                });
+            }
         } else {
             ownerNew = new Owner();
             // Handle User creation for new Owners
@@ -83,16 +119,28 @@ public class OwnerUseCase {
                 Users user = new Users();
                 user.setName(owner.getName());
                 user.setEmail(owner.getEmail());
-                user.setPassword(SecurityUseCase.getHashSHA512(owner.getPassword()));
+                byte[] decodedBytes = java.util.Base64.getDecoder().decode(owner.getPassword());
+                String decodedPassword = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+                user.setPassword(SecurityUseCase.getHashSHA512(decodedPassword));
                 user.setStatus(Constants.STATUS_ACTIVE);
 
-                Roles role = rolesRepository.findById(2)
+                Roles roleOwner = rolesRepository.findById(2)
                         .orElseThrow(() -> new EntityNotFoundException("Role Owner not found"));
 
-                UserRole userRole = new UserRole();
-                userRole.setRole(role);
-                userRole.setUser(user);
-                user.setUserRoles(Collections.singletonList(userRole));
+                UserRole userRoleOwner = new UserRole();
+                userRoleOwner.setRole(roleOwner);
+                userRoleOwner.setUser(user);
+
+                if (Boolean.TRUE.equals(owner.getIsDriver())) {
+                    Roles roleDriver = rolesRepository.findById(3)
+                            .orElseThrow(() -> new EntityNotFoundException("Role Driver not found"));
+                    UserRole userRoleDriver = new UserRole();
+                    userRoleDriver.setRole(roleDriver);
+                    userRoleDriver.setUser(user);
+                    user.setUserRoles(java.util.Arrays.asList(userRoleOwner, userRoleDriver));
+                } else {
+                    user.setUserRoles(Collections.singletonList(userRoleOwner));
+                }
 
                 Users savedUser = securityUseCase.saveUser(user);
                 ownerNew.setUser(savedUser);
@@ -106,6 +154,26 @@ public class OwnerUseCase {
         }
 
         Owner savedOwner = ownerRepository.save(ownerNew);
+
+        // Create driver if isDriver is true
+        if (isNew && Boolean.TRUE.equals(owner.getIsDriver())) {
+            Driver driver = new Driver();
+            driver.setPhoto(savedOwner.getPhoto());
+            driver.setDocumentTypeId(savedOwner.getDocumentTypeId());
+            driver.setDocumentNumber(savedOwner.getDocumentNumber());
+            driver.setName(savedOwner.getName());
+            driver.setEmail(savedOwner.getEmail());
+            driver.setCellPhone(savedOwner.getCellPhone());
+            driver.setCityId(savedOwner.getCityId());
+            driver.setGenderId(savedOwner.getGenderId());
+            driver.setBirthdate(savedOwner.getBirthdate());
+            driver.setLicenseCategory(owner.getLicenseCategory());
+            driver.setLicenseNumber(owner.getLicenseNumber());
+            driver.setLicenseExpiry(owner.getLicenseExpiry());
+            driver.setUser(savedOwner.getUser());
+            driver.setOwnerId(savedOwner.getId());
+            driverRepository.save(driver);
+        }
 
         String message = isNew ? "Se ha creado un nuevo propietario: " + savedOwner.getName()
                 : "Se ha actualizado el propietario: " + savedOwner.getName();
@@ -127,6 +195,7 @@ public class OwnerUseCase {
         setIfNotNull(source.getBirthdate(), target::setBirthdate);
         setIfNotNull(source.getUser(), target::setUser);
         setIfNotNull(source.getMaxVehicles(), target::setMaxVehicles);
+        setIfNotNull(source.getIsDriver(), target::setIsDriver);
     }
 
     private <T> void setIfNotNull(T value, Consumer<T> setter) {

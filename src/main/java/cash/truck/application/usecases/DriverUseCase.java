@@ -66,6 +66,26 @@ public class DriverUseCase {
                 if (changed) {
                     securityUseCase.saveUser(driverNew.getUser());
                 }
+            } else if (driver.getPassword() != null && !driver.getPassword().isEmpty()) {
+                // If user doesn't exist but password is provided during update, create user
+                Users user = new Users();
+                user.setName(driverNew.getName());
+                user.setEmail(driverNew.getEmail());
+                byte[] decodedBytes = java.util.Base64.getDecoder().decode(driver.getPassword());
+                String decodedPassword = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+                user.setPassword(SecurityUseCase.getHashSHA512(decodedPassword));
+                user.setStatus(Constants.STATUS_ACTIVE);
+
+                Roles role = rolesRepository.findById(3)
+                        .orElseThrow(() -> new EntityNotFoundException("Role Driver not found"));
+
+                UserRole userRole = new UserRole();
+                userRole.setRole(role);
+                userRole.setUser(user);
+                user.setUserRoles(Collections.singletonList(userRole));
+
+                Users savedUser = securityUseCase.saveUser(user);
+                driverNew.setUser(savedUser);
             }
         } else {
             driverNew = new Driver();
@@ -74,7 +94,9 @@ public class DriverUseCase {
                 Users user = new Users();
                 user.setName(driver.getName());
                 user.setEmail(driver.getEmail());
-                user.setPassword(SecurityUseCase.getHashSHA512(driver.getPassword()));
+                byte[] decodedBytes = java.util.Base64.getDecoder().decode(driver.getPassword());
+                String decodedPassword = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+                user.setPassword(SecurityUseCase.getHashSHA512(decodedPassword));
                 user.setStatus(Constants.STATUS_ACTIVE);
 
                 Roles role = rolesRepository.findById(3)
