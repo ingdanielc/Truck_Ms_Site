@@ -64,7 +64,7 @@ public class Vehicle {
     private Driver driver;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "ENUM('Activo','En Mantenimiento','Inactivo')")
+    @Column(name = "status", columnDefinition = "ENUM('Activo', 'En Mantenimiento', 'Inactivo', 'Vendido')")
     private Status status = Status.Activo;
 
     @CreationTimestamp
@@ -80,6 +80,7 @@ public class Vehicle {
     public enum Status {
         Activo,
         En_Mantenimiento,
-        Inactivo
+        Inactivo,
+        Vendido
     }
 }

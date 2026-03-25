@@ -85,4 +85,23 @@ public class VehicleController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/{id}/sell")
+    public ResponseEntity<Object> sellVehicle(@PathVariable Long id) {
+        try {
+            vehicleUseCase.sellVehicle(id);
+            ResponseMessage responseMessage = new ResponseMessage(null, HttpStatus.OK.value(),
+                    HttpStatus.OK.name(), null, "Vehículo vendido exitosamente");
+            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(HttpStatus.NOT_FOUND.value(),
+                    e.getMessage(), Constants.VEHICLE_SEARCH_NOT_FOUND);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    e.getMessage(), Constants.VEHICLE_KO);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

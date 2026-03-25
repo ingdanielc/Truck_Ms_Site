@@ -10,4 +10,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface VehicleOwnerRepository
         extends JpaRepository<VehicleOwner, Long>, JpaSpecificationExecutor<VehicleOwner> {
 
+    java.util.List<cash.truck.domain.entities.VehicleOwner> findByVehicleIdAndIsActiveTrue(Long vehicleId);
 }

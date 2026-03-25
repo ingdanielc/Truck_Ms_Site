@@ -34,6 +34,17 @@ public class VehicleOwner {
     @Column(name = "ownership_percentage", precision = 5, scale = 2)
     private BigDecimal ownershipPercentage = new BigDecimal("100.00");
 
+    @Column(name = "start_date")
+    @Temporal(TemporalType.DATE)
+    private Date startDate = new Date();
+
+    @Column(name = "end_date")
+    @Temporal(TemporalType.DATE)
+    private Date endDate;
+
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_date", insertable = false, updatable = false)

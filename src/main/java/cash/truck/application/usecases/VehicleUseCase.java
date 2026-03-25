@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -98,6 +99,24 @@ public class VehicleUseCase {
         if (value != null) {
             setter.accept(value);
         }
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void sellVehicle(Long vehicleId) {
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new EntityNotFoundException("Vehicle not found"));
+
+        vehicle.setCurrentDriverId(null);
+        vehicle.setStatus(Vehicle.Status.Vendido);
+        vehicleRepository.save(vehicle);
+
+        List<cash.truck.domain.entities.VehicleOwner> activeOwners = vehicleOwnerRepository.findByVehicleIdAndIsActiveTrue(vehicleId);
+        Date now = new Date();
+        for (cash.truck.domain.entities.VehicleOwner owner : activeOwners) {
+            owner.setIsActive(false);
+            owner.setEndDate(now);
+        }
+        vehicleOwnerRepository.saveAll(activeOwners);
     }
 
     public Page<Vehicle> findWithFilterOptional(FilterRequest filterRequest) {
