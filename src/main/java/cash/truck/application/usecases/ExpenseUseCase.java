@@ -120,10 +120,10 @@ public class ExpenseUseCase {
 
         if (isNew) {
             messageBuilder.append("Se ha registrado un nuevo ").append(expenseType)
-                    .append(" por el valor de: ").append(formattedAmount);
+                    .append(" por valor de: ").append(formattedAmount);
         } else {
             messageBuilder.append("Se ha actualizado el ").append(expenseType)
-                    .append(" por el valor de: ").append(formattedAmount);
+                    .append(" por valor de: ").append(formattedAmount);
         }
         // Gasto: include trip number if available; Mantenimiento: skip trip number
         if (!"Mantenimiento".equals(expenseType) && tripNumber != null) {

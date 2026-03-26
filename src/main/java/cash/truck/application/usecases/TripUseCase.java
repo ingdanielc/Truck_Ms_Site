@@ -59,10 +59,10 @@ public class TripUseCase {
                     String plate = vehicle.getPlate() != null ? vehicle.getPlate().toUpperCase() : null;
                     if (isNew) {
                         message = "Se ha creado un nuevo viaje con manifiesto " + savedTrip.getManifestNumber()
-                                + (plate != null ? " para el vehículo de placa " + plate : "");
+                                + (plate != null ? " para el vehículo de placa: " + plate : "");
                     } else {
                         message = "Se ha actualizado el viaje con manifiesto " + savedTrip.getManifestNumber()
-                                + (plate != null ? " para el vehículo de placa " + plate : "");
+                                + (plate != null ? " para el vehículo de placa: " + plate : "");
                     }
                     if (vehicle.getOwners() != null && !vehicle.getOwners().isEmpty()) {
                         ownerId = vehicle.getOwners().get(0).getOwnerId();
