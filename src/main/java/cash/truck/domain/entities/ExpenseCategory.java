@@ -26,6 +26,9 @@ public class ExpenseCategory {
     @Column(name = "expense_type_id", nullable = false)
     private Integer expenseTypeId;
 
+    @Column(name = "owner_id")
+    private Long ownerId;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_date", insertable = false, updatable = false)

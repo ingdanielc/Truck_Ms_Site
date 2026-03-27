@@ -202,6 +202,7 @@ public class ExpenseUseCase {
     private void applyExpenseCategoryFields(ExpenseCategory source, ExpenseCategory target) {
         setIfNotNull(source.getName(), target::setName);
         setIfNotNull(source.getExpenseTypeId(), target::setExpenseTypeId);
+        setIfNotNull(source.getOwnerId(), target::setOwnerId);
     }
 
     private <T> void setIfNotNull(T value, Consumer<T> setter) {
