@@ -10,8 +10,10 @@ import cash.truck.domain.entities.UserRole;
 import cash.truck.domain.entities.Users;
 import cash.truck.domain.repositories.DriverRepository;
 import cash.truck.domain.repositories.RolesRepository;
+import cash.truck.domain.dtos.DriverCountsDTO;
 import cash.truck.application.utility.Constants;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -165,5 +167,33 @@ public class DriverUseCase {
         }
 
         return new PageImpl<>(page.getContent(), pageable, page.getTotalElements());
+    }
+
+    public DriverCountsDTO getCounts(FilterRequest filterRequest) {
+        List<SearchCriteria> searchCriteriaList = UtilsFilter.getSearchCriteria(filterRequest);
+
+        Specification<Driver> baseSpec = null;
+        if (!searchCriteriaList.isEmpty()) {
+            baseSpec = new GenericSpecification<>(searchCriteriaList);
+        }
+
+        Specification<Driver> activeSpec = (root, query, cb) -> {
+            var userJoin = root.join("user", JoinType.LEFT);
+            return cb.or(
+                    cb.equal(userJoin.get("status"), Constants.STATUS_ACTIVE),
+                    cb.isNull(userJoin.get("id"))
+            );
+        };
+
+        Specification<Driver> inactiveSpec = (root, query, cb) -> {
+            var userJoin = root.join("user", JoinType.LEFT);
+            return cb.equal(userJoin.get("status"), Constants.STATUS_INACTIVE);
+        };
+
+        long total = baseSpec != null ? driverRepository.count(baseSpec) : driverRepository.count();
+        long active = driverRepository.count(baseSpec != null ? baseSpec.and(activeSpec) : activeSpec);
+        long inactive = driverRepository.count(baseSpec != null ? baseSpec.and(inactiveSpec) : inactiveSpec);
+
+        return new DriverCountsDTO(total, active, inactive);
     }
 }

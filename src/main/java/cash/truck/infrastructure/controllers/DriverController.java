@@ -63,4 +63,16 @@ public class DriverController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/counts")
+    public ResponseEntity<Object> getCounts(@RequestBody FilterRequest filterRequest) {
+        try {
+            return new ResponseEntity<>(new ResponseMessage(driverUseCase.getCounts(filterRequest),
+                    HttpStatus.OK.value(), HttpStatus.OK.name(), null, "driver.search.ok"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ResponseErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.name(), "driver.search.ko"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

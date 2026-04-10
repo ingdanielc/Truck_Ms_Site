@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.Formula;
 
 @Getter
 @Setter
@@ -24,6 +25,9 @@ public class Vehicle {
     @Lob
     @Column(name = "photo")
     private String photo;
+
+    @Formula("(SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END FROM trip t WHERE t.vehicle_id = id AND t.status = 'En Curso')")
+    private Boolean occupied;
 
     @Transient
     private Long ownerId;

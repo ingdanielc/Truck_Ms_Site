@@ -5,9 +5,13 @@ import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.Vehicle;
+import cash.truck.domain.entities.Trip;
+import cash.truck.domain.dtos.VehicleCountsDTO;
 import cash.truck.domain.repositories.VehicleOwnerRepository;
 import cash.truck.domain.repositories.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -136,5 +140,47 @@ public class VehicleUseCase {
         }
 
         return new PageImpl<>(page.getContent(), pageable, page.getTotalElements());
+    }
+
+    public VehicleCountsDTO getCounts(FilterRequest filterRequest) {
+        List<SearchCriteria> searchCriteriaList = UtilsFilter.getSearchCriteria(filterRequest);
+
+        Specification<Vehicle> baseSpec = null;
+        if (!searchCriteriaList.isEmpty()) {
+            baseSpec = new GenericSpecification<>(searchCriteriaList);
+        }
+
+        Specification<Vehicle> notSoldSpec = (root, query, cb) -> 
+            cb.notEqual(root.get("status"), Vehicle.Status.Vendido);
+        
+        Specification<Vehicle> finalBaseSpec = baseSpec != null ? baseSpec.and(notSoldSpec) : notSoldSpec;
+
+        Specification<Vehicle> occupiedSpec = (root, query, cb) -> {
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<Trip> tripRoot = subquery.from(Trip.class);
+            subquery.select(cb.count(tripRoot));
+            subquery.where(
+                cb.equal(tripRoot.get("vehicleId"), root.get("id")),
+                cb.equal(tripRoot.get("status"), "En Curso")
+            );
+            return cb.greaterThan(subquery, 0L);
+        };
+
+        Specification<Vehicle> availableSpec = (root, query, cb) -> {
+            Subquery<Long> subquery = query.subquery(Long.class);
+            Root<Trip> tripRoot = subquery.from(Trip.class);
+            subquery.select(cb.count(tripRoot));
+            subquery.where(
+                cb.equal(tripRoot.get("vehicleId"), root.get("id")),
+                cb.equal(tripRoot.get("status"), "En Curso")
+            );
+            return cb.equal(subquery, 0L);
+        };
+
+        long total = vehicleRepository.count(finalBaseSpec);
+        long inProgress = vehicleRepository.count(finalBaseSpec.and(occupiedSpec));
+        long available = vehicleRepository.count(finalBaseSpec.and(availableSpec));
+
+        return new VehicleCountsDTO(total, available, inProgress);
     }
 }

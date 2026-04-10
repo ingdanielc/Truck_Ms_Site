@@ -86,6 +86,18 @@ public class VehicleController {
         }
     }
 
+    @PostMapping("/counts")
+    public ResponseEntity<Object> getCounts(@RequestBody FilterRequest filterRequest) {
+        try {
+            return new ResponseEntity<>(new ResponseMessage(vehicleUseCase.getCounts(filterRequest),
+                    HttpStatus.OK.value(), HttpStatus.OK.name(), null, Constants.VEHICLE_SEARCH_OK), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ResponseErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.name(), Constants.VEHICLE_SEARCH_KO),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/{id}/sell")
     public ResponseEntity<Object> sellVehicle(@PathVariable Long id) {
         try {
