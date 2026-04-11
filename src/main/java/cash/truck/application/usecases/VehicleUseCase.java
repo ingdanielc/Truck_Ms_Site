@@ -6,10 +6,12 @@ import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.Vehicle;
 import cash.truck.domain.entities.Trip;
+import cash.truck.domain.entities.VehicleOwner;
 import cash.truck.domain.dtos.VehicleCountsDTO;
 import cash.truck.domain.repositories.VehicleOwnerRepository;
 import cash.truck.domain.repositories.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
@@ -125,12 +128,7 @@ public class VehicleUseCase {
 
     public Page<Vehicle> findWithFilterOptional(FilterRequest filterRequest) {
         Pageable pageable = UtilsFilter.getPageable(filterRequest);
-        List<SearchCriteria> searchCriteriaList = UtilsFilter.getSearchCriteria(filterRequest);
-
-        Specification<Vehicle> specification = null;
-        if (!searchCriteriaList.isEmpty()) {
-            specification = new GenericSpecification<>(searchCriteriaList);
-        }
+        Specification<Vehicle> specification = buildSpecification(filterRequest);
 
         Page<Vehicle> page;
         if (specification != null) {
@@ -142,13 +140,44 @@ public class VehicleUseCase {
         return new PageImpl<>(page.getContent(), pageable, page.getTotalElements());
     }
 
-    public VehicleCountsDTO getCounts(FilterRequest filterRequest) {
+    private Specification<Vehicle> buildSpecification(FilterRequest filterRequest) {
         List<SearchCriteria> searchCriteriaList = UtilsFilter.getSearchCriteria(filterRequest);
+        List<SearchCriteria> vehicleCriteriaList = new ArrayList<>();
+        Long ownerIdValue = null;
 
-        Specification<Vehicle> baseSpec = null;
-        if (!searchCriteriaList.isEmpty()) {
-            baseSpec = new GenericSpecification<>(searchCriteriaList);
+        for (SearchCriteria criteria : searchCriteriaList) {
+            String key = criteria.getKey();
+            if (key.equalsIgnoreCase("ownerId")) {
+                ownerIdValue = Long.parseLong(criteria.getValue().toString());
+            } else {
+                if (key.startsWith("vehicle.")) {
+                    key = key.substring(8);
+                }
+                vehicleCriteriaList.add(new SearchCriteria(key, criteria.getOperation(), criteria.getValue()));
+            }
         }
+
+        Specification<Vehicle> spec = null;
+        if (!vehicleCriteriaList.isEmpty()) {
+            spec = new GenericSpecification<>(vehicleCriteriaList);
+        }
+
+        if (ownerIdValue != null) {
+            final Long finalOwnerId = ownerIdValue;
+            Specification<Vehicle> ownerSpec = (root, query, cb) -> {
+                Join<Vehicle, VehicleOwner> ownersJoin = root.join("owners");
+                return cb.and(
+                    cb.equal(ownersJoin.get("ownerId"), finalOwnerId),
+                    cb.equal(ownersJoin.get("isActive"), true)
+                );
+            };
+            spec = spec != null ? spec.and(ownerSpec) : ownerSpec;
+        }
+        return spec;
+    }
+
+    public VehicleCountsDTO getCounts(FilterRequest filterRequest) {
+        Specification<Vehicle> baseSpec = buildSpecification(filterRequest);
 
         Specification<Vehicle> notSoldSpec = (root, query, cb) -> 
             cb.notEqual(root.get("status"), Vehicle.Status.Vendido);
