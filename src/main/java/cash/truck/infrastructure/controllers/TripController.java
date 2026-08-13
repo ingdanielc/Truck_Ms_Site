@@ -1,6 +1,7 @@
 package cash.truck.infrastructure.controllers;
 
 import cash.truck.application.exception.PartnerException;
+import cash.truck.application.exception.TripValidationException;
 import cash.truck.application.usecases.TripUseCase;
 import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.ResponseErrorMessage;
@@ -9,8 +10,10 @@ import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.domain.entities.Trip;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +40,10 @@ public class TripController {
             ResponseMessage responseMessage = new ResponseMessage(saved, HttpStatus.CREATED.value(),
                     HttpStatus.CREATED.name(), null, Constants.TRIP_CREATED_OK);
             return new ResponseEntity<>(responseMessage, HttpStatus.CREATED);
+        } catch (TripValidationException e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                    e.getMessage(), Constants.TRIP_KO);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.BAD_REQUEST);
         } catch (EntityNotFoundException e) {
             ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(HttpStatus.NOT_FOUND.value(),
                     Constants.TRIP_SEARCH_NOT_FOUND_ME, Constants.TRIP_SEARCH_NOT_FOUND);
@@ -65,5 +72,19 @@ public class TripController {
                     HttpStatus.INTERNAL_SERVER_ERROR.name(), Constants.TRIP_SEARCH_KO),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    /**
+     * Cuerpo ilegible: cubre los valores fuera de enum de tripType y currentLeg,
+     * que fallan al deserializar antes de llegar al caso de uso. Se devuelve el
+     * mensaje de la causa raíz para que el front lo muestre tal cual.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Object> handleNotReadable(HttpMessageNotReadableException e) {
+        Throwable rootCause = NestedExceptionUtils.getMostSpecificCause(e);
+        String message = rootCause.getMessage() != null ? rootCause.getMessage() : HttpStatus.BAD_REQUEST.name();
+        return new ResponseEntity<>(
+                new ResponseErrorMessage(HttpStatus.BAD_REQUEST.value(), message, Constants.TRIP_KO),
+                HttpStatus.BAD_REQUEST);
     }
 }

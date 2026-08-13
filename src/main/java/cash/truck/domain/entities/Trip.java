@@ -1,5 +1,7 @@
 package cash.truck.domain.entities;
 
+import cash.truck.domain.enums.TripLegEnum;
+import cash.truck.domain.enums.TripTypeEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +11,6 @@ import java.math.BigDecimal;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Getter
 @Setter
@@ -36,7 +37,8 @@ public class Trip {
     @JoinColumn(name = "driver_id", referencedColumnName = "id", insertable = false, updatable = false)
     private Driver driver;
 
-    @Column(name = "manifest_number", nullable = false, length = 100)
+    // Obligatorio solo si tripType != VACIO
+    @Column(name = "manifest_number", length = 100)
     private String manifestNumber;
 
     @Column(name = "number_trip", length = 50, nullable = false)
@@ -58,6 +60,14 @@ public class Trip {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "destination_id", referencedColumnName = "id", insertable = false, updatable = false)
     private City destination;
+
+    // Destino de regreso: se usa cuando tripType == REDONDO
+    @Column(name = "return_destination_id", length = 100)
+    private String returnDestinationId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "return_destination_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private City returnDestination;
 
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -88,6 +98,16 @@ public class Trip {
 
     @Column(name = "status")
     private String status;
+
+    // Si el cliente no lo envía se persiste como CARGADO
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trip_type", length = 10)
+    private TripTypeEnum tripType = TripTypeEnum.CARGADO;
+
+    // Tramo activo: solo se acepta cuando tripType == REDONDO
+    @Enumerated(EnumType.STRING)
+    @Column(name = "current_leg", length = 10)
+    private TripLegEnum currentLeg;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
