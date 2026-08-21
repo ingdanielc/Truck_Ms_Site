@@ -2,6 +2,7 @@ package cash.truck.infrastructure.controllers;
 
 import cash.truck.application.exception.PartnerException;
 import cash.truck.application.usecases.OwnerUseCase;
+import cash.truck.application.usecases.SecurityUseCase;
 import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.ResponseErrorMessage;
 import cash.truck.application.utility.ResponseMessage;
@@ -24,6 +25,9 @@ public class OwnerController {
     @Autowired
     private OwnerUseCase ownerUseCase;
 
+    @Autowired
+    private SecurityUseCase securityUseCase;
+
     @GetMapping("/getAllOwners")
     public ResponseEntity<Object> getAllOwners() {
         ResponseMessage responseMessage = new ResponseMessage(ownerUseCase.getAllOwners(), HttpStatus.OK.value(),
@@ -32,9 +36,12 @@ public class OwnerController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Object> save(@RequestBody Owner owner) {
+    public ResponseEntity<Object> save(@RequestBody Owner owner,
+            @RequestHeader(value = Constants.HEADER_USER_ID, required = false) Integer callerUserId,
+            @RequestHeader(value = Constants.PARAMETER_AUTHORIZED_TOKEN, required = false) String authorizedToken) {
         try {
-            Owner saved = ownerUseCase.save(owner);
+            boolean callerIsAdmin = securityUseCase.isAdministratorCaller(callerUserId, authorizedToken);
+            Owner saved = ownerUseCase.save(owner, callerIsAdmin);
             ResponseMessage responseMessage = new ResponseMessage(saved, HttpStatus.CREATED.value(),
                     HttpStatus.CREATED.name(), null, Constants.OWNER_CREATED_OK);
             return new ResponseEntity<>(responseMessage, HttpStatus.CREATED);

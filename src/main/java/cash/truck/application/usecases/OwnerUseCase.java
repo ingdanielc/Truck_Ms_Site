@@ -18,6 +18,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -54,8 +56,22 @@ public class OwnerUseCase {
     }
 
     public Owner save(Owner owner) {
+        return save(owner, false);
+    }
+
+    /**
+     * @param callerIsAdmin cuando es false se descarta subscriptionEndDate del
+     *                      payload: en edicion se conserva el valor existente y en
+     *                      creacion se aplica el valor por defecto.
+     */
+    public Owner save(Owner owner, boolean callerIsAdmin) {
         Owner ownerNew;
         boolean isNew = owner.getId() == null;
+
+        // Solo el administrador puede definir la fecha de fin de suscripcion
+        if (!callerIsAdmin) {
+            owner.setSubscriptionEndDate(null);
+        }
 
         if (!isNew) {
             ownerNew = ownerRepository.findById(owner.getId())
@@ -173,6 +189,11 @@ public class OwnerUseCase {
             ownerNew.setMaxVehicles(3);
         }
 
+        if (isNew && ownerNew.getSubscriptionEndDate() == null) {
+            ownerNew.setSubscriptionEndDate(LocalDate.now(ZoneId.of(Constants.ZONE_BOGOTA))
+                    .plusMonths(Constants.SUBSCRIPTION_DEFAULT_MONTHS));
+        }
+
         Owner savedOwner = ownerRepository.save(ownerNew);
 
         // Create driver if isDriver is true
@@ -216,6 +237,7 @@ public class OwnerUseCase {
         setIfNotNull(source.getUser(), target::setUser);
         setIfNotNull(source.getMaxVehicles(), target::setMaxVehicles);
         setIfNotNull(source.getIsDriver(), target::setIsDriver);
+        setIfNotNull(source.getSubscriptionEndDate(), target::setSubscriptionEndDate);
     }
 
     private <T> void setIfNotNull(T value, Consumer<T> setter) {

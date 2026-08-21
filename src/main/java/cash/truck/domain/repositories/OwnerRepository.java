@@ -10,4 +10,6 @@ import org.springframework.data.jpa.domain.Specification;
 @Repository
 public interface OwnerRepository extends JpaRepository<Owner, Long> {
     Page<Owner> findAll(Specification<Owner> specification, Pageable pageable);
+
+    java.util.Optional<Owner> findByUserId(Integer userId);
 }

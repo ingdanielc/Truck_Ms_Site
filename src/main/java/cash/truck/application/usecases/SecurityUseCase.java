@@ -3,11 +3,15 @@ package cash.truck.application.usecases;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.JWTManager;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
 import cash.truck.domain.entities.*;
+import cash.truck.domain.repositories.DriverRepository;
+import cash.truck.domain.repositories.OwnerRepository;
 import cash.truck.domain.repositories.RolesRepository;
 import cash.truck.domain.repositories.UserRoleRepository;
 import cash.truck.domain.repositories.UsersRepository;
@@ -26,6 +30,8 @@ import jakarta.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -42,13 +48,19 @@ public class SecurityUseCase {
     private final UsersRepository usersRepository;
     private final RolesRepository rolesRepository;
     private final UserRoleRepository userRoleRepository;
+    private final OwnerRepository ownerRepository;
+    private final DriverRepository driverRepository;
 
     public SecurityUseCase(UsersRepository usersRepository,
             RolesRepository rolesRepository,
-            UserRoleRepository userRoleRepository) {
+            UserRoleRepository userRoleRepository,
+            OwnerRepository ownerRepository,
+            DriverRepository driverRepository) {
         this.usersRepository = usersRepository;
         this.rolesRepository = rolesRepository;
         this.userRoleRepository = userRoleRepository;
+        this.ownerRepository = ownerRepository;
+        this.driverRepository = driverRepository;
     }
 
     public List<Users> getAllUsers() {
@@ -118,7 +130,12 @@ public class SecurityUseCase {
                 Users user = userOpt.get();
                 if (dataUser.getPassword().equals(user.getPassword())
                         && user.getStatus().equals(Constants.STATUS_ACTIVE)) {
-                    outputToResponse = buildInformation(user);
+                    if (isSubscriptionExpired(user)) {
+                        outputToResponse.put(Constants.PARAMETER_AUTHORIZED, Constants.SUBSCRIPTION_EXPIRED_MESSAGE);
+                        outputToResponse.put(Constants.PARAMETER_CODE, Constants.SUBSCRIPTION_EXPIRED_CODE);
+                    } else {
+                        outputToResponse = buildInformation(user);
+                    }
                 } else {
                     outputToResponse.put(Constants.PARAMETER_AUTHORIZED, Constants.PARAMETER_INVALID_LOGIN);
                 }
@@ -137,6 +154,89 @@ public class SecurityUseCase {
             outputToResponse.put(Constants.PARAMETER_AUTHORIZED, Constants.PARAMETER_INVALID_KEY);
             return outputToResponse;
         }
+    }
+
+    /**
+     * Valida si la suscripcion del propietario asociado al usuario ya vencio.
+     * Se compara unicamente la fecha (sin hora) en zona America/Bogota y de forma
+     * inclusiva: con fecha igual a hoy el usuario aun ingresa, se bloquea desde el
+     * dia siguiente. El rol Administrador esta exento y una fecha nula significa
+     * que no hay vencimiento.
+     */
+    public boolean isSubscriptionExpired(Users user) {
+        if (user == null || isAdministrator(user)) {
+            return false;
+        }
+
+        Owner owner = resolveOwner(user);
+        if (owner == null || owner.getSubscriptionEndDate() == null) {
+            return false;
+        }
+
+        LocalDate today = LocalDate.now(ZoneId.of(Constants.ZONE_BOGOTA));
+        return owner.getSubscriptionEndDate().isBefore(today);
+    }
+
+    /**
+     * Resuelve el propietario asociado al usuario: de forma directa si el usuario es
+     * propietario, o a traves del conductor (driver.ownerId) si es conductor.
+     */
+    private Owner resolveOwner(Users user) {
+        Optional<Owner> ownerOpt = ownerRepository.findByUserId(user.getId());
+        if (ownerOpt.isPresent()) {
+            return ownerOpt.get();
+        }
+
+        Optional<Driver> driverOpt = driverRepository.findFirstByUserId(user.getId());
+        if (driverOpt.isPresent() && driverOpt.get().getOwnerId() != null) {
+            return ownerRepository.findById(driverOpt.get().getOwnerId()).orElse(null);
+        }
+
+        return null;
+    }
+
+    public boolean isAdministrator(Users user) {
+        if (user == null || user.getUserRoles() == null) {
+            return false;
+        }
+        return user.getUserRoles().stream()
+                .filter(userRole -> userRole.getRole() != null)
+                .anyMatch(userRole -> Constants.ROLE_ID_ADMIN.equals(userRole.getRole().getId())
+                        || (userRole.getRole().getName() != null
+                                && Constants.ROLE_NAME_ADMIN.equalsIgnoreCase(userRole.getRole().getName())));
+    }
+
+    /**
+     * Determina si quien invoca el servicio tiene rol Administrador. La identidad se
+     * toma del JWT emitido en el login y, si no viene o no es valido, del header
+     * X-USER-ID. Sin identidad resoluble se asume que NO es administrador.
+     */
+    public boolean isAdministratorCaller(Integer userIdHeader, String jwt) {
+        Integer callerId = resolveUserIdFromJWT(jwt);
+        if (callerId == null) {
+            callerId = userIdHeader;
+        }
+        if (callerId == null) {
+            return false;
+        }
+        return usersRepository.findById(callerId)
+                .map(this::isAdministrator)
+                .orElse(false);
+    }
+
+    private Integer resolveUserIdFromJWT(String jwt) {
+        if (jwt == null || jwt.isBlank()) {
+            return null;
+        }
+        Jws<Claims> claims = JWTManager.verifyJWT(jwt.replace("Bearer ", "").trim());
+        if (claims == null) {
+            return null;
+        }
+        Object id = claims.getBody().get(Constants.PARAMETER_ID);
+        if (id instanceof Number) {
+            return ((Number) id).intValue();
+        }
+        return null;
     }
 
     public static String getHashSHA512(String input) {

@@ -1,10 +1,12 @@
 package cash.truck.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -81,6 +83,11 @@ public class Owner {
 
     @Column(name = "max_vehicles", nullable = false)
     private Integer maxVehicles;
+
+    // Fecha de finalizacion de la suscripcion. NULL = sin vencimiento
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @Column(name = "subscription_end_date")
+    private LocalDate subscriptionEndDate;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

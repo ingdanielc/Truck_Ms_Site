@@ -77,6 +77,16 @@ public class Constants {
     public static final String PARAMETER_NAME = "name";
     public static final String PARAMETER_JWT = "jwt";
     public static final String PARAMETER_AUTHORIZED_TOKEN = "AUTHORIZED_TOKEN";
+    public static final String PARAMETER_CODE = "code";
+
+    // Subscription
+    public static final String HEADER_USER_ID = "X-USER-ID";
+    public static final String ZONE_BOGOTA = "America/Bogota";
+    public static final Integer ROLE_ID_ADMIN = 1;
+    public static final String ROLE_NAME_ADMIN = "ADMINISTRADOR";
+    public static final int SUBSCRIPTION_DEFAULT_MONTHS = 12;
+    public static final String SUBSCRIPTION_EXPIRED_CODE = "SUBSCRIPTION_EXPIRED";
+    public static final String SUBSCRIPTION_EXPIRED_MESSAGE = "La suscripción finalizó, debe contactar al administrador por WhatsApp.";
 
     // Notifications
     public static final String NOTIFICATION_SEARCH_KO = "notification.search.ko";
