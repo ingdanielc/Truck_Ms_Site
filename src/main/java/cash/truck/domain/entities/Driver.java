@@ -86,4 +86,13 @@ public class Driver {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "update_date", insertable = false, updatable = false)
     private Date updateDate;
+
+    /**
+     * El celular se captura con espacios (314 723 57 39) pero se almacena sin
+     * ellos. Al normalizar aqui y no en el caso de uso, la regla aplica por
+     * igual a cualquier via que asigne el celular, incluido el JSON entrante.
+     */
+    public void setCellPhone(String cellPhone) {
+        this.cellPhone = cellPhone == null ? null : cellPhone.replaceAll("\\s", "");
+    }
 }
