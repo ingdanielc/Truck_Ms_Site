@@ -9,12 +9,15 @@ import cash.truck.domain.repositories.DriverRepository;
 import cash.truck.domain.repositories.OwnerRepository;
 import cash.truck.domain.repositories.RolesRepository;
 import cash.truck.domain.repositories.VehicleOwnerRepository;
+import cash.truck.application.usecases.notifications.OwnerNotificationUseCase;
 import cash.truck.application.utility.Constants;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
@@ -30,25 +33,30 @@ import static cash.truck.application.exception.PartnerException.duplicateEntityE
 @Transactional
 public class OwnerUseCase {
 
+    private static final Logger logger = LoggerFactory.getLogger(OwnerUseCase.class);
+
     private final OwnerRepository ownerRepository;
     private final VehicleOwnerRepository vehicleOwnerRepository;
     private final SecurityUseCase securityUseCase;
     private final InAppNotificationUseCase inAppNotificationUseCase;
     private final RolesRepository rolesRepository;
     private final DriverRepository driverRepository;
+    private final OwnerNotificationUseCase ownerNotificationUseCase;
 
     public OwnerUseCase(OwnerRepository ownerRepository,
             VehicleOwnerRepository vehicleOwnerRepository,
             SecurityUseCase securityUseCase,
             InAppNotificationUseCase inAppNotificationUseCase,
             RolesRepository rolesRepository,
-            DriverRepository driverRepository) {
+            DriverRepository driverRepository,
+            OwnerNotificationUseCase ownerNotificationUseCase) {
         this.ownerRepository = ownerRepository;
         this.vehicleOwnerRepository = vehicleOwnerRepository;
         this.securityUseCase = securityUseCase;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
         this.rolesRepository = rolesRepository;
         this.driverRepository = driverRepository;
+        this.ownerNotificationUseCase = ownerNotificationUseCase;
     }
 
     public List<Owner> getAllOwners() {
@@ -67,6 +75,8 @@ public class OwnerUseCase {
     public Owner save(Owner owner, boolean callerIsAdmin) {
         Owner ownerNew;
         boolean isNew = owner.getId() == null;
+        // Se retiene para la bienvenida: despues de cifrarla ya no se puede recuperar.
+        String plainPassword = null;
 
         // Solo el administrador puede definir la fecha de fin de suscripcion
         if (!callerIsAdmin) {
@@ -157,6 +167,7 @@ public class OwnerUseCase {
                 user.setEmail(owner.getEmail());
                 byte[] decodedBytes = java.util.Base64.getDecoder().decode(owner.getPassword());
                 String decodedPassword = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+                plainPassword = decodedPassword;
                 user.setPassword(SecurityUseCase.getHashSHA512(decodedPassword));
                 user.setStatus(Constants.STATUS_ACTIVE);
 
@@ -221,7 +232,28 @@ public class OwnerUseCase {
         inAppNotificationUseCase.createNotification("OWNER_EVENT", message, 1, null, null,
                 savedOwner.getId().longValue());
 
+        if (isNew) {
+            sendWelcomeSafely(savedOwner, plainPassword);
+        }
+
         return savedOwner;
+    }
+
+    /**
+     * La bienvenida es accesoria: el propietario ya quedo creado y no puede
+     * perderse porque WhatsApp o Twilio fallen. Por eso se traga cualquier error
+     * y el envio corre en su propia transaccion.
+     */
+    private void sendWelcomeSafely(Owner owner, String plainPassword) {
+        if (plainPassword == null) {
+            // Propietario sin usuario: no hay credenciales que comunicar.
+            return;
+        }
+        try {
+            ownerNotificationUseCase.sendWelcome(owner, plainPassword);
+        } catch (Exception e) {
+            logger.error("No se pudo enviar la bienvenida al propietario {}: {}", owner.getId(), e.getMessage());
+        }
     }
 
     private void applyFields(Owner source, Owner target) {

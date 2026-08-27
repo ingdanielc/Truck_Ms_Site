@@ -2,6 +2,7 @@ package cash.truck.application.usecases;
 
 import cash.truck.application.usecases.notifications.WhatsappMessageUseCase;
 import cash.truck.application.utility.Constants;
+import cash.truck.application.utility.PhoneUtils;
 import cash.truck.domain.dtos.MessageRequest;
 import cash.truck.domain.dtos.PasswordResetResponse;
 import cash.truck.domain.entities.Driver;
@@ -24,10 +25,8 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -74,7 +73,7 @@ public class PasswordResetUseCase {
             throw new IllegalArgumentException(Constants.PASSWORD_RESET_PHONE_REQUIRED);
         }
 
-        String phone = normalizePhone(cellPhone);
+        String phone = PhoneUtils.toE164(cellPhone);
         Users user = findUserByPhone(cellPhone)
                 .orElseThrow(() -> new EntityNotFoundException(Constants.PASSWORD_RESET_PHONE_NOT_FOUND));
 
@@ -91,7 +90,7 @@ public class PasswordResetUseCase {
         passwordResetRepository.save(passwordReset);
 
         sendWhatsApp(user, phone, code);
-        return new PasswordResetResponse(maskPhone(phone), Constants.PASSWORD_RESET_CODE_MINUTES, null);
+        return new PasswordResetResponse(PhoneUtils.mask(phone), Constants.PASSWORD_RESET_CODE_MINUTES, null);
     }
 
     /**
@@ -103,7 +102,7 @@ public class PasswordResetUseCase {
             throw new IllegalArgumentException(Constants.PASSWORD_RESET_CODE_REQUIRED);
         }
 
-        String phone = normalizePhone(cellPhone);
+        String phone = PhoneUtils.toE164(cellPhone);
         PasswordReset passwordReset = passwordResetRepository
                 .findFirstByPhoneAndStatusOrderByIdDesc(phone, PasswordResetStatusEnum.PENDING.getName())
                 .orElseThrow(() -> new IllegalArgumentException(Constants.PASSWORD_RESET_NO_REQUEST));
@@ -241,7 +240,7 @@ public class PasswordResetUseCase {
      * las formas en que pudo quedar guardado (con y sin indicativo).
      */
     private Optional<Users> findUserByPhone(String cellPhone) {
-        List<String> candidates = phoneCandidates(cellPhone);
+        List<String> candidates = PhoneUtils.candidates(cellPhone);
 
         Optional<Owner> owner = ownerRepository.findFirstByCellPhoneInAndUserIsNotNull(candidates);
         if (owner.isPresent()) {
@@ -250,39 +249,5 @@ public class PasswordResetUseCase {
 
         Optional<Driver> driver = driverRepository.findFirstByCellPhoneInAndUserIsNotNull(candidates);
         return driver.map(Driver::getUser);
-    }
-
-    /** Los celulares se guardan sin criterio fijo: se comparan todas las variantes. */
-    private List<String> phoneCandidates(String cellPhone) {
-        String digits = cellPhone.replaceAll("[^0-9]", "");
-        if (digits.startsWith(Constants.COUNTRY_CODE_CO) && digits.length() > Constants.PHONE_LOCAL_LENGTH) {
-            digits = digits.substring(Constants.COUNTRY_CODE_CO.length());
-        }
-
-        Set<String> candidates = new LinkedHashSet<>();
-        candidates.add(digits);
-        candidates.add(Constants.COUNTRY_CODE_CO + digits);
-        candidates.add("+" + Constants.COUNTRY_CODE_CO + digits);
-        candidates.add(cellPhone.trim());
-        return new ArrayList<>(candidates);
-    }
-
-    /** Twilio exige formato E.164; los celulares se guardan sin indicativo. */
-    private String normalizePhone(String phone) {
-        String clean = phone.replaceAll("[^0-9+]", "");
-        if (clean.startsWith("+")) {
-            return clean;
-        }
-        if (clean.startsWith(Constants.COUNTRY_CODE_CO) && clean.length() > Constants.PHONE_LOCAL_LENGTH) {
-            return "+" + clean;
-        }
-        return "+" + Constants.COUNTRY_CODE_CO + clean;
-    }
-
-    private String maskPhone(String phone) {
-        if (phone.length() <= 4) {
-            return phone;
-        }
-        return "*".repeat(phone.length() - 4) + phone.substring(phone.length() - 4);
     }
 }

@@ -14,4 +14,7 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
     java.util.Optional<Owner> findByUserId(Integer userId);
 
     java.util.Optional<Owner> findFirstByCellPhoneInAndUserIsNotNull(java.util.List<String> cellPhones);
+
+    /** Propietarios cuya suscripcion vence exactamente ese dia. */
+    java.util.List<Owner> findBySubscriptionEndDate(java.time.LocalDate subscriptionEndDate);
 }

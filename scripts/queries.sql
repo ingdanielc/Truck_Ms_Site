@@ -26,7 +26,7 @@ SELECT * FROM vehicle_owner WHERE owner_id = 100;
 SELECT * FROM trip where destination_id = 61 limit 1200; -- ownerId = 100
 
 select * from vehicle_owner 
-where vehicle_id in (SELECT vehicle_id FROM trip where destination_id = 61)
+where vehicle_id in (SELECT vehicle_id FROM trip where destination_id = 61);
 
 SELECT count(1) FROM user_role;
 SELECT * FROM vehicle WHERE status = 'En Mantenimiento' ;
@@ -73,3 +73,4 @@ SELECT * FROM whatsapp;
 SELECT * FROM email;
 -- DELETE FROM email WHERE id = 1;
 
+SELECT * FROM password_reset;

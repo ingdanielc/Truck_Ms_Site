@@ -2,7 +2,9 @@
 -- Tables
 -- ---------------------------------------------------------------------------------------------------------
 
-CREATE DATABASE cashTruck;
+-- utf8mb4 explicito: sin esto la base hereda el charset del servidor y, si
+-- es utf8mb3, ninguna columna admite emojis (error 1366 al insertarlos).
+CREATE DATABASE cashTruck CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE cashTruck;
 
 -- DROP TABLE IF EXISTS document_type;

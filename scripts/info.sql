@@ -199,12 +199,37 @@ VALUES
 ('Sms', 'BIENVENIDA', '', 'Hola ${partnerName}, gracias por unirte a nuestra comunidad fitness. \n\n💯 Estamos emocionados de acompañarte en tu camino hacia una vida más saludable y activa. \n\n🏋️‍♀️ Horarios: Lunes a Sabado \n📍 Ubicación: Calle 19 \n📲 Contacto: 3127199944. \n\nSi tienes alguna pregunta o necesitas ayuda, nuestro equipo está aquí para apoyarte.\n\n💪 Nos vemos en el gimnasio. ¡A romperla! 🚀🔥', ''),
 ('WhatsApp', 'COMPRA_MEMBRESIA', 'https://instecdevstrgaccount.blob.core.windows.net/instecdevsalesstaticcontent/Bancolombia/notificaciones/bienvenido.jpg', 'Hola ${partnerName}, gracias por confiar en nosotros. 🏋️‍♂️🔥\nTu membresía ha sido procesada correctamente.\n\n📅 Fecha de inicio: ${startDate}\n📅 Fecha de vencimiento: ${endDate}\n💳 Plan adquirido: ${membershipName}\n\nRecuerda que estamos aquí para apoyarte en tu camino fitness. Si tienes alguna duda, contáctanos. \n\n📲¡Nos vemos en el gimnasio! 💪😃', '');
 
+ALTER TABLE template CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE whatsapp CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- Plantilla del mensaje de WhatsApp
 DELETE FROM template WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'PASSWORD_RECOVERY', NULL,
-        'Hola ${name}, tu codigo para recuperar la contrasena de CashTruck es: ${code}  Vence en ${minutes} minutos y solo se puede usar una vez. Si no solicitaste este cambio, ignora este mensaje y comunicate con el administrador.',
-        'Recuperacion de contrasena');
+        '🔐 Hola ${name},\ntu código para recuperar la contraseña de CashTruck es:\n\n${code}\n\n⏳ Vence en ${minutes} minutos y solo se puede usar una vez.\n\n⚠️ Si no solicitaste este cambio, ignora este mensaje y comunícate con el administrador.',
+        'Recuperación de contraseña');
+        
+DELETE FROM template WHERE medium = 'WhatsApp'
+  AND message_type IN ('WELCOME_OWNER', 'WELCOME_OWNER_DRIVER', 'SUBSCRIPTION_REMINDER');
+
+-- Bienvenida cuando el propietario NO conduce: incluye el paso de crear conductor
+INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
+VALUES ('WhatsApp', 'WELCOME_OWNER', NULL,
+'🚀 ¡Bienvenido a CashTruck! 🚛💨\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: ${appUrl}\n📧 Usuario: ${email}\n🔑 Contraseña: ${password}\n\n*Primeros pasos:*\n1️⃣ Crea tus conductores 👤\n2️⃣ Registra tus vehículos 🚛\n3️⃣ Crea viajes asignando conductor y vehículo 🗺️\n4️⃣ Anota los gastos de cada viaje 💸\n5️⃣ Registra los mantenimientos 🛠️\n6️⃣ Consulta tus rutas en el mapa 📍\n7️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'Bienvenido a CashTruck');
+
+-- Bienvenida cuando el propietario TAMBIEN conduce: sin el paso de crear
+-- conductor, porque su propio conductor se crea solo al registrarlo
+INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
+VALUES ('WhatsApp', 'WELCOME_OWNER_DRIVER', NULL,
+'🚀 ¡Bienvenido a CashTruck! 🚛💨\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: ${appUrl}\n📧 Usuario: ${email}\n🔑 Contraseña: ${password}\n\n*Primeros pasos:*\n1️⃣ Registra tus vehículos 🚛\n2️⃣ Crea viajes asignando tu vehículo 🗺️\n3️⃣ Anota los gastos de cada viaje 💸\n4️⃣ Registra los mantenimientos 🛠️\n5️⃣ Consulta tus rutas en el mapa 📍\n6️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'Bienvenido a CashTruck');
+
+-- Aviso de suscripcion proxima a vencer
+INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
+VALUES ('WhatsApp', 'SUBSCRIPTION_REMINDER', NULL,
+'⏳ Tu suscripción a CashTruck está por vencer\n\nHola ${name}, tu suscripción finaliza el *${endDate}*, dentro de ${days} días.\n\nPara no perder el acceso a tus viajes, vehículos, mantenimientos y reportes, comunícate con el administrador y renuévala. 🔄\n\n¿Necesitas ayuda? Escríbenos por este medio 📲',
+'Suscripción por vencer');
 
 INSERT INTO notification (
     event_type, 

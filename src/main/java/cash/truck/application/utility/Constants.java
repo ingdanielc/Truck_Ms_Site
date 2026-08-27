@@ -96,6 +96,16 @@ public class Constants {
     public static final String PHOTO_UPLOAD_OK = "photo.upload.ok";
     public static final String PHOTO_UPLOAD_KO = "photo.upload.ko";
 
+    // Notificaciones al propietario
+    public static final String APP_URL_DEFAULT = "https://truck.ccsoluciones.com.co";
+    public static final String WELCOME_OWNER_MESSAGE_TYPE = "WELCOME_OWNER";
+    public static final String WELCOME_OWNER_DRIVER_MESSAGE_TYPE = "WELCOME_OWNER_DRIVER";
+    public static final String SUBSCRIPTION_REMINDER_MESSAGE_TYPE = "SUBSCRIPTION_REMINDER";
+    /** Dias de antelacion con que se avisa el vencimiento de la suscripcion. */
+    public static final int SUBSCRIPTION_REMINDER_DAYS = 3;
+    /** Todos los dias a las 8:00 en Bogota. */
+    public static final String SUBSCRIPTION_REMINDER_CRON = "0 0 8 * * *";
+
     // Password Reset
     public static final String PASSWORD_RESET_MESSAGE_TYPE = "PASSWORD_RECOVERY";
     public static final String COUNTRY_CODE_CO = "57";
@@ -107,17 +117,17 @@ public class Constants {
     public static final int PASSWORD_RESET_TOKEN_MINUTES = 15;
     public static final int PASSWORD_RESET_MAX_ATTEMPTS = 5;
 
-    public static final String PASSWORD_RESET_PHONE_REQUIRED = "Debe indicar el numero de celular.";
-    public static final String PASSWORD_RESET_PHONE_NOT_FOUND = "No hay un usuario registrado con ese numero de celular.";
-    public static final String PASSWORD_RESET_CODE_REQUIRED = "Debe indicar el celular y el codigo de verificacion.";
-    public static final String PASSWORD_RESET_NO_REQUEST = "No hay una solicitud de recuperacion vigente para ese celular.";
-    public static final String PASSWORD_RESET_CODE_EXPIRED = "El codigo expiro, solicite uno nuevo.";
-    public static final String PASSWORD_RESET_CODE_INVALID = "El codigo ingresado no es valido.";
-    public static final String PASSWORD_RESET_MAX_ATTEMPTS_REACHED = "Se supero el numero de intentos permitidos, solicite un codigo nuevo.";
-    public static final String PASSWORD_RESET_TOKEN_REQUIRED = "Debe indicar el token de recuperacion.";
-    public static final String PASSWORD_RESET_TOKEN_INVALID = "El token de recuperacion no es valido o ya fue utilizado.";
-    public static final String PASSWORD_RESET_TOKEN_EXPIRED = "El token de recuperacion expiro, solicite un codigo nuevo.";
-    public static final String PASSWORD_RESET_PASSWORD_INVALID = "La contrasena debe llegar cifrada en SHA-512.";
+    public static final String PASSWORD_RESET_PHONE_REQUIRED = "Debe indicar el número de celular.";
+    public static final String PASSWORD_RESET_PHONE_NOT_FOUND = "No hay un usuario registrado con ese número de celular.";
+    public static final String PASSWORD_RESET_CODE_REQUIRED = "Debe indicar el celular y el código de verificación.";
+    public static final String PASSWORD_RESET_NO_REQUEST = "No hay una solicitud de recuperación vigente para ese celular.";
+    public static final String PASSWORD_RESET_CODE_EXPIRED = "El código expiró, solicite uno nuevo.";
+    public static final String PASSWORD_RESET_CODE_INVALID = "El código ingresado no es válido.";
+    public static final String PASSWORD_RESET_MAX_ATTEMPTS_REACHED = "Se superó el número de intentos permitidos, solicite un código nuevo.";
+    public static final String PASSWORD_RESET_TOKEN_REQUIRED = "Debe indicar el token de recuperación.";
+    public static final String PASSWORD_RESET_TOKEN_INVALID = "El token de recuperación no es válido o ya fue utilizado.";
+    public static final String PASSWORD_RESET_TOKEN_EXPIRED = "El token de recuperación expiró, solicite un código nuevo.";
+    public static final String PASSWORD_RESET_PASSWORD_INVALID = "La contraseña debe llegar cifrada en SHA-512.";
 
     public static final String PASSWORD_RESET_SENT_OK = "password.reset.sent.ok";
     public static final String PASSWORD_RESET_VERIFIED_OK = "password.reset.verified.ok";

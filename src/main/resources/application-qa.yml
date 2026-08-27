@@ -1,6 +1,7 @@
 truck:
     parameter:
         jwt-expired: 5
+        app-url: https://truck.ccsoluciones.com.co
         jwt-key: asdfSFS34wfsdfsdfSDSD32dfsddDDerQSNCK34SOWEK5354fdgdf4
 server:
     port: 8089
