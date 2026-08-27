@@ -32,6 +32,18 @@ provider:
     email: gmail
     flow: twilio
 
+twilio:
+  account:
+    sid: ${TWILIO_ACCOUNT_SID}
+  auth:
+    token: ${TWILIO_AUTH_TOKEN}
+  whatsapp:
+    from: ${TWILIO_WHATSAPP_FROM:+14155238886}
+  sms:
+    from: ${TWILIO_SMS_FROM:+18102566814}
+  flow:
+    from: ${TWILIO_FLOW_FROM:+14155238886}
+
 sendgrid:
     api:
         key: SENDGRID_API_KEY

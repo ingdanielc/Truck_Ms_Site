@@ -393,3 +393,21 @@ CREATE TABLE sms (
     status VARCHAR(50) NOT NULL,
     timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- DROP TABLE IF EXISTS password_reset;
+CREATE TABLE password_reset (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    phone VARCHAR(20),
+    code VARCHAR(128) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    attempts INT NOT NULL DEFAULT 0,
+    reset_token VARCHAR(64),
+    expiration_date DATETIME NOT NULL,
+    creation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_password_reset_user FOREIGN KEY (user_id) REFERENCES users(id),
+    INDEX idx_password_reset_user (user_id),
+    INDEX idx_password_reset_phone (phone, status),
+    UNIQUE INDEX uq_password_reset_token (reset_token)
+);

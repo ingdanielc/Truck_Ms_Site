@@ -20,6 +20,7 @@ public class SecurityConfig {
                 .addFilterBefore(new CustomHeaderAuthFilter(), UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/security/authentication").permitAll()
+                        .requestMatchers("/security/forgotPassword", "/security/verify", "/security/reset").permitAll()
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated());

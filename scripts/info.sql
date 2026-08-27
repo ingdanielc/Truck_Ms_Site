@@ -146,7 +146,7 @@ INSERT INTO expense_category (name, expense_type_id) VALUES
 ('Varios', 1);
 
 INSERT INTO expense_category (name, expense_type_id) VALUES 
-('Alimentacion conductor', 2),
+('Alimentación conductor', 2),
 ('Hotel conductor', 2),
 ('Salario', 2),
 ('Seguridad social conductor', 2),
@@ -199,6 +199,12 @@ VALUES
 ('Sms', 'BIENVENIDA', '', 'Hola ${partnerName}, gracias por unirte a nuestra comunidad fitness. \n\n💯 Estamos emocionados de acompañarte en tu camino hacia una vida más saludable y activa. \n\n🏋️‍♀️ Horarios: Lunes a Sabado \n📍 Ubicación: Calle 19 \n📲 Contacto: 3127199944. \n\nSi tienes alguna pregunta o necesitas ayuda, nuestro equipo está aquí para apoyarte.\n\n💪 Nos vemos en el gimnasio. ¡A romperla! 🚀🔥', ''),
 ('WhatsApp', 'COMPRA_MEMBRESIA', 'https://instecdevstrgaccount.blob.core.windows.net/instecdevsalesstaticcontent/Bancolombia/notificaciones/bienvenido.jpg', 'Hola ${partnerName}, gracias por confiar en nosotros. 🏋️‍♂️🔥\nTu membresía ha sido procesada correctamente.\n\n📅 Fecha de inicio: ${startDate}\n📅 Fecha de vencimiento: ${endDate}\n💳 Plan adquirido: ${membershipName}\n\nRecuerda que estamos aquí para apoyarte en tu camino fitness. Si tienes alguna duda, contáctanos. \n\n📲¡Nos vemos en el gimnasio! 💪😃', '');
 
+-- Plantilla del mensaje de WhatsApp
+DELETE FROM template WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
+INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
+VALUES ('WhatsApp', 'PASSWORD_RECOVERY', NULL,
+        'Hola ${name}, tu codigo para recuperar la contrasena de CashTruck es: ${code}  Vence en ${minutes} minutos y solo se puede usar una vez. Si no solicitaste este cambio, ignora este mensaje y comunicate con el administrador.',
+        'Recuperacion de contrasena');
 
 INSERT INTO notification (
     event_type, 

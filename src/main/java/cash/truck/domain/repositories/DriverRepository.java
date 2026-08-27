@@ -13,4 +13,5 @@ public interface DriverRepository extends JpaRepository<Driver, Long>, JpaSpecif
     Page<Driver> findAll(Specification<Driver> specification, Pageable pageable);
     java.util.Optional<Driver> findByOwnerIdAndDocumentNumber(Long ownerId, String documentNumber);
     java.util.Optional<Driver> findFirstByUserId(Integer userId);
+    java.util.Optional<Driver> findFirstByCellPhoneInAndUserIsNotNull(java.util.List<String> cellPhones);
 }

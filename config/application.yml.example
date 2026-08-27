@@ -1,0 +1,30 @@
+# Plantilla de configuracion local. Copiala sin la extension .example:
+#
+#   copy config\application.yml.example config\application.yml
+#
+# y reemplaza los valores por los reales. El archivo resultante esta ignorado
+# por git, asi que los secretos no salen de tu maquina.
+#
+# NO pongas credenciales reales en este .example: es el unico archivo de config/
+# que si se versiona (regla '!config/*.example' en .gitignore).
+#
+# Por que 'application.yml' y no 'application-dev.yml':
+#   un archivo con sufijo de perfil solo se carga con ese perfil activo, y en
+#   este proyecto el perfil por defecto es 'qa' (activeByDefault en el pom).
+#   Sin sufijo aplica a cualquier perfil, asi que funciona corras como corras.
+#
+# Spring Boot lee ./config/ con mas prioridad que el yml empaquetado en el jar,
+# de modo que estas claves le ganan a las de src/main/resources/. Solo hace
+# falta lo que quieras sobrescribir; el resto se sigue tomando de alla.
+#
+# Sin este archivo (o sin las variables de entorno TWILIO_ACCOUNT_SID y
+# TWILIO_AUTH_TOKEN) la aplicacion no arranca: falla con
+# "Could not resolve placeholder 'TWILIO_ACCOUNT_SID'".
+#
+# Las credenciales estan en la consola de Twilio, en Account > API keys & tokens.
+
+twilio:
+  account:
+    sid: TU_ACCOUNT_SID
+  auth:
+    token: TU_AUTH_TOKEN

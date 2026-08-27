@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Configuracion local con secretos (no versionar) ###
+# Se ignora el contenido de config/ pero no los .example, para que quede
+# versionada la plantilla. Tiene que ser 'config/*' y no 'config/':
+# git no entra a un directorio ignorado, asi que el '!' no aplicaria.
+config/*
+!config/*.example

@@ -12,4 +12,6 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
     Page<Owner> findAll(Specification<Owner> specification, Pageable pageable);
 
     java.util.Optional<Owner> findByUserId(Integer userId);
+
+    java.util.Optional<Owner> findFirstByCellPhoneInAndUserIsNotNull(java.util.List<String> cellPhones);
 }
