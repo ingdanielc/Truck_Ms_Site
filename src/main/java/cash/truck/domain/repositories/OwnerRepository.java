@@ -17,4 +17,11 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
 
     /** Propietarios cuya suscripcion vence exactamente ese dia. */
     java.util.List<Owner> findBySubscriptionEndDate(java.time.LocalDate subscriptionEndDate);
+
+    /** Validaciones de unicidad del registro publico. */
+    boolean existsByDocumentNumber(String documentNumber);
+
+    boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByCellPhoneIn(java.util.List<String> cellPhones);
 }

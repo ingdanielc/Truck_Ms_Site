@@ -1,16 +1,23 @@
 package cash.truck.infrastructure.controllers;
 
 import cash.truck.application.exception.PartnerException;
+import cash.truck.application.exception.RegistrationException;
 import cash.truck.application.usecases.PasswordResetUseCase;
+import cash.truck.application.usecases.RegistrationUseCase;
 import cash.truck.application.usecases.SecurityUseCase;
 import cash.truck.application.utility.Constants;
+import cash.truck.application.utility.RateLimiter;
 import cash.truck.application.utility.ResponseErrorMessage;
 import cash.truck.application.utility.ResponseMessage;
 import cash.truck.application.utility.filters.FilterRequest;
+import cash.truck.domain.dtos.AvailabilityResponse;
 import cash.truck.domain.dtos.PasswordResetRequest;
 import cash.truck.domain.dtos.PasswordResetResponse;
+import cash.truck.domain.dtos.RegisterResponse;
+import cash.truck.domain.entities.Owner;
 import cash.truck.domain.entities.Users;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +41,73 @@ public class SecurityController {
 
     @Autowired
     private PasswordResetUseCase passwordResetUseCase;
+
+    @Autowired
+    private RegistrationUseCase registrationUseCase;
+
+    @Autowired
+    private RateLimiter rateLimiter;
+
+    /**
+     * Registro publico de cuenta. El servidor fija el estado, la fecha de fin de
+     * suscripcion y el cupo de vehiculos; lo que venga en esos campos se ignora.
+     */
+    @PostMapping(value = "/register", consumes = "application/json")
+    public ResponseEntity<Object> register(@RequestBody Owner owner, HttpServletRequest request) {
+        if (!rateLimiter.tryAcquire(Constants.RATE_BUCKET_REGISTER, RateLimiter.clientIp(request),
+                Constants.REGISTER_RATE_LIMIT, Constants.REGISTER_RATE_WINDOW_SECONDS)) {
+            return registerError(HttpStatus.TOO_MANY_REQUESTS, Constants.REGISTER_RATE_LIMITED_MESSAGE,
+                    Constants.REGISTER_RATE_LIMITED);
+        }
+        try {
+            RegisterResponse response = registrationUseCase.register(owner);
+            ResponseMessage responseMessage = new ResponseMessage(response, HttpStatus.CREATED.value(),
+                    HttpStatus.CREATED.name(), null, Constants.REGISTER_CREATED_OK);
+            return new ResponseEntity<>(responseMessage, HttpStatus.CREATED);
+        } catch (RegistrationException e) {
+            HttpStatus status = e.isDuplicate() ? HttpStatus.CONFLICT : HttpStatus.BAD_REQUEST;
+            return registerError(status, e.getMessage(), e.getI18n());
+        } catch (EntityNotFoundException e) {
+            return registerError(HttpStatus.NOT_FOUND, e.getMessage(), Constants.REGISTER_KO);
+        } catch (PartnerException | IllegalArgumentException e) {
+            return registerError(HttpStatus.CONFLICT, e.getMessage(), Constants.REGISTER_KO);
+        } catch (Exception e) {
+            logger.error("Error registrando la cuenta: {}", e.getMessage());
+            return registerError(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                    Constants.REGISTER_KO);
+        }
+    }
+
+    /**
+     * Validador asincrono del formulario: dice si un documento, correo o celular
+     * sigue libre. Responde solo el booleano y esta limitado por IP para que no
+     * sirva de enumerador.
+     */
+    @GetMapping("/checkAvailability")
+    public ResponseEntity<Object> checkAvailability(@RequestParam String field, @RequestParam String value,
+            HttpServletRequest request) {
+        if (!rateLimiter.tryAcquire(Constants.RATE_BUCKET_AVAILABILITY, RateLimiter.clientIp(request),
+                Constants.AVAILABILITY_RATE_LIMIT, Constants.AVAILABILITY_RATE_WINDOW_SECONDS)) {
+            return registerError(HttpStatus.TOO_MANY_REQUESTS, Constants.AVAILABILITY_RATE_LIMITED_MESSAGE,
+                    Constants.AVAILABILITY_RATE_LIMITED);
+        }
+        try {
+            AvailabilityResponse response = registrationUseCase.checkAvailability(field, value);
+            ResponseMessage responseMessage = new ResponseMessage(response, HttpStatus.OK.value(),
+                    HttpStatus.OK.name(), null, Constants.AVAILABILITY_CHECK_OK);
+            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        } catch (RegistrationException e) {
+            return registerError(HttpStatus.BAD_REQUEST, e.getMessage(), Constants.AVAILABILITY_KO);
+        } catch (Exception e) {
+            logger.error("Error validando disponibilidad: {}", e.getMessage());
+            return registerError(HttpStatus.INTERNAL_SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                    Constants.AVAILABILITY_KO);
+        }
+    }
+
+    private ResponseEntity<Object> registerError(HttpStatus status, String message, String i18n) {
+        return new ResponseEntity<>(new ResponseErrorMessage(status.value(), message, i18n), status);
+    }
 
     @GetMapping("/getAllUsers")
     public ResponseEntity<Object> getAllPartners() {

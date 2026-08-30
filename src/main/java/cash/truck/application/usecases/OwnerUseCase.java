@@ -73,6 +73,16 @@ public class OwnerUseCase {
      *                      creacion se aplica el valor por defecto.
      */
     public Owner save(Owner owner, boolean callerIsAdmin) {
+        return save(owner, callerIsAdmin, Constants.SUBSCRIPTION_DEFAULT_MONTHS);
+    }
+
+    /**
+     * @param defaultSubscriptionMonths meses de vigencia que se aplican al crear
+     *                                  cuando no quedo fecha de fin. El registro
+     *                                  publico entra con una ventana mas corta que
+     *                                  el alta desde el escritorio administrativo.
+     */
+    public Owner save(Owner owner, boolean callerIsAdmin, int defaultSubscriptionMonths) {
         Owner ownerNew;
         boolean isNew = owner.getId() == null;
         // Se retiene para la bienvenida: despues de cifrarla ya no se puede recuperar.
@@ -202,7 +212,7 @@ public class OwnerUseCase {
 
         if (isNew && ownerNew.getSubscriptionEndDate() == null) {
             ownerNew.setSubscriptionEndDate(LocalDate.now(ZoneId.of(Constants.ZONE_BOGOTA))
-                    .plusMonths(Constants.SUBSCRIPTION_DEFAULT_MONTHS));
+                    .plusMonths(defaultSubscriptionMonths));
         }
 
         Owner savedOwner = ownerRepository.save(ownerNew);

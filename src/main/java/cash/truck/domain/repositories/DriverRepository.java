@@ -14,4 +14,11 @@ public interface DriverRepository extends JpaRepository<Driver, Long>, JpaSpecif
     java.util.Optional<Driver> findByOwnerIdAndDocumentNumber(Long ownerId, String documentNumber);
     java.util.Optional<Driver> findFirstByUserId(Integer userId);
     java.util.Optional<Driver> findFirstByCellPhoneInAndUserIsNotNull(java.util.List<String> cellPhones);
+
+    /** Validaciones de unicidad del registro publico. */
+    boolean existsByDocumentNumber(String documentNumber);
+
+    boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByCellPhoneIn(java.util.List<String> cellPhones);
 }

@@ -134,4 +134,57 @@ public class Constants {
     public static final String PASSWORD_RESET_CHANGED_OK = "password.reset.changed.ok";
     public static final String PASSWORD_RESET_NOT_FOUND = "password.reset.not.found";
     public static final String PASSWORD_RESET_KO = "password.reset.ko";
+
+    // Registro publico de cuenta
+    public static final String REGISTER_CREATED_OK = "register.created.ok";
+    public static final String REGISTER_KO = "register.ko";
+    /** Se completa con el campo en falta: register.invalid.email, register.invalid.cellPhone, ... */
+    public static final String REGISTER_INVALID_PREFIX = "register.invalid.";
+    /** Se completa con el campo duplicado: register.duplicate.documentNumber, ... */
+    public static final String REGISTER_DUPLICATE_PREFIX = "register.duplicate.";
+    public static final String REGISTER_RATE_LIMITED = "register.rate.limited";
+
+    public static final String FIELD_DOCUMENT_NUMBER = "documentNumber";
+    public static final String FIELD_EMAIL = "email";
+    public static final String FIELD_CELL_PHONE = "cellPhone";
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_DOCUMENT_TYPE_ID = "documentTypeId";
+    public static final String FIELD_PASSWORD = "password";
+    public static final String FIELD_MAX_VEHICLES = "maxVehicles";
+    public static final String FIELD_PAYLOAD = "payload";
+
+    public static final String REGISTER_PAYLOAD_REQUIRED = "No se recibió información para el registro.";
+    public static final String REGISTER_FIELD_REQUIRED = "El campo %s es obligatorio.";
+    public static final String REGISTER_EMAIL_INVALID = "El correo electrónico no tiene un formato válido.";
+    public static final String REGISTER_CELL_PHONE_INVALID = "El celular debe tener 10 dígitos.";
+    public static final String REGISTER_PASSWORD_INVALID = "La contraseña debe llegar codificada en Base64.";
+    public static final String REGISTER_MAX_VEHICLES_INVALID = "La cantidad de vehículos debe estar entre 1 y %d.";
+    public static final String REGISTER_DUPLICATE_DOCUMENT_NUMBER = "Ya existe una cuenta con ese número de documento.";
+    public static final String REGISTER_DUPLICATE_EMAIL = "Ya existe una cuenta con ese correo electrónico.";
+    public static final String REGISTER_DUPLICATE_CELL_PHONE = "Ya existe una cuenta con ese número de celular.";
+    public static final String REGISTER_RATE_LIMITED_MESSAGE = "Demasiados intentos de registro, espere unos minutos.";
+
+    // Validador de disponibilidad
+    public static final String AVAILABILITY_CHECK_OK = "availability.check.ok";
+    public static final String AVAILABILITY_KO = "availability.ko";
+    public static final String AVAILABILITY_RATE_LIMITED = "availability.rate.limited";
+    public static final String AVAILABILITY_FIELD_INVALID = "El campo a validar debe ser documentNumber, email o cellPhone.";
+    public static final String AVAILABILITY_VALUE_REQUIRED = "Debe indicar el valor a validar.";
+    public static final String AVAILABILITY_RATE_LIMITED_MESSAGE = "Demasiadas consultas, espere unos segundos.";
+
+    /** Ventanas de uso por IP: el registro se protege mas que el validador del formulario. */
+    /** Techo del cupo de vehiculos que puede pedir el formulario de registro. */
+    public static final int REGISTER_MAX_VEHICLES_LIMIT = 999;
+
+    /** Vigencia con la que entra una cuenta creada desde el registro publico. */
+    public static final int REGISTER_SUBSCRIPTION_MONTHS = 1;
+
+    public static final String RATE_BUCKET_REGISTER = "register";
+    public static final int REGISTER_RATE_LIMIT = 5;
+    public static final int REGISTER_RATE_WINDOW_SECONDS = 600;
+    public static final String RATE_BUCKET_AVAILABILITY = "availability";
+    public static final int AVAILABILITY_RATE_LIMIT = 30;
+    public static final int AVAILABILITY_RATE_WINDOW_SECONDS = 60;
+
+    public static final String EMAIL_PATTERN = "^[^@ ]+@[^@ .]+[.][^@ ]{2,}$";
 }
