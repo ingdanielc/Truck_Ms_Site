@@ -646,7 +646,7 @@ VALUES ('WhatsApp', 'PASSWORD_RECOVERY', NULL,
         'Recuperación de contraseña');
         
 DELETE FROM template WHERE medium = 'WhatsApp'
-  AND message_type IN ('WELCOME_OWNER', 'WELCOME_OWNER_DRIVER', 'SUBSCRIPTION_REMINDER');
+  AND message_type IN ('WELCOME_OWNER', 'WELCOME_OWNER_DRIVER', 'WELCOME_DRIVER', 'SUBSCRIPTION_REMINDER');
 
 -- Bienvenida cuando el propietario NO conduce: incluye el paso de crear conductor
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
@@ -659,6 +659,14 @@ VALUES ('WhatsApp', 'WELCOME_OWNER', NULL,
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'WELCOME_OWNER_DRIVER', NULL,
 '🚀 ¡Bienvenido a CashTruck! 🚛💨\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: ${appUrl}\n📧 Usuario: ${email}\n🔑 Contraseña: ${password}\n\n*Primeros pasos:*\n1️⃣ Registra tus vehículos 🚛\n2️⃣ Crea viajes asignando tu vehículo 🗺️\n3️⃣ Anota los gastos de cada viaje 💸\n4️⃣ Registra los mantenimientos 🛠️\n5️⃣ Consulta tus rutas en el mapa 📍\n6️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'Bienvenido a CashTruck');
+
+-- Bienvenida del conductor al que el propietario le dio acceso a la app: misma
+-- plantilla del propietario sin los pasos que el conductor no puede hacer, asi
+-- que sus primeros pasos arrancan en la creacion de viajes
+INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
+VALUES ('WhatsApp', 'WELCOME_DRIVER', NULL,
+'🚀 ¡Bienvenido a CashTruck! 🚛💨\n\nHola ${name}, ya puedes registrar tus viajes y gastos.\n\n🔗 App: ${appUrl}\n📧 Usuario: ${email}\n🔑 Contraseña: ${password}\n\n*Primeros pasos:*\n1️⃣ Crea viajes asignando tu vehículo 🗺️\n2️⃣ Anota los gastos de cada viaje 💸\n3️⃣ Registra los mantenimientos 🛠️\n4️⃣ Consulta tus rutas en el mapa 📍\n5️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
 'Bienvenido a CashTruck');
 
 -- Aviso de suscripcion proxima a vencer

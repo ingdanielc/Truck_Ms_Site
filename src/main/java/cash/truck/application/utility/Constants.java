@@ -100,6 +100,8 @@ public class Constants {
     public static final String APP_URL_DEFAULT = "https://truck.ccsoluciones.com.co";
     public static final String WELCOME_OWNER_MESSAGE_TYPE = "WELCOME_OWNER";
     public static final String WELCOME_OWNER_DRIVER_MESSAGE_TYPE = "WELCOME_OWNER_DRIVER";
+    /** Bienvenida al conductor que el propietario da de alta con acceso a la app. */
+    public static final String WELCOME_DRIVER_MESSAGE_TYPE = "WELCOME_DRIVER";
     public static final String SUBSCRIPTION_REMINDER_MESSAGE_TYPE = "SUBSCRIPTION_REMINDER";
     /** Dias de antelacion con que se avisa el vencimiento de la suscripcion. */
     public static final int SUBSCRIPTION_REMINDER_DAYS = 3;

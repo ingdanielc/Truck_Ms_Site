@@ -11,12 +11,15 @@ import cash.truck.domain.entities.Users;
 import cash.truck.domain.repositories.DriverRepository;
 import cash.truck.domain.repositories.RolesRepository;
 import cash.truck.domain.dtos.DriverCountsDTO;
+import cash.truck.application.usecases.notifications.DriverNotificationUseCase;
 import cash.truck.application.utility.Constants;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
@@ -29,17 +32,22 @@ import java.util.function.Consumer;
 @Transactional
 public class DriverUseCase {
 
+    private static final Logger logger = LoggerFactory.getLogger(DriverUseCase.class);
+
     private final DriverRepository driverRepository;
     private final SecurityUseCase securityUseCase;
     private final InAppNotificationUseCase inAppNotificationUseCase;
     private final RolesRepository rolesRepository;
+    private final DriverNotificationUseCase driverNotificationUseCase;
 
     public DriverUseCase(DriverRepository driverRepository, SecurityUseCase securityUseCase,
-            InAppNotificationUseCase inAppNotificationUseCase, RolesRepository rolesRepository) {
+            InAppNotificationUseCase inAppNotificationUseCase, RolesRepository rolesRepository,
+            DriverNotificationUseCase driverNotificationUseCase) {
         this.driverRepository = driverRepository;
         this.securityUseCase = securityUseCase;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
         this.rolesRepository = rolesRepository;
+        this.driverNotificationUseCase = driverNotificationUseCase;
     }
 
     public List<Driver> getAllDrivers() {
@@ -49,6 +57,8 @@ public class DriverUseCase {
     public Driver save(Driver driver) {
         Driver driverNew;
         boolean isNew = driver.getId() == null;
+        // Se retiene para la bienvenida: despues de cifrarla ya no se puede recuperar.
+        String plainPassword = null;
 
         if (!isNew) {
             driverNew = driverRepository.findById(driver.getId())
@@ -75,6 +85,7 @@ public class DriverUseCase {
                 user.setEmail(driverNew.getEmail());
                 byte[] decodedBytes = java.util.Base64.getDecoder().decode(driver.getPassword());
                 String decodedPassword = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+                plainPassword = decodedPassword;
                 user.setPassword(SecurityUseCase.getHashSHA512(decodedPassword));
                 user.setStatus(Constants.STATUS_ACTIVE);
 
@@ -98,6 +109,7 @@ public class DriverUseCase {
                 user.setEmail(driver.getEmail());
                 byte[] decodedBytes = java.util.Base64.getDecoder().decode(driver.getPassword());
                 String decodedPassword = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+                plainPassword = decodedPassword;
                 user.setPassword(SecurityUseCase.getHashSHA512(decodedPassword));
                 user.setStatus(Constants.STATUS_ACTIVE);
 
@@ -122,7 +134,28 @@ public class DriverUseCase {
         inAppNotificationUseCase.createNotification("DRIVER_EVENT", message, 1, null, savedDriver.getOwnerId(),
                 savedDriver.getId().longValue());
 
+        sendWelcomeSafely(savedDriver, plainPassword);
+
         return savedDriver;
+    }
+
+    /**
+     * La bienvenida solo tiene sentido cuando se acaban de emitir credenciales:
+     * un conductor sin acceso a la app no tiene nada que recibir. Se envia tanto
+     * al crearlo con contrasena como al concedersela despues.
+     *
+     * Es accesoria, igual que la del propietario: el conductor ya quedo guardado
+     * y no puede perderse porque WhatsApp o Twilio fallen.
+     */
+    private void sendWelcomeSafely(Driver driver, String plainPassword) {
+        if (plainPassword == null) {
+            return;
+        }
+        try {
+            driverNotificationUseCase.sendWelcome(driver, plainPassword);
+        } catch (Exception e) {
+            logger.error("No se pudo enviar la bienvenida al conductor {}: {}", driver.getId(), e.getMessage());
+        }
     }
 
     private void applyFields(Driver source, Driver target) {
