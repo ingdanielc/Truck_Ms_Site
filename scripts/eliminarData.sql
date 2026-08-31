@@ -2,7 +2,7 @@
 START TRANSACTION;
 
 -- 1. DEFINIR EL ID DEL OWNER A ELIMINAR
-SET @ownerId = 12; -- <--- ¡CAMBIA ESTE NÚMERO POR EL ID REAL!
+SET @ownerId = 9; -- <--- ¡CAMBIA ESTE NÚMERO POR EL ID REAL!
 
 -- 2. DESACTIVAR REVISIÓN DE LLAVES FORÁNEAS TEMPORALMENTE
 -- Esto evita bloqueos por referencias cruzadas entre driver, vehicle y owner

@@ -763,15 +763,15 @@ INSERT INTO `notification` (`id`,`event_type`,`message`,`target_user_id`,`target
 -- ---------------------------------------------------------------------------------------------------------
 -- 5. Reinicio de los contadores AUTO_INCREMENT
 -- ---------------------------------------------------------------------------------------------------------
-ALTER TABLE users AUTO_INCREMENT = 4;
-ALTER TABLE user_role AUTO_INCREMENT = 4;
-ALTER TABLE owner AUTO_INCREMENT = 3;
-ALTER TABLE driver AUTO_INCREMENT = 3;
-ALTER TABLE vehicle AUTO_INCREMENT = 3;
-ALTER TABLE vehicle_owner AUTO_INCREMENT = 3;
-ALTER TABLE trip AUTO_INCREMENT = 2;
+ALTER TABLE users AUTO_INCREMENT = 6;
+ALTER TABLE user_role AUTO_INCREMENT = 6;
+ALTER TABLE owner AUTO_INCREMENT = 4;
+ALTER TABLE driver AUTO_INCREMENT = 4;
+ALTER TABLE vehicle AUTO_INCREMENT = 4;
+ALTER TABLE vehicle_owner AUTO_INCREMENT = 4;
+ALTER TABLE trip AUTO_INCREMENT = 6;
 ALTER TABLE expense_category AUTO_INCREMENT = 40;
-ALTER TABLE expense AUTO_INCREMENT = 13;
+ALTER TABLE expense AUTO_INCREMENT = 33;
 ALTER TABLE driver_locations AUTO_INCREMENT = 1;
 ALTER TABLE notification AUTO_INCREMENT = 23;
 
