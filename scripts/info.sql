@@ -203,10 +203,10 @@ DELETE FROM template WHERE medium = 'WhatsApp'
   AND message_type IN ('PASSWORD_RECOVERY', 'WELCOME_OWNER', 'WELCOME_OWNER_DRIVER',
                        'WELCOME_DRIVER', 'SUBSCRIPTION_REMINDER');
 
--- cashtruck_recuperacion_contrasena | UTILITY | Texto propio en UTILITY para poder saludar por el nombre y nombrar la marca. Ver la advertencia de categoría en la regla 1 y la variante de respaldo al final del documento.
+-- cashtruck_recuperacion_contrasena | AUTHENTICATION | Categoría obligatoria: Meta exige AUTHENTICATION para cualquier código de un solo uso, y ahí el cuerpo es fijo. Por eso no lleva marca ni saludo; ver la seccion final sobre la marca.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'PASSWORD_RECOVERY', NULL,
-'🔐 Recuperación de contraseña de CashTruck\n\nHola ${name}, recibimos una solicitud para restablecer tu contraseña. Tu código de verificación es:\n\n*${code}*\n\n⏳ Vence en ${minutes} minutos y solo se puede usar una vez.\n\n⚠️ Si no lo solicitaste, ignora este mensaje y comunícate con el administrador.',
+'${code} es tu código de verificación. Por tu seguridad, no lo compartas.\n\nEste código caduca en 10 minutos.',
 'Recuperación de contraseña');
 
 -- cashtruck_bienvenida_propietario | UTILITY | Propietario que no conduce: conserva el paso de crear conductores.
@@ -236,7 +236,7 @@ VALUES ('WhatsApp', 'SUBSCRIPTION_REMINDER', NULL,
 -- Orden en que Twilio numera las variables de cada plantilla aprobada: la
 -- posicion tiene que coincidir con el {{n}} de la plantilla. La contrasena ya
 -- no esta en la lista, asi que no se envia al proveedor.
-UPDATE template SET provider_variables = 'name,code,minutes'
+UPDATE template SET provider_variables = 'code'
  WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
 
 UPDATE template SET provider_variables = 'name,email'
@@ -247,7 +247,11 @@ UPDATE template SET provider_variables = 'name,endDate,days'
  WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_REMINDER';
 
 -- cashtruck_recuperacion_contrasena
-UPDATE template SET provider_template_id = 'HXa89f5bdffaad0fcdc2ee84233898f619'
+-- PENDIENTE: el HXa89f5bdffaad0fcdc2ee84233898f619 anterior apuntaba a la
+-- version que Meta rechazo por INCORRECT_CATEGORY. Hay que crear la plantilla
+-- de nuevo con el tipo whatsapp/authentication y pegar aqui el HX que salga;
+-- mientras tanto la fila queda en NULL y el backend avisa con un WARN.
+UPDATE template SET provider_template_id = NULL
  WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
 
 -- cashtruck_bienvenida_propietario
@@ -266,9 +270,6 @@ UPDATE template SET provider_template_id = 'HXa6942af2ff0a2b5c8b7769006f89a85f'
 UPDATE template SET provider_template_id = 'HXca14a7506ca78843fc490088c8b48e38'
  WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_REMINDER';
 
--- El ContentSid se completa cuando Meta aprueba cada plantilla:
---   UPDATE template SET provider_template_id = 'HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
---    WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_OWNER';
 
 INSERT INTO notification (
     event_type, 

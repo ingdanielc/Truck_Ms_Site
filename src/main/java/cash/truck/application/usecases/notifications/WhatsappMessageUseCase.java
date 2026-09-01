@@ -111,7 +111,8 @@ public class WhatsappMessageUseCase {
                 // donde se sabe que plantilla falta por registrar.
                 logger.warn("La plantilla {} no tiene ContentSid aprobado: el mensaje sale como texto libre "
                         + "y WhatsApp lo rechaza fuera de la ventana de 24 horas. "
-                        + "Registrelo con scripts/whatsapp_content_sids.sql", messageRequest.getMessageType());
+                        + "Registrelo en provider_template_id, como hace scripts/info.sql",
+                        messageRequest.getMessageType());
             }
 
             whatsApp.setTemplateId(template.getId());

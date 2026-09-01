@@ -34,7 +34,7 @@ enviar a aprobación (y ajusta el SQL igual).
 
 | Plantilla | `message_type` | Categoría | Variables |
 | --- | --- | --- | --- |
-| `cashtruck_recuperacion_contrasena` | `PASSWORD_RECOVERY` | UTILITY | `name`, `code`, `minutes` |
+| `cashtruck_recuperacion_contrasena` | `PASSWORD_RECOVERY` | AUTHENTICATION | `code` |
 | `cashtruck_bienvenida_propietario` | `WELCOME_OWNER` | UTILITY | `name`, `email` |
 | `cashtruck_bienvenida_propietario_conductor` | `WELCOME_OWNER_DRIVER` | UTILITY | `name`, `email` |
 | `cashtruck_bienvenida_conductor` | `WELCOME_DRIVER` | UTILITY | `name`, `email` |
@@ -44,14 +44,11 @@ enviar a aprobación (y ajusta el SQL igual).
 
 ## Reglas que se aplicaron para que Meta las apruebe
 
-1. **Categoría.** Las cinco van como `UTILITY`: son avisos sobre una cuenta que
-   ya existe. Ojo con la de recuperación: lleva texto propio para poder saludar
-   por el nombre y decir «CashTruck», y eso obliga a `UTILITY`, porque la
-   categoría `AUTHENTICATION` genera un cuerpo fijo de Meta sin marca, sin
-   saludo y sin emojis. El riesgo asumido es que la revisión automática
-   reclasifique el mensaje a `AUTHENTICATION` por contener un código de un solo
-   uso —la plantilla sigue sirviendo, solo cambia la tarifa— o que exija el
-   formato fijo. Si eso pasa, abajo está la variante de respaldo.
+1. **Categoría.** Las cuatro de cuenta van como `UTILITY`: son avisos sobre una
+   cuenta que ya existe. La de recuperación va como `AUTHENTICATION`, y ahí no
+   hay elección: Meta exige esa categoría para cualquier código de un solo uso y
+   rechaza con `INCORRECT_CATEGORY` el mismo texto enviado como `UTILITY`. Ver
+   «Por qué la de recuperación no lleva la marca».
 2. **Nada promocional en las `UTILITY`.** Se quitó el arranque «¡Bienvenido!» a
    favor de «Tu cuenta ya está activa», y el aviso de suscripción no ofrece
    planes ni precios. Cualquier oferta lo movería a `MARKETING`, que cuesta más
@@ -80,32 +77,36 @@ enviar a aprobación (y ajusta el SQL igual).
 | | |
 | --- | --- |
 | `message_type` | `PASSWORD_RECOVERY` |
-| Categoría | **UTILITY** |
-| Tipo de contenido en Twilio | `twilio/text` |
+| Categoría | **AUTHENTICATION** |
+| Tipo de contenido en Twilio | `whatsapp/authentication` |
 | Idioma | `es` |
-| Variables | 3 |
+| Variables | 1 |
 
-Texto propio en UTILITY para poder saludar por el nombre y nombrar la marca. Ver la advertencia de categoría en la regla 1 y la variante de respaldo al final del documento.
+Categoría obligatoria: Meta exige AUTHENTICATION para cualquier código de un solo uso, y ahí el cuerpo es fijo. Por eso no lleva marca ni saludo; ver la seccion final sobre la marca.
+
+| Opción | Valor |
+| --- | --- |
+| `add_security_recommendation` | `true` — agrega «Por tu seguridad, no lo compartas» |
+| `code_expiration_minutes` | `10` — debe coincidir con `Constants.PASSWORD_RESET_CODE_MINUTES` |
+| Botón | `COPY_CODE` con texto `Copiar código` |
+
+Texto que genera Meta a partir de las opciones (no se escribe):
 
 ```
-🔐 Recuperación de contraseña de CashTruck
+{{1}} es tu código de verificación. Por tu seguridad, no lo compartas.
+```
 
-Hola {{1}}, recibimos una solicitud para restablecer tu contraseña. Tu código de verificación es:
+Pie de página (footer):
 
-*{{2}}*
-
-⏳ Vence en {{3}} minutos y solo se puede usar una vez.
-
-⚠️ Si no lo solicitaste, ignora este mensaje y comunícate con el administrador.
+```
+Este código caduca en 10 minutos.
 ```
 
 | Posición | Clave interna | Valor de ejemplo |
 | --- | --- | --- |
-| `{{1}}` | `name` | Juan Pérez |
-| `{{2}}` | `code` | 482913 |
-| `{{3}}` | `minutes` | 10 |
+| `{{1}}` | `code` | 482913 |
 
-`provider_variables` = `name,code,minutes`
+`provider_variables` = `code`
 
 ### cashtruck_bienvenida_propietario
 
@@ -259,15 +260,14 @@ Cuando venza perderás el acceso a tus viajes, vehículos, mantenimientos y repo
 ## Cómo cargarlas
 
 1. En **Content Template Builder**, *Create new* → el tipo de contenido que
-   indica la ficha de cada plantilla (`twilio/text` o `twilio/authentication`).
+   indica la ficha de cada plantilla (`twilio/text` o `whatsapp/authentication`).
 2. Nombre = el de la ficha, idioma `es`.
 3. Pega el cuerpo tal cual, **incluidos emojis y saltos de línea**.
 4. Carga los valores de ejemplo de cada variable.
 5. *Submit for WhatsApp Approval* con la categoría indicada.
-6. Cuando quede `approved`, copia el `ContentSid` (`HX…`) y regístralo con
-   **`scripts/whatsapp_content_sids.sql`**: trae los cinco `UPDATE` con el
-   `message_type` que le corresponde a cada plantilla, más un `SELECT` final
-   para verificar que las cinco filas quedaron completas.
+6. Cuando quede `approved`, copia el `ContentSid` (`HX…`) al `UPDATE ... SET
+   provider_template_id` que le corresponde en **`scripts/info.sql`**, al final
+   del bloque de plantillas.
 
 Mientras `provider_template_id` siga en `NULL`, el backend envía texto libre:
 sirve para probar dentro de la ventana de 24 horas, pero WhatsApp lo rechaza
@@ -307,38 +307,29 @@ de 24 horas y el texto libre sí se entrega.
 
 ---
 
-## Respaldo si Meta rechaza el código de recuperación
+## Por qué la de recuperación no lleva la marca
 
-Solo si `cashtruck_recuperacion_contrasena` no pasa por exigir el formato de
-`AUTHENTICATION`. Se crea con tipo de contenido `twilio/authentication`, y ahí
-**el cuerpo no se escribe**: lo arma Meta a partir de dos opciones, caducidad de
-10 minutos y recomendación de seguridad activada. Queda así:
+La primera versión saludaba por el nombre y decía «CashTruck», y Meta la
+rechazó. No es un problema de redacción: un código de un solo uso **solo** se
+puede enviar en la categoría `AUTHENTICATION`, y ahí el cuerpo no se escribe.
+Twilio lo dice sin rodeos: *custom authentication templates aren't allowed*. Se
+eligen dos opciones —la recomendación de seguridad y los minutos de caducidad— y
+Meta arma el texto y lo traduce al idioma declarado.
 
-```
-*{{1}}* es tu código de verificación. Por tu seguridad, no lo compartas.
+Mandar ese mismo contenido como `UTILITY` es justamente lo que ya se intentó:
+desde abril de 2025 Meta valida la categoría durante la revisión y responde
+`INCORRECT_CATEGORY`.
 
-Este código caduca en 10 minutos.
-```
+De la marca sí sobrevive lo que importa:
 
-Se pierde la marca, el saludo y los emojis —esa es justamente la limitación de
-la categoría—, y la única variable pasa a ser el código:
+- **El remitente.** WhatsApp muestra encima del mensaje el nombre de negocio de
+  tu WABA, así que el destinatario ve que viene de CashTruck.
+- **El botón de copiar.** La plantilla incluye un `COPY_CODE`, que evita
+  transcribir el código a mano: es mejor experiencia que el texto suelto.
 
-| Posición | Clave interna | Valor de ejemplo |
-| --- | --- | --- |
-| `{{1}}` | `code` | 482913 |
-
-Al usar el respaldo hay que alinear la copia local, porque cambian tanto el
-texto como el orden de las variables:
-
-```sql
-UPDATE template
-   SET template_content = '*${code}* es tu código de verificación. Por tu seguridad, no lo compartas.\n\nEste código caduca en 10 minutos.',
-       provider_variables = 'code'
- WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
-```
-
-Con esta variante los `${name}` y `${minutes}` que envía `PasswordResetUseCase`
-se ignoran, y los 10 minutos quedan fijos dentro de la plantilla aprobada.
+El backend no cambia. `PasswordResetUseCase` sigue enviando `name` y `minutes`,
+pero como `provider_variables` es solo `code`, esas dos claves ya no viajan a
+Twilio y los minutos quedan fijos dentro de la plantilla aprobada.
 
 ---
 
@@ -350,7 +341,7 @@ aprobarla. Quedaron acoplados a la plantilla estos valores:
 | Si cambia… | Hay que rehacer |
 | --- | --- |
 | `truck.parameter.app-url` (hoy `https://truck.ccsoluciones.com.co`) | las tres bienvenidas |
-| `Constants.PASSWORD_RESET_CODE_MINUTES` (hoy 10) | nada: viaja como variable `{{3}}`, salvo que se use la variante de respaldo |
+| `Constants.PASSWORD_RESET_CODE_MINUTES` (hoy 10) | `cashtruck_recuperacion_contrasena`: los minutos viven dentro de la plantilla |
 | `Constants.SUBSCRIPTION_REMINDER_DAYS` (hoy 3) | nada: viaja como variable `{{3}}` |
 
 Y en toda edición: cambia el texto en Twilio **y** en `template_content` de los
