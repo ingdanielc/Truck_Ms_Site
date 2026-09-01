@@ -54,6 +54,27 @@ public class Constants {
 
     public static final String PARTNER_SEARCH_KO = "partner.search.ko";
 
+    // Documentos archivados
+    public static final String DOCUMENT_FILE_TYPES_SEARCH_OK = "document_file_types.search.ok";
+    public static final String DOCUMENT_SEARCH_OK = "document.search.ok";
+    public static final String DOCUMENT_SEARCH_KO = "document.search.ko";
+    public static final String DOCUMENT_SEARCH_NOT_FOUND = "document.search.not.found";
+    public static final String DOCUMENT_CREATED_OK = "document.created.ok";
+    public static final String DOCUMENT_DELETED_OK = "document.deleted.ok";
+    public static final String DOCUMENT_KO = "document.ko";
+    public static final String DOCUMENT_UPLOAD_OK = "document.upload.ok";
+    public static final String DOCUMENT_UPLOAD_KO = "document.upload.ko";
+    /**
+     * Los documentos cuelgan de la carpeta que Apache ya publica para las fotos.
+     * Un directorio hermano (/truck/documents) exigiria tocar el vhost, y la
+     * lista de rutas que el servidor expone no esta versionada en el repo.
+     */
+    public static final String DOCUMENT_UPLOAD_DIR = "/var/www/html/truck/images/documents";
+    public static final String DOCUMENT_BASE_URL = "https://truck.ccsoluciones.com.co/truck/images/documents/";
+    /** El escaneo llega en PDF tan seguido como en imagen. */
+    public static final java.util.List<String> DOCUMENT_ALLOWED_EXTENSIONS = java.util.List.of("pdf", "jpg", "jpeg",
+            "png", "webp");
+
     // Reportes
     public static final String TRIP_STATUS_IN_PROGRESS = "En Curso";
     public static final String REPORT_DASHBOARD_OK = "report.dashboard.ok";

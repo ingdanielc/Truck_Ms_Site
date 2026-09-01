@@ -11,12 +11,17 @@ import org.springframework.web.bind.annotation.*;
 import cash.truck.application.utility.ResponseErrorMessage;
 import org.springframework.web.multipart.MultipartFile;
 
+import cash.truck.domain.enums.DocumentHolderEnum;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Iterator;
+import java.util.UUID;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
@@ -76,6 +81,84 @@ public class CommonController {
                 HttpStatus.OK.value(),
                 HttpStatus.OK.name(), null, Constants.SALARY_TYPES_SEARCH_OK);
         return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+    }
+
+    /**
+     * Tipos de documento archivado. Distinto de getDocumentTypes, que es el tipo
+     * de identificacion de una persona. appliesTo (VEHICLE, DRIVER, OWNER) acota
+     * el catalogo para que el formulario no ofrezca SOAT a un conductor.
+     */
+    @GetMapping("/getDocumentFileTypes")
+    public ResponseEntity<Object> getDocumentFileTypes(@RequestParam(required = false) String appliesTo) {
+        try {
+            // Se convierte a mano y no con el binder de Spring para que 'vehicle'
+            // valga igual que 'VEHICLE' y el error sea legible en vez de un 400 seco.
+            DocumentHolderEnum holder = DocumentHolderEnum.fromValue(appliesTo);
+            ResponseMessage responseMessage = new ResponseMessage(commonUseCase.getDocumentFileTypes(holder),
+                    HttpStatus.OK.value(), HttpStatus.OK.name(), null, Constants.DOCUMENT_FILE_TYPES_SEARCH_OK);
+            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(new ResponseErrorMessage(HttpStatus.BAD_REQUEST.value(), e.getMessage(),
+                    Constants.DOCUMENT_KO), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Sube el escaneo y devuelve su URL, que el front manda luego en fileUrl de
+     * saveDocuments. No recibe el id del documento a proposito: asi se puede
+     * subir el archivo antes de que exista la fila, y no hay que guardar dos
+     * veces para dejarlo enlazado.
+     *
+     * No reusa upload-photo porque aquel hace ImageIO.read —que rechaza PDF— y
+     * nombra todo photo{id}.webp, con lo que el segundo documento de un vehiculo
+     * pisaria al primero. Aqui el archivo se guarda tal cual llega: un escaneo
+     * recomprimido pierde valor como evidencia.
+     */
+    @PostMapping(value = "/upload-document", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> uploadDocument(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file == null || file.isEmpty()) {
+                return uploadError(HttpStatus.BAD_REQUEST, "El archivo llego vacio.");
+            }
+            String extension = extensionOf(file.getOriginalFilename());
+            if (extension == null || !Constants.DOCUMENT_ALLOWED_EXTENSIONS.contains(extension)) {
+                return uploadError(HttpStatus.BAD_REQUEST,
+                        "Formato no permitido. Se aceptan: " + Constants.DOCUMENT_ALLOWED_EXTENSIONS);
+            }
+
+            // El nombre lo pone el servidor y del cliente solo se toma la
+            // extension, ya filtrada contra la lista blanca: el nombre original
+            // podria traer rutas y escribir fuera del directorio.
+            String fileName = "doc_" + UUID.randomUUID() + "." + extension;
+            Path targetDir = Paths.get(Constants.DOCUMENT_UPLOAD_DIR);
+            Files.createDirectories(targetDir);
+
+            try (InputStream input = file.getInputStream()) {
+                Files.copy(input, targetDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            ResponseMessage responseMessage = new ResponseMessage(Constants.DOCUMENT_BASE_URL + fileName,
+                    HttpStatus.OK.value(), HttpStatus.OK.name(), null, Constants.DOCUMENT_UPLOAD_OK);
+            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        } catch (IOException e) {
+            return uploadError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    private String extensionOf(String originalName) {
+        if (originalName == null) {
+            return null;
+        }
+        int dot = originalName.lastIndexOf('.');
+        if (dot < 0 || dot == originalName.length() - 1) {
+            return null;
+        }
+        return originalName.substring(dot + 1).toLowerCase();
+    }
+
+    private ResponseEntity<Object> uploadError(HttpStatus status, String message) {
+        return new ResponseEntity<>(new ResponseErrorMessage(status.value(), message, Constants.DOCUMENT_UPLOAD_KO),
+                status);
     }
 
     @PostMapping(value = "/upload-photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

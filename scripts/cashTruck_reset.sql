@@ -435,6 +435,86 @@ CREATE TABLE password_reset (
     UNIQUE INDEX uq_password_reset_token (reset_token)
 );
 
+
+-- DROP TABLE IF EXISTS document_file_type;
+CREATE TABLE document_file_type (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(80) NOT NULL,
+    -- Evita que el front ofrezca SOAT para un conductor o licencia para un camion.
+    applies_to ENUM('VEHICLE', 'DRIVER', 'OWNER') NOT NULL,
+    -- Distingue los que vencen (SOAT) de los que no (tarjeta de propiedad).
+    requires_expiry BOOLEAN NOT NULL DEFAULT FALSE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    creation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uq_document_file_type (name, applies_to)
+);
+
+-- Documentos archivados: el papel con su numero, emisor, vencimiento y escaneo.
+-- No confundir con document_type, que es el tipo de identificacion de personas.
+-- Un documento cuelga de exactamente una entidad; se usan tres columnas con FK
+-- real en lugar de un par (tipo, id) polimorfico para no perder la integridad
+-- referencial que garantiza el motor en el resto del esquema.
+-- DROP TABLE IF EXISTS document_file;
+CREATE TABLE document_file (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    document_file_type_id INT NOT NULL,
+
+    vehicle_id BIGINT NULL,
+    driver_id BIGINT NULL,
+    owner_id BIGINT NULL,
+
+    document_number VARCHAR(100),
+    -- Aseguradora o CDA. Dos SOAT del mismo vehiculo en anios distintos se
+    -- distinguen por esto.
+    issuer VARCHAR(150),
+    issue_date DATE,
+    -- Nullable a proposito: la tarjeta de propiedad no vence.
+    expiry_date DATE,
+    -- Nullable a proposito: el usuario puede registrar el documento sin
+    -- cargarlo, solo para que la app le recuerde el vencimiento.
+    file_url VARCHAR(255),
+    observations TEXT,
+
+    -- Al renovar, el anterior queda inactivo en lugar de desaparecer: un
+    -- vencimiento pasado es evidencia y no se recupera si se sobrescribe.
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    -- Vale el tipo mientras el documento este vigente y NULL cuando no. Las tres
+    -- claves unicas de abajo se apoyan en esto para permitir un solo documento
+    -- activo por entidad y tipo, dejando el historico inactivo sin limite:
+    -- MariaDB ignora en un indice unico las filas con alguna columna nula.
+    active_key INT AS (CASE WHEN is_active THEN document_file_type_id END) PERSISTENT,
+
+    creation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_document_file_type FOREIGN KEY (document_file_type_id) REFERENCES document_file_type(id),
+    CONSTRAINT fk_document_file_vehicle FOREIGN KEY (vehicle_id) REFERENCES vehicle(id),
+    CONSTRAINT fk_document_file_driver FOREIGN KEY (driver_id) REFERENCES driver(id),
+    CONSTRAINT fk_document_file_owner FOREIGN KEY (owner_id) REFERENCES owner(id),
+
+    -- Exactamente un portador: ni cero ni dos.
+    CONSTRAINT chk_document_file_holder CHECK (
+        (vehicle_id IS NOT NULL) + (driver_id IS NOT NULL) + (owner_id IS NOT NULL) = 1
+    ),
+    -- Sin archivo y sin vencimiento la fila no sirve: ni se consulta ni se
+    -- puede avisar por ella.
+    CONSTRAINT chk_document_file_payload CHECK (
+        file_url IS NOT NULL OR expiry_date IS NOT NULL
+    ),
+
+    UNIQUE KEY uq_document_file_active_vehicle (vehicle_id, active_key),
+    UNIQUE KEY uq_document_file_active_driver (driver_id, active_key),
+    UNIQUE KEY uq_document_file_active_owner (owner_id, active_key)
+);
+
+-- Los tres UNIQUE ya sirven de indice para buscar por portador; falta el del
+-- recordatorio de vencimientos, que consulta por fecha exacta y estado.
+CREATE INDEX idx_document_file_expiry ON document_file(expiry_date, is_active);
+
 -- ---------------------------------------------------------------------------------------------------------
 -- 3. Catalogos, roles, plantillas y usuario administrador (id = 1)
 -- ---------------------------------------------------------------------------------------------------------
@@ -675,6 +755,28 @@ VALUES ('WhatsApp', 'SUBSCRIPTION_REMINDER', NULL,
 '⏳ Tu suscripción a CashTruck está por vencer\n\nHola ${name}, tu suscripción finaliza el *${endDate}*, dentro de ${days} días.\n\nPara no perder el acceso a tus viajes, vehículos, mantenimientos y reportes, comunícate con el administrador y renuévala. 🔄\n\n¿Necesitas ayuda? Escríbenos por este medio 📲',
 'Suscripción por vencer');
 
+
+-- Tipos de documento archivado. Agregar uno nuevo es un INSERT aqui: no
+-- requiere desplegar backend.
+INSERT INTO document_file_type (name, applies_to, requires_expiry) VALUES
+('Tarjeta de Propiedad', 'VEHICLE', FALSE),
+('SOAT', 'VEHICLE', TRUE),
+('Revisión Tecnomecánica', 'VEHICLE', TRUE),
+('Seguro Todo Riesgo', 'VEHICLE', TRUE),
+('Tarjeta de Operación', 'VEHICLE', TRUE),
+('Póliza de Responsabilidad Civil', 'VEHICLE', TRUE);
+
+INSERT INTO document_file_type (name, applies_to, requires_expiry) VALUES
+('Cédula de Ciudadanía', 'DRIVER', FALSE),
+('Licencia de Conducción', 'DRIVER', TRUE),
+('Certificado de ARL', 'DRIVER', TRUE),
+('Examen Médico Ocupacional', 'DRIVER', TRUE);
+
+INSERT INTO document_file_type (name, applies_to, requires_expiry) VALUES
+('Cédula de Ciudadanía', 'OWNER', FALSE),
+('RUT', 'OWNER', FALSE),
+('Certificado de Cámara de Comercio', 'OWNER', TRUE);
+
 -- ---------------------------------------------------------------------------------------------------------
 -- 4. Informacion de los owners 2002 y 2005
 -- ---------------------------------------------------------------------------------------------------------
@@ -788,4 +890,6 @@ UNION ALL SELECT 'trip', COUNT(*) FROM trip
 UNION ALL SELECT 'expense', COUNT(*) FROM expense
 UNION ALL SELECT 'expense_category', COUNT(*) FROM expense_category
 UNION ALL SELECT 'driver_locations', COUNT(*) FROM driver_locations
-UNION ALL SELECT 'notification', COUNT(*) FROM notification;
+UNION ALL SELECT 'notification', COUNT(*) FROM notification
+UNION ALL SELECT 'document_file_type', COUNT(*) FROM document_file_type
+UNION ALL SELECT 'document_file', COUNT(*) FROM document_file;

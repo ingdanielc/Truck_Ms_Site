@@ -309,3 +309,23 @@ VALUES
 
 
 
+-- Tipos de documento archivado. Agregar uno nuevo es un INSERT aqui: no
+-- requiere desplegar backend.
+INSERT INTO document_file_type (name, applies_to, requires_expiry) VALUES
+('Tarjeta de Propiedad', 'VEHICLE', FALSE),
+('SOAT', 'VEHICLE', TRUE),
+('Revisión Tecnomecánica', 'VEHICLE', TRUE),
+('Seguro Todo Riesgo', 'VEHICLE', TRUE),
+('Tarjeta de Operación', 'VEHICLE', TRUE),
+('Póliza de Responsabilidad Civil', 'VEHICLE', TRUE);
+
+INSERT INTO document_file_type (name, applies_to, requires_expiry) VALUES
+('Cédula de Ciudadanía', 'DRIVER', FALSE),
+('Licencia de Conducción', 'DRIVER', TRUE),
+('Certificado de ARL', 'DRIVER', TRUE),
+('Examen Médico Ocupacional', 'DRIVER', TRUE);
+
+INSERT INTO document_file_type (name, applies_to, requires_expiry) VALUES
+('Cédula de Ciudadanía', 'OWNER', FALSE),
+('RUT', 'OWNER', FALSE),
+('Certificado de Cámara de Comercio', 'OWNER', TRUE);
