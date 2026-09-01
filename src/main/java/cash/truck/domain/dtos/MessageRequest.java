@@ -18,6 +18,10 @@ public class MessageRequest {
     private String phone;
     private String email;
     private String attachmentUrl; // optional
+    // WHATSAPP: plantilla aprobada. Los llena el caso de uso desde la plantilla
+    // local; si vienen vacios se envia texto libre, como hasta ahora.
+    private String contentSid; // optional
+    private String contentVariables; // optional, JSON posicional {"1":"...","2":"..."}
     // EMAIL
     private String subject; // optional
 

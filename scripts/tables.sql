@@ -349,6 +349,15 @@ CREATE TABLE template (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     medium VARCHAR(255) NOT NULL,
     message_type VARCHAR(255) NOT NULL,
+    -- ContentSid (HX...) de la plantilla aprobada en Twilio. Con una cuenta de
+    -- pago WhatsApp rechaza el texto libre en mensajes que inicia el negocio,
+    -- asi que sin esto no sale ninguna notificacion. Nulo = enviar texto libre,
+    -- que sigue siendo valido dentro de la ventana de 24 horas.
+    provider_template_id VARCHAR(64) NULL,
+    -- Orden de las variables, separadas por coma: WhatsApp las numera ({{1}},
+    -- {{2}}) mientras que template_content las nombra (${name}). Esta columna
+    -- es la traduccion entre ambos.
+    provider_variables VARCHAR(255) NULL,
     attachment_url_default TEXT,
     template_content TEXT NOT NULL,
     template_subject TEXT NOT NULL
@@ -464,7 +473,7 @@ CREATE TABLE document_file (
     -- claves unicas de abajo se apoyan en esto para permitir un solo documento
     -- activo por entidad y tipo, dejando el historico inactivo sin limite:
     -- MariaDB ignora en un indice unico las filas con alguna columna nula.
-    active_key INT AS (CASE WHEN is_active THEN document_file_type_id END) PERSISTENT,
+    active_key INT AS (CASE WHEN is_active THEN document_file_type_id END) STORED,
 
     creation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -22,6 +22,23 @@ public class Template {
     @Column(name = "message_type", nullable = false)
     private String messageType;
 
+    /**
+     * ContentSid (HX...) de la plantilla aprobada en Twilio. WhatsApp rechaza el
+     * texto libre en mensajes que inicia el negocio, asi que sin esto la
+     * notificacion no sale. Nulo significa enviar texto libre, que sigue siendo
+     * valido dentro de la ventana de 24 horas y para SMS y correo.
+     */
+    @Column(name = "provider_template_id", length = 64)
+    private String providerTemplateId;
+
+    /**
+     * Orden de las variables separadas por coma. WhatsApp las numera ({{1}},
+     * {{2}}) y templateContent las nombra (${name}): esta columna traduce de un
+     * vocabulario al otro.
+     */
+    @Column(name = "provider_variables", length = 255)
+    private String providerVariables;
+
     @Lob
     @Column(name = "attachment_url_default", columnDefinition = "NVARCHAR(MAX)")
     private String attachmentUrlDefault;

@@ -43,6 +43,7 @@ public class WhatsappMessageUseCase {
         try {
             WhatsApp whatsApp = setWhatsAppEntity(messageRequest);
             audit.setMessageId(whatsApp.getId());
+            audit.setMessageType(MediumEnum.WHATSAPP.getName());
             audit.setMessage("");
             if (messageRequest.getContent() == null || messageRequest.getContent().isEmpty()) {
                 messageRequest.setContent(getTemplate(messageRequest, whatsApp));
@@ -95,6 +96,24 @@ public class WhatsappMessageUseCase {
                 messageRequest.setAttachmentUrl(template.getAttachmentUrlDefault());
             }
             String content = mapUtils.mapTemplateValues(template, messageRequest.getData());
+
+            // La plantilla aprobada en Twilio, cuando la hay. El contenido local
+            // se sigue calculando: es lo que queda en la auditoria como texto
+            // realmente enviado, y es lo que usan SMS y correo.
+            messageRequest.setContentSid(template.getProviderTemplateId());
+            messageRequest.setContentVariables(
+                    mapUtils.mapContentVariables(template.getProviderVariables(), messageRequest.getData()));
+
+            if (template.getProviderTemplateId() == null || template.getProviderTemplateId().isBlank()) {
+                // Sin ContentSid el mensaje sale como texto libre y WhatsApp lo
+                // rechaza (error 63016) salvo que el destinatario haya escrito en
+                // las ultimas 24 horas. Se avisa aqui porque es el unico punto
+                // donde se sabe que plantilla falta por registrar.
+                logger.warn("La plantilla {} no tiene ContentSid aprobado: el mensaje sale como texto libre "
+                        + "y WhatsApp lo rechaza fuera de la ventana de 24 horas. "
+                        + "Registrelo con scripts/whatsapp_content_sids.sql", messageRequest.getMessageType());
+            }
+
             whatsApp.setTemplateId(template.getId());
             whatsApp.setMessageContent(content);
             whatsAppRepository.save(whatsApp);
@@ -108,7 +127,12 @@ public class WhatsappMessageUseCase {
     protected void send(MessageRequest whatsappRequest, WhatsApp whatsApp, Audit audit) {
         try {
             whatsAppNotificationStrategy.sendWhatsApp(whatsappRequest, whatsApp, audit);
-            audit.setStatus(MessageStatusEnum.SENT.getName());
+            // El proveedor ya dejo el resultado real de Twilio. Solo se completa
+            // el estado cuando no alcanzo a escribirlo, para no convertir en
+            // "Sent" un envio que en realidad fallo.
+            if (audit.getStatus() == null || audit.getStatus().isBlank()) {
+                audit.setStatus(MessageStatusEnum.SENT.getName());
+            }
         } catch (Exception e) {
             audit.setStatus(MessageStatusEnum.FAILED.getName());
             audit.setErrorType(e.getMessage());

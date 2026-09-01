@@ -63,8 +63,6 @@ SELECT * FROM audit;
 -- DELETE FROM audit WHERE id >= 1;
 
 SELECT * FROM template;
--- UPDATE template SET attachment_url_default = 'http://ccsoluciones.com.co/gy/membership.jpg' WHERE id = 1
--- UPDATE template SET attachment_url_default = 'http://ccsoluciones.com.co/gy/membership.jpg' WHERE id = 4
 -- DELETE FROM template WHERE id >= 1;
 
 SELECT * FROM whatsapp;

@@ -192,52 +192,83 @@ INSERT INTO user_role (user_id, role_id) VALUES
 (1, 1);
 
 -- Notifications
-INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject) 
-VALUES 
-('WhatsApp', 'BIENVENIDA', 'https://instecdevstrgaccount.blob.core.windows.net/instecdevsalesstaticcontent/Bancolombia/notificaciones/bienvenido.jpg', 'Hola ${partnerName}, gracias por unirte a nuestra comunidad fitness. \n\n💯 Estamos emocionados de acompañarte en tu camino hacia una vida más saludable y activa. \n\n🏋️‍♀️ Horarios: Lunes a Sabado \n📍 Ubicación: Calle 19 \n📲 Contacto: 3127199944. \n\nSi tienes alguna pregunta o necesitas ayuda, nuestro equipo está aquí para apoyarte.\n\n💪 Nos vemos en el gimnasio. ¡A romperla! 🚀🔥', ''),
-('Email', 'BIENVENIDA', '', 'Hola ${partnerName}, gracias por unirte a nuestra comunidad fitness. \n\n💯 Estamos emocionados de acompañarte en tu camino hacia una vida más saludable y activa. \n\n🏋️‍♀️ Horarios: Lunes a Sabado \n📍 Ubicación: Calle 19 \n📲 Contacto: 3127199944. \n\nSi tienes alguna pregunta o necesitas ayuda, nuestro equipo está aquí para apoyarte.\n\n💪 Nos vemos en el gimnasio. ¡A romperla! 🚀🔥', 'Bienvenido'),
-('Sms', 'BIENVENIDA', '', 'Hola ${partnerName}, gracias por unirte a nuestra comunidad fitness. \n\n💯 Estamos emocionados de acompañarte en tu camino hacia una vida más saludable y activa. \n\n🏋️‍♀️ Horarios: Lunes a Sabado \n📍 Ubicación: Calle 19 \n📲 Contacto: 3127199944. \n\nSi tienes alguna pregunta o necesitas ayuda, nuestro equipo está aquí para apoyarte.\n\n💪 Nos vemos en el gimnasio. ¡A romperla! 🚀🔥', ''),
-('WhatsApp', 'COMPRA_MEMBRESIA', 'https://instecdevstrgaccount.blob.core.windows.net/instecdevsalesstaticcontent/Bancolombia/notificaciones/bienvenido.jpg', 'Hola ${partnerName}, gracias por confiar en nosotros. 🏋️‍♂️🔥\nTu membresía ha sido procesada correctamente.\n\n📅 Fecha de inicio: ${startDate}\n📅 Fecha de vencimiento: ${endDate}\n💳 Plan adquirido: ${membershipName}\n\nRecuerda que estamos aquí para apoyarte en tu camino fitness. Si tienes alguna duda, contáctanos. \n\n📲¡Nos vemos en el gimnasio! 💪😃', '');
 
-ALTER TABLE template CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-ALTER TABLE whatsapp CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Plantillas de WhatsApp. El texto es identico al aprobado en Twilio/Meta:
+-- lo que se guarda aqui es lo que el destinatario recibe y lo que queda en la
+-- auditoria. Ver docs/plantillas-whatsapp-twilio.md.
+--
+-- La contrasena viaja enmascarada (********): nunca sale del backend hacia
+-- Twilio ni queda escrita en la auditoria.
+DELETE FROM template WHERE medium = 'WhatsApp'
+  AND message_type IN ('PASSWORD_RECOVERY', 'WELCOME_OWNER', 'WELCOME_OWNER_DRIVER',
+                       'WELCOME_DRIVER', 'SUBSCRIPTION_REMINDER');
 
--- Plantilla del mensaje de WhatsApp
-DELETE FROM template WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
+-- cashtruck_recuperacion_contrasena | UTILITY | Texto propio en UTILITY para poder saludar por el nombre y nombrar la marca. Ver la advertencia de categoría en la regla 1 y la variante de respaldo al final del documento.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'PASSWORD_RECOVERY', NULL,
-        '🔐 Hola ${name},\ntu código para recuperar la contraseña de CashTruck es:\n\n${code}\n\n⏳ Vence en ${minutes} minutos y solo se puede usar una vez.\n\n⚠️ Si no solicitaste este cambio, ignora este mensaje y comunícate con el administrador.',
-        'Recuperación de contraseña');
-        
-DELETE FROM template WHERE medium = 'WhatsApp'
-  AND message_type IN ('WELCOME_OWNER', 'WELCOME_OWNER_DRIVER', 'WELCOME_DRIVER', 'SUBSCRIPTION_REMINDER');
+'🔐 Recuperación de contraseña de CashTruck\n\nHola ${name}, recibimos una solicitud para restablecer tu contraseña. Tu código de verificación es:\n\n*${code}*\n\n⏳ Vence en ${minutes} minutos y solo se puede usar una vez.\n\n⚠️ Si no lo solicitaste, ignora este mensaje y comunícate con el administrador.',
+'Recuperación de contraseña');
 
--- Bienvenida cuando el propietario NO conduce: incluye el paso de crear conductor
+-- cashtruck_bienvenida_propietario | UTILITY | Propietario que no conduce: conserva el paso de crear conductores.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'WELCOME_OWNER', NULL,
-'🚀 ¡Bienvenido a CashTruck! 🚛💨\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: ${appUrl}\n📧 Usuario: ${email}\n🔑 Contraseña: ${password}\n\n*Primeros pasos:*\n1️⃣ Crea tus conductores 👤\n2️⃣ Registra tus vehículos 🚛\n3️⃣ Crea viajes asignando conductor y vehículo 🗺️\n4️⃣ Anota los gastos de cada viaje 💸\n5️⃣ Registra los mantenimientos 🛠️\n6️⃣ Consulta tus rutas en el mapa 📍\n7️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n🔑 Contraseña: ********\n\n*Primeros pasos:*\n1️⃣ Crea tus conductores 👤\n2️⃣ Registra tus vehículos 🚛\n3️⃣ Crea viajes asignando conductor y vehículo 🗺️\n4️⃣ Anota los gastos de cada viaje 💸\n5️⃣ Registra los mantenimientos 🛠️\n6️⃣ Consulta tus rutas en el mapa 📍\n7️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
 'Bienvenido a CashTruck');
 
--- Bienvenida cuando el propietario TAMBIEN conduce: sin el paso de crear
--- conductor, porque su propio conductor se crea solo al registrarlo
+-- cashtruck_bienvenida_propietario_conductor | UTILITY | Propietario que también conduce: su conductor se crea solo, así que no aparece ese paso.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'WELCOME_OWNER_DRIVER', NULL,
-'🚀 ¡Bienvenido a CashTruck! 🚛💨\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: ${appUrl}\n📧 Usuario: ${email}\n🔑 Contraseña: ${password}\n\n*Primeros pasos:*\n1️⃣ Registra tus vehículos 🚛\n2️⃣ Crea viajes asignando tu vehículo 🗺️\n3️⃣ Anota los gastos de cada viaje 💸\n4️⃣ Registra los mantenimientos 🛠️\n5️⃣ Consulta tus rutas en el mapa 📍\n6️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n🔑 Contraseña: ********\n\n*Primeros pasos:*\n1️⃣ Registra tus vehículos 🚛\n2️⃣ Crea viajes asignando tu vehículo 🗺️\n3️⃣ Anota los gastos de cada viaje 💸\n4️⃣ Registra los mantenimientos 🛠️\n5️⃣ Consulta tus rutas en el mapa 📍\n6️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
 'Bienvenido a CashTruck');
 
--- Bienvenida del conductor al que el propietario le dio acceso a la app: misma
--- plantilla del propietario sin los pasos que el conductor no puede hacer, asi
--- que sus primeros pasos arrancan en la creacion de viajes
+-- cashtruck_bienvenida_conductor | UTILITY | Conductor al que el propietario le dio acceso a la app.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'WELCOME_DRIVER', NULL,
-'🚀 ¡Bienvenido a CashTruck! 🚛💨\n\nHola ${name}, ya puedes registrar tus viajes y gastos.\n\n🔗 App: ${appUrl}\n📧 Usuario: ${email}\n🔑 Contraseña: ${password}\n\n*Primeros pasos:*\n1️⃣ Crea viajes asignando tu vehículo 🗺️\n2️⃣ Anota los gastos de cada viaje 💸\n3️⃣ Registra los mantenimientos 🛠️\n4️⃣ Consulta tus rutas en el mapa 📍\n5️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes registrar tus viajes y gastos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n🔑 Contraseña: ********\n\n*Primeros pasos:*\n1️⃣ Crea viajes asignando tu vehículo 🗺️\n2️⃣ Anota los gastos de cada viaje 💸\n3️⃣ Registra los mantenimientos 🛠️\n4️⃣ Consulta tus rutas en el mapa 📍\n5️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
 'Bienvenido a CashTruck');
 
--- Aviso de suscripcion proxima a vencer
+-- cashtruck_aviso_suscripcion | UTILITY | Aviso de estado de la cuenta, sin precios ni oferta: eso es lo que lo mantiene en UTILITY y no en MARKETING.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'SUBSCRIPTION_REMINDER', NULL,
-'⏳ Tu suscripción a CashTruck está por vencer\n\nHola ${name}, tu suscripción finaliza el *${endDate}*, dentro de ${days} días.\n\nPara no perder el acceso a tus viajes, vehículos, mantenimientos y reportes, comunícate con el administrador y renuévala. 🔄\n\n¿Necesitas ayuda? Escríbenos por este medio 📲',
+'⏳ Tu suscripción a CashTruck está por vencer\n\nHola ${name}, tu suscripción finaliza el *${endDate}*, dentro de ${days} días.\n\nCuando venza perderás el acceso a tus viajes, vehículos, mantenimientos y reportes. Comunícate con el administrador para gestionar la renovación. 🔄\n\n¿Necesitas ayuda? Escríbenos por este medio 📲',
 'Suscripción por vencer');
+
+-- Orden en que Twilio numera las variables de cada plantilla aprobada: la
+-- posicion tiene que coincidir con el {{n}} de la plantilla. La contrasena ya
+-- no esta en la lista, asi que no se envia al proveedor.
+UPDATE template SET provider_variables = 'name,code,minutes'
+ WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
+
+UPDATE template SET provider_variables = 'name,email'
+ WHERE medium = 'WhatsApp'
+   AND message_type IN ('WELCOME_OWNER', 'WELCOME_OWNER_DRIVER', 'WELCOME_DRIVER');
+
+UPDATE template SET provider_variables = 'name,endDate,days'
+ WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_REMINDER';
+
+-- cashtruck_recuperacion_contrasena
+UPDATE template SET provider_template_id = 'HXa89f5bdffaad0fcdc2ee84233898f619'
+ WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
+
+-- cashtruck_bienvenida_propietario
+UPDATE template SET provider_template_id = 'HXc45895576ec30bda94b34d5368fd4c47'
+ WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_OWNER';
+
+-- cashtruck_bienvenida_propietario_conductor
+UPDATE template SET provider_template_id = 'HX1da9bd558e859b9167946f198f671d7e'
+ WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_OWNER_DRIVER';
+
+-- cashtruck_bienvenida_conductor
+UPDATE template SET provider_template_id = 'HXa6942af2ff0a2b5c8b7769006f89a85f'
+ WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_DRIVER';
+
+-- cashtruck_aviso_suscripcion
+UPDATE template SET provider_template_id = 'HXca14a7506ca78843fc490088c8b48e38'
+ WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_REMINDER';
+
+-- El ContentSid se completa cuando Meta aprueba cada plantilla:
+--   UPDATE template SET provider_template_id = 'HXxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+--    WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_OWNER';
 
 INSERT INTO notification (
     event_type, 
