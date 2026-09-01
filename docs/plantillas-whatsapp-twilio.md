@@ -6,27 +6,22 @@ que quedó en `scripts/info.sql` y `scripts/cashTruck_reset.sql`: el backend
 guarda esa copia local para la auditoría, y Twilio envía la aprobada por
 `ContentSid`. Si una cambia, la otra también.
 
-## La contraseña no sale del backend
+## La contraseña no aparece en el mensaje
 
-En las tres bienvenidas la contraseña es el literal `********`, no una variable.
-El backend sigue recibiendo `plainPassword`, pero como `provider_variables` ya no
-la lista, `MapUtils.mapContentVariables` no la incluye en el JSON que va a
-Twilio. Efectos:
+Las bienvenidas no mencionan la contraseña: ni el valor ni un enmascarado. El
+backend sigue recibiendo `plainPassword` para poder crear el usuario, pero como
+`provider_variables` no la lista, `MapUtils.mapContentVariables` no la incluye en
+el JSON que va a Twilio. Efectos:
 
 - La contraseña en texto plano nunca llega a Twilio ni a Meta.
 - Tampoco queda en `whatsapp.message_content` ni en la auditoría, que antes la
   guardaban en claro.
 - Desaparece del log `Final template content after mapping` de `MapUtils`.
 
-A cambio, **el mensaje ya no comunica la contraseña**. En el registro público el
-usuario la eligió, así que no hace falta; en las altas que crea un administrador,
-él tiene que entregarla por otro canal. Si prefieres que el mensaje lo diga
-explícitamente, cambia esa línea por `🔑 Contraseña: la que registraste` antes de
-enviar a aprobación (y ajusta el SQL igual).
-
-> Nota de formato: WhatsApp usa `*texto*` para negrita, pero `********` son
-> asteriscos vacíos y se muestran tal cual. Si en la vista previa de Twilio se
-> vieran raros, reemplázalos por `••••••••`.
+Lo que sí lleva el mensaje es el correo con el que se entra (`{{2}}`). En el
+registro público la contraseña la eligió el propio usuario, así que no hay nada
+que comunicarle; en las altas que crea un administrador, él tiene que entregarla
+por otro canal.
 
 ---
 
@@ -67,6 +62,11 @@ enviar a aprobación (y ajusta el SQL igual).
 8. **Ortografía y tildes correctas** y coherentes con el idioma declarado (`es`).
    Los errores de redacción son causal de rechazo por sí solos.
 9. **Nombre en minúsculas con guion bajo**, que es lo único que acepta Meta.
+10. **Las cuatro `UTILITY` cierran igual, avisando que el mensaje es
+    automático**, en vez de invitar a responder. Nadie atiende ese número, así
+    que prometer un canal de soporte que no existe solo genera respuestas que
+    nadie lee. Donde sí hay que hacer algo —renovar la suscripción— el mensaje
+    remite al administrador, que es un canal real.
 
 ---
 
@@ -127,7 +127,6 @@ Hola {{1}}, ya puedes gestionar tus vehículos y controlar tus costos.
 
 🔗 App: https://truck.ccsoluciones.com.co
 📧 Usuario: {{2}}
-🔑 Contraseña: ********
 
 *Primeros pasos:*
 1️⃣ Crea tus conductores 👤
@@ -138,7 +137,7 @@ Hola {{1}}, ya puedes gestionar tus vehículos y controlar tus costos.
 6️⃣ Consulta tus rutas en el mapa 📍
 7️⃣ Revisa tus reportes 📊
 
-¿Dudas? Escríbenos por este medio 📲
+🤖 Mensaje automático, por favor no respondas a este número.
 ```
 
 | Posición | Clave interna | Valor de ejemplo |
@@ -167,7 +166,6 @@ Hola {{1}}, ya puedes gestionar tus vehículos y controlar tus costos.
 
 🔗 App: https://truck.ccsoluciones.com.co
 📧 Usuario: {{2}}
-🔑 Contraseña: ********
 
 *Primeros pasos:*
 1️⃣ Registra tus vehículos 🚛
@@ -177,7 +175,7 @@ Hola {{1}}, ya puedes gestionar tus vehículos y controlar tus costos.
 5️⃣ Consulta tus rutas en el mapa 📍
 6️⃣ Revisa tus reportes 📊
 
-¿Dudas? Escríbenos por este medio 📲
+🤖 Mensaje automático, por favor no respondas a este número.
 ```
 
 | Posición | Clave interna | Valor de ejemplo |
@@ -206,7 +204,6 @@ Hola {{1}}, ya puedes registrar tus viajes y gastos.
 
 🔗 App: https://truck.ccsoluciones.com.co
 📧 Usuario: {{2}}
-🔑 Contraseña: ********
 
 *Primeros pasos:*
 1️⃣ Crea viajes asignando tu vehículo 🗺️
@@ -215,7 +212,7 @@ Hola {{1}}, ya puedes registrar tus viajes y gastos.
 4️⃣ Consulta tus rutas en el mapa 📍
 5️⃣ Revisa tus reportes 📊
 
-¿Dudas? Escríbenos por este medio 📲
+🤖 Mensaje automático, por favor no respondas a este número.
 ```
 
 | Posición | Clave interna | Valor de ejemplo |
@@ -244,7 +241,7 @@ Hola {{1}}, tu suscripción finaliza el *{{2}}*, dentro de {{3}} días.
 
 Cuando venza perderás el acceso a tus viajes, vehículos, mantenimientos y reportes. Comunícate con el administrador para gestionar la renovación. 🔄
 
-¿Necesitas ayuda? Escríbenos por este medio 📲
+🤖 Mensaje automático, por favor no respondas a este número.
 ```
 
 | Posición | Clave interna | Valor de ejemplo |
@@ -335,8 +332,19 @@ Twilio y los minutos quedan fijos dentro de la plantilla aprobada.
 
 ## Al cambiar algo
 
-Una plantilla aprobada **no se edita**: Meta obliga a crear otra y volver a
-aprobarla. Quedaron acoplados a la plantilla estos valores:
+Una plantilla aprobada **sí se puede editar**, y al editarla conserva su
+`ContentSid`: en la consola actual con el botón *Edit*, o por API con
+`PUT /v1/Content/{ContentSid}`. La edición vuelve a pasar por revisión de Meta, y
+el tope es una edición cada 24 horas y diez cada 30 días. Como el `HX` no cambia,
+retocar el texto no obliga a tocar `info.sql`. (En la consola antigua no hay
+*Edit*: ahí toca duplicar, y eso sí genera un `HX` nuevo.)
+
+Lo que obliga a crear una plantilla desde cero es cambiar su **tipo o
+categoría** —por ejemplo pasar de `twilio/text` a `whatsapp/authentication`—,
+porque eso ya no es editar un texto sino otra plantilla distinta. Solo en ese
+caso cambia el `HX` y hay que actualizarlo.
+
+Quedaron acoplados a la plantilla estos valores:
 
 | Si cambia… | Hay que rehacer |
 | --- | --- |

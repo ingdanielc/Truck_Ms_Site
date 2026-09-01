@@ -724,8 +724,8 @@ ALTER TABLE whatsapp CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 -- lo que se guarda aqui es lo que el destinatario recibe y lo que queda en la
 -- auditoria. Ver docs/plantillas-whatsapp-twilio.md.
 --
--- La contrasena viaja enmascarada (********): nunca sale del backend hacia
--- Twilio ni queda escrita en la auditoria.
+-- La contrasena no aparece en ningun mensaje: no esta en provider_variables, asi
+-- que no sale del backend hacia Twilio ni queda escrita en la auditoria.
 DELETE FROM template WHERE medium = 'WhatsApp'
   AND message_type IN ('PASSWORD_RECOVERY', 'WELCOME_OWNER', 'WELCOME_OWNER_DRIVER',
                        'WELCOME_DRIVER', 'SUBSCRIPTION_REMINDER');
@@ -739,25 +739,25 @@ VALUES ('WhatsApp', 'PASSWORD_RECOVERY', NULL,
 -- cashtruck_bienvenida_propietario | UTILITY | Propietario que no conduce: conserva el paso de crear conductores.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'WELCOME_OWNER', NULL,
-'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n🔑 Contraseña: ********\n\n*Primeros pasos:*\n1️⃣ Crea tus conductores 👤\n2️⃣ Registra tus vehículos 🚛\n3️⃣ Crea viajes asignando conductor y vehículo 🗺️\n4️⃣ Anota los gastos de cada viaje 💸\n5️⃣ Registra los mantenimientos 🛠️\n6️⃣ Consulta tus rutas en el mapa 📍\n7️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n\n*Primeros pasos:*\n1️⃣ Crea tus conductores 👤\n2️⃣ Registra tus vehículos 🚛\n3️⃣ Crea viajes asignando conductor y vehículo 🗺️\n4️⃣ Anota los gastos de cada viaje 💸\n5️⃣ Registra los mantenimientos 🛠️\n6️⃣ Consulta tus rutas en el mapa 📍\n7️⃣ Revisa tus reportes 📊\n\n🤖 Mensaje automático, por favor no respondas a este número.',
 'Bienvenido a CashTruck');
 
 -- cashtruck_bienvenida_propietario_conductor | UTILITY | Propietario que también conduce: su conductor se crea solo, así que no aparece ese paso.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'WELCOME_OWNER_DRIVER', NULL,
-'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n🔑 Contraseña: ********\n\n*Primeros pasos:*\n1️⃣ Registra tus vehículos 🚛\n2️⃣ Crea viajes asignando tu vehículo 🗺️\n3️⃣ Anota los gastos de cada viaje 💸\n4️⃣ Registra los mantenimientos 🛠️\n5️⃣ Consulta tus rutas en el mapa 📍\n6️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes gestionar tus vehículos y controlar tus costos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n\n*Primeros pasos:*\n1️⃣ Registra tus vehículos 🚛\n2️⃣ Crea viajes asignando tu vehículo 🗺️\n3️⃣ Anota los gastos de cada viaje 💸\n4️⃣ Registra los mantenimientos 🛠️\n5️⃣ Consulta tus rutas en el mapa 📍\n6️⃣ Revisa tus reportes 📊\n\n🤖 Mensaje automático, por favor no respondas a este número.',
 'Bienvenido a CashTruck');
 
 -- cashtruck_bienvenida_conductor | UTILITY | Conductor al que el propietario le dio acceso a la app.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'WELCOME_DRIVER', NULL,
-'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes registrar tus viajes y gastos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n🔑 Contraseña: ********\n\n*Primeros pasos:*\n1️⃣ Crea viajes asignando tu vehículo 🗺️\n2️⃣ Anota los gastos de cada viaje 💸\n3️⃣ Registra los mantenimientos 🛠️\n4️⃣ Consulta tus rutas en el mapa 📍\n5️⃣ Revisa tus reportes 📊\n\n¿Dudas? Escríbenos por este medio 📲',
+'🚀 Tu cuenta de CashTruck ya está activa 🚛\n\nHola ${name}, ya puedes registrar tus viajes y gastos.\n\n🔗 App: https://truck.ccsoluciones.com.co\n📧 Usuario: ${email}\n\n*Primeros pasos:*\n1️⃣ Crea viajes asignando tu vehículo 🗺️\n2️⃣ Anota los gastos de cada viaje 💸\n3️⃣ Registra los mantenimientos 🛠️\n4️⃣ Consulta tus rutas en el mapa 📍\n5️⃣ Revisa tus reportes 📊\n\n🤖 Mensaje automático, por favor no respondas a este número.',
 'Bienvenido a CashTruck');
 
 -- cashtruck_aviso_suscripcion | UTILITY | Aviso de estado de la cuenta, sin precios ni oferta: eso es lo que lo mantiene en UTILITY y no en MARKETING.
 INSERT INTO template (medium, message_type, attachment_url_default, template_content, template_subject)
 VALUES ('WhatsApp', 'SUBSCRIPTION_REMINDER', NULL,
-'⏳ Tu suscripción a CashTruck está por vencer\n\nHola ${name}, tu suscripción finaliza el *${endDate}*, dentro de ${days} días.\n\nCuando venza perderás el acceso a tus viajes, vehículos, mantenimientos y reportes. Comunícate con el administrador para gestionar la renovación. 🔄\n\n¿Necesitas ayuda? Escríbenos por este medio 📲',
+'⏳ Tu suscripción a CashTruck está por vencer\n\nHola ${name}, tu suscripción finaliza el *${endDate}*, dentro de ${days} días.\n\nCuando venza perderás el acceso a tus viajes, vehículos, mantenimientos y reportes. Comunícate con el administrador para gestionar la renovación. 🔄\n\n🤖 Mensaje automático, por favor no respondas a este número.',
 'Suscripción por vencer');
 
 -- Orden en que Twilio numera las variables de cada plantilla aprobada: la
