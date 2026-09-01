@@ -212,16 +212,23 @@ public class SecurityUseCase {
      * X-USER-ID. Sin identidad resoluble se asume que NO es administrador.
      */
     public boolean isAdministratorCaller(Integer userIdHeader, String jwt) {
-        Integer callerId = resolveUserIdFromJWT(jwt);
-        if (callerId == null) {
-            callerId = userIdHeader;
-        }
+        Integer callerId = resolveCallerUserId(userIdHeader, jwt);
         if (callerId == null) {
             return false;
         }
         return usersRepository.findById(callerId)
                 .map(this::isAdministrator)
                 .orElse(false);
+    }
+
+    /**
+     * Identidad de quien invoca: primero el JWT del login y, si no viene o no es
+     * valido, el header X-USER-ID. Devuelve null cuando no hay identidad
+     * resoluble; quien la use decide si eso es un 401 o un alcance vacio.
+     */
+    public Integer resolveCallerUserId(Integer userIdHeader, String jwt) {
+        Integer callerId = resolveUserIdFromJWT(jwt);
+        return callerId != null ? callerId : userIdHeader;
     }
 
     private Integer resolveUserIdFromJWT(String jwt) {

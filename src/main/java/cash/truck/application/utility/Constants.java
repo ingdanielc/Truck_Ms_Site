@@ -54,6 +54,13 @@ public class Constants {
 
     public static final String PARTNER_SEARCH_KO = "partner.search.ko";
 
+    // Reportes
+    public static final String TRIP_STATUS_IN_PROGRESS = "En Curso";
+    public static final String REPORT_DASHBOARD_OK = "report.dashboard.ok";
+    public static final String REPORT_GROUP_TRIPS_OK = "report.group.trips.ok";
+    public static final String REPORT_KO = "report.ko";
+
+
     // Security
     public static final String USERS_SEARCH_OK = "users.search.ok";
     public static final String USER_SEARCH_NOT_FOUND = "user.search.not.found";
