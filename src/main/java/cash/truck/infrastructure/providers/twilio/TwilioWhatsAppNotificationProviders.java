@@ -3,6 +3,7 @@ package cash.truck.infrastructure.providers.twilio;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
+import com.twilio.exception.ApiException;
 import com.twilio.type.PhoneNumber;
 import cash.truck.application.strategies.WhatsAppNotificationStrategy;
 import cash.truck.domain.dtos.MessageRequest;
@@ -63,10 +64,33 @@ public class TwilioWhatsAppNotificationProviders implements WhatsAppNotification
         } catch (Exception e) {
             // El motivo de Twilio se guarda tal cual: es lo unico que distingue
             // un numero mal formado de una plantilla sin aprobar (error 63016).
-            log.error("Failed to send message to {}: {}", recipient, e.getMessage());
+            String reason = describeFailure(e, whatsappRequest);
+            log.error("Failed to send message to {}: {}", recipient, reason);
             saveMessageToDatabase(whatsappRequest, recipient, whatsApp, null, audit,
-                    MessageStatusEnum.FAILED.getName(), e.getMessage());
+                    MessageStatusEnum.FAILED.getName(), reason);
         }
+    }
+
+    /**
+     * El texto suelto de Twilio no alcanza para saber que revisar. "Content was
+     * not found" (20404) significa que el ContentSid enviado no existe en esta
+     * cuenta, casi siempre porque la plantilla se volvio a crear y
+     * provider_template_id quedo con el HX viejo; se parece demasiado a otros
+     * rechazos como para distinguirlos sin el codigo. Y sin el ContentSid a la
+     * vista no se sabe que fila de template corregir, porque el log no dice de
+     * cual plantilla salio el envio.
+     */
+    private String describeFailure(Exception e, MessageRequest whatsappRequest) {
+        StringBuilder reason = new StringBuilder(e.getMessage() == null ? e.toString() : e.getMessage());
+        if (e instanceof ApiException apiException && apiException.getCode() != null) {
+            reason.append(" (Twilio ").append(apiException.getCode()).append(')');
+        }
+        String contentSid = whatsappRequest.getContentSid();
+        if (contentSid != null && !contentSid.isBlank()) {
+            reason.append(" [ContentSid ").append(contentSid)
+                    .append(" de la plantilla ").append(whatsappRequest.getMessageType()).append(']');
+        }
+        return reason.toString();
     }
 
     /**

@@ -259,7 +259,7 @@ UPDATE template SET provider_template_id = 'HXd8d59f0f3c09c6a37dd4c5342e619ba6'
  WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_OWNER_DRIVER';
 
 -- cashtruck_bienvenida_conductor
-UPDATE template SET provider_template_id = 'HXf5060f9521d052bc8df7de85fcefc6eb'
+UPDATE template SET provider_template_id = 'HX08adab4a5ae2e03f516c9da42481b4b8'
  WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_DRIVER';
 
 -- cashtruck_aviso_suscripcion

@@ -773,6 +773,33 @@ UPDATE template SET provider_variables = 'name,email'
 UPDATE template SET provider_variables = 'name,endDate,days'
  WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_REMINDER';
 
+-- ContentSid de cada plantilla aprobada, identicos a los de scripts/info.sql.
+-- Sin esto la base queda con provider_template_id en NULL y el backend envia
+-- texto libre, que WhatsApp rechaza (63016) fuera de la ventana de 24 horas.
+-- Al recrear una plantilla en Twilio cambia el HX: hay que actualizarlo en los
+-- dos scripts y en la base ya desplegada, o Twilio responde 20404 "Content was
+-- not found" por el HX viejo.
+
+-- cashtruck_recuperacion_contrasena
+UPDATE template SET provider_template_id = 'HX007954e19c9324b37c3fac3bb38323e8'
+ WHERE medium = 'WhatsApp' AND message_type = 'PASSWORD_RECOVERY';
+
+-- cashtruck_bienvenida_propietario
+UPDATE template SET provider_template_id = 'HX076b7a60abab32ab1feacbf459cd86fb'
+ WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_OWNER';
+
+-- cashtruck_bienvenida_propietario_conductor
+UPDATE template SET provider_template_id = 'HXd8d59f0f3c09c6a37dd4c5342e619ba6'
+ WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_OWNER_DRIVER';
+
+-- cashtruck_bienvenida_conductor
+UPDATE template SET provider_template_id = 'HX08adab4a5ae2e03f516c9da42481b4b8'
+ WHERE medium = 'WhatsApp' AND message_type = 'WELCOME_DRIVER';
+
+-- cashtruck_aviso_suscripcion
+UPDATE template SET provider_template_id = 'HX9d0d9af9996d7ed148cca856c8f46af6'
+ WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_REMINDER';
+
 -- Tipos de documento archivado. Agregar uno nuevo es un INSERT aqui: no
 -- requiere desplegar backend.
 INSERT INTO document_file_type (name, applies_to, requires_expiry) VALUES
