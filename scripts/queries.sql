@@ -72,3 +72,5 @@ SELECT * FROM email;
 -- DELETE FROM email WHERE id = 1;
 
 SELECT * FROM password_reset;
+
+SELECT * FROM document_file;
