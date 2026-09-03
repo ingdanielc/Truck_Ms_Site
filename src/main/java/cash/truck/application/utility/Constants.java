@@ -136,6 +136,17 @@ public class Constants {
     /** Todos los dias a las 8:00 en Bogota. */
     public static final String SUBSCRIPTION_REMINDER_CRON = "0 0 8 * * *";
 
+    // Vencimiento de documentos de vehiculo (aviso interno, sin WhatsApp ni push)
+    public static final String DOCUMENT_EXPIRY_EVENT_TYPE = "DOCUMENT_EVENT";
+    /**
+     * Antelacion con que se avisa cada vencimiento: 0 es el mismo dia en que
+     * vence. Se avisa una vez por cada valor de la lista, de modo que un
+     * documento genera tres avisos a lo largo de su ultima semana y media.
+     */
+    public static final java.util.List<Integer> DOCUMENT_EXPIRY_REMINDER_DAYS = java.util.List.of(10, 3, 0);
+    /** Todos los dias a las 8:05 en Bogota, despues del aviso de suscripcion. */
+    public static final String DOCUMENT_EXPIRY_REMINDER_CRON = "0 5 8 * * *";
+
     // Password Reset
     public static final String PASSWORD_RESET_MESSAGE_TYPE = "PASSWORD_RECOVERY";
     public static final String COUNTRY_CODE_CO = "57";

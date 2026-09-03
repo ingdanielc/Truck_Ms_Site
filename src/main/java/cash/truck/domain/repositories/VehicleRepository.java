@@ -11,10 +11,19 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface VehicleRepository extends JpaRepository<Vehicle, Long>, JpaSpecificationExecutor<Vehicle> {
     Page<Vehicle> findAll(Specification<Vehicle> specification, Pageable pageable);
+
+    /**
+     * Solo la placa. Cargar la entidad completa para leerla cuesta tres viajes
+     * —el vehiculo con la subconsulta de occupied, mas driver y owners, que
+     * estan en EAGER— y el aviso de vencimiento no usa ninguno de esos campos.
+     */
+    @Query("SELECT v.plate FROM Vehicle v WHERE v.id = :id")
+    Optional<String> findPlateById(@Param("id") Long id);
 
     /**
      * Alcance del tablero: un renglon por vehiculo con lo minimo para armar el
