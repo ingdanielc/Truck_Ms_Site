@@ -1,14 +1,17 @@
 package cash.truck.application.usecases.push;
 
+import cash.truck.application.utility.Constants;
 import cash.truck.domain.entities.Driver;
 import cash.truck.domain.entities.Owner;
 import cash.truck.domain.entities.Users;
 import cash.truck.domain.repositories.DriverRepository;
 import cash.truck.domain.repositories.OwnerRepository;
+import cash.truck.domain.repositories.UserRoleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -30,10 +33,27 @@ public class PushRecipientResolver {
 
     private final OwnerRepository ownerRepository;
     private final DriverRepository driverRepository;
+    private final UserRoleRepository userRoleRepository;
 
-    public PushRecipientResolver(OwnerRepository ownerRepository, DriverRepository driverRepository) {
+    public PushRecipientResolver(OwnerRepository ownerRepository, DriverRepository driverRepository,
+                                 UserRoleRepository userRoleRepository) {
         this.ownerRepository = ownerRepository;
         this.driverRepository = driverRepository;
+        this.userRoleRepository = userRoleRepository;
+    }
+
+    /**
+     * Los administradores, para los avisos que no son de un propietario en
+     * particular: hoy, que se creo una cuenta nueva. Son pocos y la consulta
+     * trae solo ids, asi que no compensa cachearlos: un administrador dado de
+     * alta hoy debe empezar a recibir avisos hoy, sin reiniciar el servicio.
+     */
+    public List<Integer> resolveAdminUserIds() {
+        List<Integer> userIds = userRoleRepository.findUserIdsByRoleId(Constants.ROLE_ID_ADMIN);
+        if (userIds.isEmpty()) {
+            logger.warn("No hay usuarios con rol administrador: nadie recibe el aviso");
+        }
+        return userIds;
     }
 
     public Optional<Integer> resolveOwnerUserId(Long ownerId) {

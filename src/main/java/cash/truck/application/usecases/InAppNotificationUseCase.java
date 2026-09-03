@@ -4,12 +4,14 @@ import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
 import cash.truck.application.utility.filters.UtilsFilter;
+import cash.truck.domain.dtos.NotificationCreatedEvent;
 import cash.truck.domain.entities.Notification;
 import cash.truck.domain.repositories.NotificationRepository;
 import cash.truck.domain.repositories.OwnerRepository;
 import cash.truck.domain.repositories.RolesRepository;
 import cash.truck.domain.repositories.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +34,15 @@ public class InAppNotificationUseCase {
 
     @Autowired
     private OwnerRepository ownerRepository;
+
+    /**
+     * El reparto por otros canales no se invoca desde aqui: se publica un evento
+     * y quien escuche decide. Asi este caso de uso sigue sabiendo solo de la
+     * notificacion interna, que es la fuente de verdad, y sumar un transporte
+     * manana no obliga a tocarlo.
+     */
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     public List<Notification> getAllNotifications() {
         return notificationRepository.findAll();
@@ -65,7 +76,14 @@ public class InAppNotificationUseCase {
             ownerRepository.findById(ownerId).ifPresent(notification::setOwner);
         }
 
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+
+        // Se publica despues de guardar y con los datos crudos: el oyente corre
+        // tras el commit, fuera de esta sesion de Hibernate.
+        eventPublisher.publishEvent(new NotificationCreatedEvent(saved.getId(), eventType, message,
+                ownerId, referenceId, targetUserId));
+
+        return saved;
     }
 
     public Page<Notification> findWithFilterOptional(FilterRequest filterRequest) {

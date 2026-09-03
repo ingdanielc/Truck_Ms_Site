@@ -74,3 +74,8 @@ SELECT * FROM email;
 SELECT * FROM password_reset;
 
 SELECT * FROM document_file;
+
+SELECT * FROM push_subscription;
+SELECT id, user_id, LEFT(endpoint, 40), creation_date
+FROM push_subscription
+WHERE endpoint LIKE '%web.push.apple.com%';

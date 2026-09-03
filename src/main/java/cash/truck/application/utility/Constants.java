@@ -227,7 +227,18 @@ public class Constants {
     public static final int AVAILABILITY_RATE_LIMIT = 30;
     public static final int AVAILABILITY_RATE_WINDOW_SECONDS = 60;
 
+    // Tipos de evento de la notificacion interna. Son los que el backend emite
+    // hoy; EXPIRATION_EVENT, BIRTHDAY_EVENT, TRIP_INACTIVITY_ALERT y
+    // SYSTEM_EVENT existen solo en el front y aqui no los produce nadie.
+    public static final String TRIP_EVENT_TYPE = "TRIP_EVENT";
+    public static final String EXPENSE_EVENT_TYPE = "EXPENSE_EVENT";
+    public static final String VEHICLE_EVENT_TYPE = "VEHICLE_EVENT";
+    public static final String DRIVER_EVENT_TYPE = "DRIVER_EVENT";
+    public static final String OWNER_EVENT_TYPE = "OWNER_EVENT";
+
     // Notificaciones push (Web Push)
+    /** El basePath es /truck y las vistas de la app cuelgan de /site. */
+    public static final String PUSH_DEEP_LINK_BASE = "/truck/site";
     public static final String PUSH_PUBLIC_KEY_OK = "push.public.key.ok";
     public static final String PUSH_SUBSCRIBED_OK = "push.subscribed.ok";
     public static final String PUSH_UNSUBSCRIBED_OK = "push.unsubscribed.ok";
