@@ -7,6 +7,7 @@ import lombok.Setter;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
@@ -73,6 +74,28 @@ public class Driver {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private Users user;
+
+    /**
+     * Vehiculo asignado al conductor. La asignacion se guarda del lado del
+     * vehiculo (vehicle.current_driver_id), asi que aqui se resuelve leyendo esa
+     * relacion al reves; queda nulo cuando el conductor no tiene vehiculo.
+     *
+     * Va como @Formula y no como relacion mapeada para que el listado no
+     * arrastre la entidad Vehicle completa —que trae owners y driver en EAGER—
+     * cuando lo unico que necesita el cliente es el id y la placa.
+     *
+     * Solo cuentan los vehiculos en estado Activo: uno vendido, inactivo o en
+     * mantenimiento puede conservar su current_driver_id y no representa una
+     * asignacion vigente.
+     *
+     * Nada impide en BD que dos vehiculos apunten al mismo conductor; el ORDER
+     * BY fija cual gana en vez de dejarlo al azar del motor.
+     */
+    @Formula("(SELECT v.id FROM vehicle v WHERE v.current_driver_id = id AND v.status = 'Activo' ORDER BY v.id LIMIT 1)")
+    private Long currentVehicleId;
+
+    @Formula("(SELECT v.plate FROM vehicle v WHERE v.current_driver_id = id AND v.status = 'Activo' ORDER BY v.id LIMIT 1)")
+    private String currentVehiclePlate;
 
     @Column(name = "owner_id", nullable = false)
     private Long ownerId;
