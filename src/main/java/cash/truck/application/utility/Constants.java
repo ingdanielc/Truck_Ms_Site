@@ -227,5 +227,35 @@ public class Constants {
     public static final int AVAILABILITY_RATE_LIMIT = 30;
     public static final int AVAILABILITY_RATE_WINDOW_SECONDS = 60;
 
+    // Notificaciones push (Web Push)
+    public static final String PUSH_PUBLIC_KEY_OK = "push.public.key.ok";
+    public static final String PUSH_SUBSCRIBED_OK = "push.subscribed.ok";
+    public static final String PUSH_UNSUBSCRIBED_OK = "push.unsubscribed.ok";
+    public static final String PUSH_KO = "push.ko";
+    public static final String PUSH_DISABLED = "push.disabled";
+    public static final String PUSH_INVALID_SUBSCRIPTION = "La suscripción debe traer endpoint, p256dh y auth.";
+    public static final String PUSH_USER_REQUIRED = "Debe indicar el usuario en el header X-USER-ID.";
+    public static final String PUSH_USER_NOT_FOUND = "El usuario indicado no existe.";
+    public static final String PUSH_ENDPOINT_REQUIRED = "Debe indicar el endpoint.";
+    public static final String PUSH_NOT_SUBSCRIBED = "No hay una suscripción registrada con ese endpoint.";
+
+    /** Obligatorio por el estandar VAPID: a quien contactar si el push molesta. */
+    public static final String PUSH_SUBJECT_DEFAULT = "mailto:soporte@ccsoluciones.com.co";
+    /** El icono del aviso; sale del manifest de la PWA. */
+    public static final String PUSH_ICON = "/assets/images/icons/iconV1-192x192.png";
+    /** Cuanto retiene el push service el mensaje si el celular esta apagado. */
+    public static final int PUSH_TTL_SECONDS = 86400;
+    /** Reintentos ante 429 y 5xx, que son fallos temporales del push service. */
+    public static final int PUSH_MAX_ATTEMPTS = 3;
+    /** Tope de espera que se respeta de un Retry-After; mas alla se abandona. */
+    public static final int PUSH_MAX_RETRY_AFTER_SECONDS = 30;
+    public static final int PUSH_HTTP_TIMEOUT_SECONDS = 10;
+    /** Fallos seguidos tras los cuales la suscripcion se considera muerta. */
+    public static final int PUSH_MAX_FAILURES = 10;
+    /** Dias que una suscripcion inactiva sobrevive antes del aseo. */
+    public static final int PUSH_CLEANUP_INACTIVE_DAYS = 30;
+    /** Todos los domingos a las 3:00 en Bogota, fuera de horario de uso. */
+    public static final String PUSH_CLEANUP_CRON = "0 0 3 * * SUN";
+
     public static final String EMAIL_PATTERN = "^[^@ ]+@[^@ .]+[.][^@ ]{2,}$";
 }

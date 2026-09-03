@@ -501,3 +501,46 @@ CREATE TABLE document_file (
 -- Los tres UNIQUE ya sirven de indice para buscar por portador; falta el del
 -- recordatorio de vencimientos, que consulta por fecha exacta y estado.
 CREATE INDEX idx_document_file_expiry ON document_file(expiry_date, is_active);
+
+
+-- Suscripciones Web Push. Una fila por dispositivo + navegador, no por usuario:
+-- el mismo propietario con celular, tablet y PC tiene tres. El push es un
+-- transporte mas de la notificacion interna, que sigue siendo la fuente de
+-- verdad; si aqui no hay filas, el sistema se comporta como antes.
+-- DROP TABLE IF EXISTS push_subscription;
+CREATE TABLE push_subscription (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    -- INT y no BIGINT: users.id es INT AUTO_INCREMENT.
+    user_id INT NOT NULL,
+
+    -- El endpoint del push service supera con holgura los 255 caracteres.
+    endpoint TEXT NOT NULL,
+    -- SHA-256 hex del endpoint. Se indexa esto y no el endpoint porque MySQL
+    -- limita la clave a 3072 bytes (768 chars en utf8mb4) y TEXT no entra.
+    endpoint_hash CHAR(64) NOT NULL,
+
+    -- Llaves con las que se cifra el payload para ese dispositivo.
+    p256dh VARCHAR(255) NOT NULL,
+    auth VARCHAR(255) NOT NULL,
+
+    user_agent VARCHAR(300),
+
+    -- Al revocar el permiso o al cerrar sesion la fila queda inactiva en vez de
+    -- desaparecer: sirve para saber que ese dispositivo estuvo suscrito.
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+
+    last_success_date DATETIME NULL,
+    failure_count INT NOT NULL DEFAULT 0,
+
+    creation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_push_subscription_user FOREIGN KEY (user_id) REFERENCES users(id),
+
+    -- El navegador puede reenviar el mismo endpoint: se actualiza, no se duplica.
+    UNIQUE KEY uq_push_subscription_endpoint (endpoint_hash)
+);
+
+-- El envio parte siempre de "las suscripciones activas de este usuario".
+CREATE INDEX idx_push_subscription_user ON push_subscription(user_id, is_active);

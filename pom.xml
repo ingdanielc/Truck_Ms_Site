@@ -114,6 +114,39 @@
 			<artifactId>webp-imageio</artifactId>
 			<version>0.2.2</version>
 		</dependency>
+
+		<!--
+			Web Push (VAPID + cifrado del payload). Se excluye casi todo el arbol
+			transitivo a proposito: la libreria trae async-http-client (Netty) y
+			httpasyncclient para enviar por su cuenta, mas jcommander para su CLI.
+			Aqui el envio se hace con el HttpClient del JDK, asi que ese peso solo
+			aportaria un segundo stack HTTP y superficie de CVE. jose4j si se deja:
+			es lo que firma el JWT de VAPID.
+		-->
+		<dependency>
+			<groupId>nl.martijndwars</groupId>
+			<artifactId>web-push</artifactId>
+			<version>5.1.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.asynchttpclient</groupId>
+					<artifactId>async-http-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpasyncclient</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.beust</groupId>
+					<artifactId>jcommander</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.78</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>

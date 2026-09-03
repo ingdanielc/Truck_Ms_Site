@@ -1,4 +1,11 @@
 truck:
+    # Web Push. Vacias por defecto a proposito: sin par VAPID el push queda
+    # apagado y la aplicacion arranca igual, que es lo que permite desplegar el
+    # backend antes que el frontend. La privada NUNCA se versiona.
+    push:
+        public-key: ${VAPID_PUBLIC_KEY:}
+        private-key: ${VAPID_PRIVATE_KEY:}
+        subject: mailto:soporte@ccsoluciones.com.co
     parameter:
         jwt-expired: 5
         app-url: https://truck.ccsoluciones.com.co

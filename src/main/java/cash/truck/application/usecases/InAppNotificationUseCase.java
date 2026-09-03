@@ -41,8 +41,14 @@ public class InAppNotificationUseCase {
         return notificationRepository.save(notification);
     }
 
-    public void createNotification(String eventType, String message, Integer targetRoleId, Integer targetUserId,
-            Long ownerId, Long referenceId) {
+    /**
+     * Devuelve la fila guardada y no void: el envio push necesita el id real de
+     * la notificacion para que, al abrirla desde el celular, el service worker
+     * pueda marcarla como leida. Quien no lo necesite puede seguir ignorando el
+     * retorno, que es lo que hacen hoy todos los llamadores.
+     */
+    public Notification createNotification(String eventType, String message, Integer targetRoleId,
+            Integer targetUserId, Long ownerId, Long referenceId) {
         Notification notification = new Notification();
         notification.setEventType(eventType);
         notification.setMessage(message);
@@ -59,7 +65,7 @@ public class InAppNotificationUseCase {
             ownerRepository.findById(ownerId).ifPresent(notification::setOwner);
         }
 
-        notificationRepository.save(notification);
+        return notificationRepository.save(notification);
     }
 
     public Page<Notification> findWithFilterOptional(FilterRequest filterRequest) {

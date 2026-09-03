@@ -28,3 +28,21 @@ twilio:
     sid: TU_ACCOUNT_SID
   auth:
     token: TU_AUTH_TOKEN
+
+# ---------------------------------------------------------------------------
+# Web Push (opcional)
+#
+# Sin estas dos llaves el push queda apagado y todo lo demas funciona igual: la
+# notificacion interna sigue siendo la fuente de verdad. Solo hacen falta cuando
+# se vaya a activar el envio a dispositivos.
+#
+# El par se genera UNA sola vez para toda la aplicacion:
+#     npx web-push generate-vapid-keys
+#
+# Si se pierde o se rota, TODAS las suscripciones existentes quedan invalidas y
+# hay que volver a suscribir a cada usuario. Respalda la privada donde
+# corresponda y no la pongas nunca en el repositorio.
+truck:
+  push:
+    public-key: TU_VAPID_PUBLIC_KEY
+    private-key: TU_VAPID_PRIVATE_KEY
