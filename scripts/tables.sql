@@ -121,6 +121,10 @@ CREATE TABLE vehicle (
     engine_number VARCHAR(50),
     chassis_number VARCHAR(50),
     number_of_axles VARCHAR(50),
+
+    -- Odometro con que el vehiculo entra a CashTruck. Es el punto de partida
+    -- del acumulado: vehicle.total_km lo suma a los kilometros de los viajes.
+    initial_km DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     
     status ENUM('Activo', 'En Mantenimiento', 'Inactivo', 'Vendido') DEFAULT 'Activo',
     
@@ -174,6 +178,11 @@ CREATE TABLE trip (
     end_date DATETIME,
     number_of_days INT NOT NULL,
     load_type VARCHAR(100), 
+    -- Kilometros del viaje, que el front envia al guardarlo. NULL significa
+    -- "todavia sin kilometraje", que no es lo mismo que 0 —un viaje sin
+    -- recorrido—: por eso admite nulos y no tiene default.
+    -- La aplicacion no lo calcula; se limita a guardar lo que le informan.
+    distance_km DECIMAL(10,2) NULL,
     trip_type VARCHAR(10) NOT NULL,
     current_leg VARCHAR(10) NULL,
     
@@ -203,6 +212,11 @@ CREATE INDEX idx_trip_numbers ON trip(number_trip, manifest_number);
 
 -- 4. Índice para el estado del viaje (Útil para el dashboard de "Viajes en Curso")
 CREATE INDEX idx_trip_status ON trip(status);
+
+-- 5. Índice para el odómetro del vehículo (vehicle.total_km)
+--    La suma se calcula por vehículo y estado en cada fila del listado de
+--    vehículos; el compuesto evita recorrer todos los viajes de la placa.
+CREATE INDEX idx_trip_vehicle_status ON trip(vehicle_id, status);
 
 -- DROP TABLE IF EXISTS expense_category;
 CREATE TABLE expense_category (

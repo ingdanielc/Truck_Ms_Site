@@ -105,6 +105,7 @@ public class TripUseCase {
         setIfNotNull(source.getEndDate(), target::setEndDate);
         setIfNotNull(source.getNumberOfDays(), target::setNumberOfDays);
         setIfNotNull(source.getLoadType(), target::setLoadType);
+        setIfNotNull(source.getDistanceKm(), target::setDistanceKm);
         setIfNotNull(source.getFreight(), target::setFreight);
         setIfNotNull(source.getAdvancePayment(), target::setAdvancePayment);
         setIfNotNull(source.getPaidBalance(), target::setPaidBalance);

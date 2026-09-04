@@ -98,6 +98,7 @@ public class VehicleUseCase {
         setIfNotNull(source.getEngineNumber(), target::setEngineNumber);
         setIfNotNull(source.getChassisNumber(), target::setChassisNumber);
         setIfNotNull(source.getNumberOfAxles(), target::setNumberOfAxles);
+        setIfNotNull(source.getInitialKm(), target::setInitialKm);
         setIfNotNull(source.getCurrentDriverId(), target::setCurrentDriverId);
         setIfNotNull(source.getStatus(), target::setStatus);
     }

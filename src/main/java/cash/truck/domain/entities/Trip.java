@@ -83,6 +83,20 @@ public class Trip {
     @Column(name = "load_type", length = 100)
     private String loadType;
 
+    /**
+     * Kilometros del viaje, tal como los informa el front al guardarlo. Se
+     * espera que incluyan el tramo de regreso cuando el viaje es REDONDO.
+     *
+     * El backend no lo calcula ni lo estima: solo lo persiste. Es el dato con
+     * que se arma el odometro del vehiculo (Vehicle.totalKm).
+     *
+     * Nulo es "todavia sin kilometraje" —viajes anteriores a este campo, o un
+     * guardado que no lo trajo—, distinto de 0, que seria un viaje sin
+     * recorrido. Un nulo suma cero al odometro y se corrige informandolo.
+     */
+    @Column(name = "distance_km", precision = 10, scale = 2)
+    private BigDecimal distanceKm;
+
     @Column(name = "freight", nullable = false, precision = 15, scale = 2)
     private BigDecimal freight = new BigDecimal("0.00");
 
