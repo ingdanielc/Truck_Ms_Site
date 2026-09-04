@@ -53,6 +53,7 @@ public class RegistrationUseCase {
         discardServerOwnedFields(owner);
         validateRequired(owner);
         validateFormats(owner);
+        validateDriverFields(owner);
         validateAvailability(owner);
 
         Owner saved = ownerUseCase.save(owner, false, Constants.REGISTER_SUBSCRIPTION_MONTHS);
@@ -65,15 +66,18 @@ public class RegistrationUseCase {
      * que el propietario nuevo no quede colgando de un usuario existente. La
      * fecha de fin de suscripcion sale de REGISTER_SUBSCRIPTION_MONTHS.
      *
-     * isDriver se apaga a proposito: el flujo de propietario que ademas conduce
-     * esta pendiente de definir, y mientras tanto el registro no debe crear el
-     * conductor espejo. El cupo de vehiculos si llega del formulario.
+     * isDriver si es del formulario: cuando llega en true el alta crea el
+     * conductor espejo con los datos de licencia del cuerpo, igual que
+     * /owner/save. Si no llega, se asume false para no dejar la columna nula.
+     * El cupo de vehiculos tambien llega del formulario.
      */
     private void discardServerOwnedFields(Owner owner) {
         owner.setId(null);
         owner.setUser(null);
         owner.setSubscriptionEndDate(null);
-        owner.setIsDriver(Boolean.FALSE);
+        if (owner.getIsDriver() == null) {
+            owner.setIsDriver(Boolean.FALSE);
+        }
     }
 
     private void validateRequired(Owner owner) {
@@ -108,6 +112,28 @@ public class RegistrationUseCase {
                 && (owner.getMaxVehicles() < 1 || owner.getMaxVehicles() > Constants.REGISTER_MAX_VEHICLES_LIMIT)) {
             throw RegistrationException.invalid(Constants.FIELD_MAX_VEHICLES,
                     String.format(Constants.REGISTER_MAX_VEHICLES_INVALID, Constants.REGISTER_MAX_VEHICLES_LIMIT));
+        }
+    }
+
+    /**
+     * Cuando el propietario ademas conduce, el alta crea un conductor espejo y
+     * en driver la licencia es obligatoria (categoria, numero y vencimiento son
+     * NOT NULL). Sin esta validacion el fallo aparecia hasta el insert y salia
+     * como un 500 generico en vez de decir que campo falta.
+     */
+    private void validateDriverFields(Owner owner) {
+        if (!Boolean.TRUE.equals(owner.getIsDriver())) {
+            return;
+        }
+        requireLicense(isBlank(owner.getLicenseCategory()), Constants.FIELD_LICENSE_CATEGORY);
+        requireLicense(isBlank(owner.getLicenseNumber()), Constants.FIELD_LICENSE_NUMBER);
+        requireLicense(owner.getLicenseExpiry() == null, Constants.FIELD_LICENSE_EXPIRY);
+    }
+
+    private void requireLicense(boolean missing, String field) {
+        if (missing) {
+            throw RegistrationException.invalid(field,
+                    String.format(Constants.REGISTER_LICENSE_REQUIRED, field));
         }
     }
 

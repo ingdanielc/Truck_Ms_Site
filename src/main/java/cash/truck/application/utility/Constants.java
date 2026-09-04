@@ -193,6 +193,9 @@ public class Constants {
     public static final String FIELD_PASSWORD = "password";
     public static final String FIELD_MAX_VEHICLES = "maxVehicles";
     public static final String FIELD_PAYLOAD = "payload";
+    public static final String FIELD_LICENSE_CATEGORY = "licenseCategory";
+    public static final String FIELD_LICENSE_NUMBER = "licenseNumber";
+    public static final String FIELD_LICENSE_EXPIRY = "licenseExpiry";
 
     public static final String REGISTER_PAYLOAD_REQUIRED = "No se recibió información para el registro.";
     public static final String REGISTER_FIELD_REQUIRED = "El campo %s es obligatorio.";
@@ -203,6 +206,7 @@ public class Constants {
     public static final String REGISTER_DUPLICATE_DOCUMENT_NUMBER = "Ya existe una cuenta con ese número de documento.";
     public static final String REGISTER_DUPLICATE_EMAIL = "Ya existe una cuenta con ese correo electrónico.";
     public static final String REGISTER_DUPLICATE_CELL_PHONE = "Ya existe una cuenta con ese número de celular.";
+    public static final String REGISTER_LICENSE_REQUIRED = "El campo %s es obligatorio cuando el propietario también conduce.";
     public static final String REGISTER_RATE_LIMITED_MESSAGE = "Demasiados intentos de registro, espere unos minutos.";
 
     // Validador de disponibilidad
