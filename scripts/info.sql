@@ -131,7 +131,8 @@ VALUES
 	('Volvo'),
 	('Renault'),
 	('DAF'),
-	('Iveco');
+	('Iveco'),
+    ('Otra');
     
 INSERT INTO expense_category (name, expense_type_id) VALUES 
 ('Encarrosada', 1),
