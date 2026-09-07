@@ -150,6 +150,7 @@ INSERT INTO expense_category (name, expense_type_id) VALUES
 ('Alimentación conductor', 2),
 ('Hotel conductor', 2),
 ('Salario', 2),
+('Porcentaje por viaje', 2),
 ('Seguridad social conductor', 2),
 ('Varios', 2);
 

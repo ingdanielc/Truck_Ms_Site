@@ -22,6 +22,13 @@ SELECT * FROM trip;
 SELECT * FROM trip limit 200;
 SELECT count(*) FROM trip where status = 'En Curso';
 SELECT * FROM trip where vehicle_id in (199, 200) limit 200; -- ownerId = 100
+
+-- Permite buscar un viaje determinado de un vehiculo
+SELECT * FROM trip 
+WHERE vehicle_id in (
+	SELECT id FROM vehicle where plate = 'HTM-123'
+) limit 200; 
+
 SELECT * FROM vehicle_owner WHERE owner_id = 100;
 SELECT * FROM trip where destination_id = 61 limit 1200; -- ownerId = 100
 
@@ -37,6 +44,7 @@ SELECT NOW();
 SELECT * FROM users;
 
 SELECT * FROM expense_type;
+SELECT * FROM expense_category where expense_type_id = 4;
 SELECT * FROM expense_category where expense_type_id <> 4;
 
 SELECT * FROM expense_category where expense_type_id <> 4 and id = 23;
