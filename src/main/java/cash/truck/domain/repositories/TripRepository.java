@@ -26,6 +26,9 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
      *
      * El mes sale de start_date. La conexion abre en America/Bogota, asi que
      * MONTH() ya evalua en hora local.
+     *
+     * Los cancelados quedan fuera: son la baja logica de un viaje que nunca
+     * rodo, y su flete no es ingreso.
      */
     @Query(value = """
             SELECT t.vehicle_id                        AS vehicleId,
@@ -39,11 +42,13 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
               LEFT JOIN driver d ON d.id = t.driver_id
              WHERE YEAR(t.start_date) = :year
                AND t.vehicle_id IN (:vehicleIds)
+               AND (t.status IS NULL OR t.status <> :cancelledStatus)
              GROUP BY t.vehicle_id, t.driver_id, d.owner_id,
                       MONTH(t.start_date), COALESCE(t.trip_type, 'CARGADO')
             """, nativeQuery = true)
     List<TripMonthRow> aggregateTripsByMonth(@Param("year") int year,
-            @Param("vehicleIds") Collection<Long> vehicleIds);
+            @Param("vehicleIds") Collection<Long> vehicleIds,
+            @Param("cancelledStatus") String cancelledStatus);
 
     /** Viajes en curso del alcance. Sin filtro de fecha, igual que hoy. */
     @Query(value = """
@@ -68,6 +73,9 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     /**
      * Detalle de un grupo. La pertenencia se resuelve en SQL para no traer los
      * viajes de todo el alcance y descartarlos en memoria. Mes -1 = ano completo.
+     *
+     * Sin los cancelados, igual que el agregado del tablero: las filas de este
+     * detalle tienen que sumar lo mismo que la barra desde la que se abre.
      */
     @Query(value = """
             SELECT t.id                                AS id,
@@ -89,6 +97,7 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
              WHERE YEAR(t.start_date) = :year
                AND (:month < 0 OR MONTH(t.start_date) = :month + 1)
                AND t.vehicle_id IN (:vehicleIds)
+               AND (t.status IS NULL OR t.status <> :cancelledStatus)
                AND ((:groupType = 'vehicle' AND t.vehicle_id = :groupId)
                  OR (:groupType = 'driver'  AND t.driver_id  = :groupId)
                  OR (:groupType = 'owner'   AND COALESCE(d.owner_id,
@@ -100,7 +109,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             @Param("month") int month,
             @Param("groupType") String groupType,
             @Param("groupId") long groupId,
-            @Param("vehicleIds") Collection<Long> vehicleIds);
+            @Param("vehicleIds") Collection<Long> vehicleIds,
+            @Param("cancelledStatus") String cancelledStatus);
 
     /** Ver la nota de tipos en VehicleRepository.ScopeVehicleRow. */
     interface TripMonthRow {

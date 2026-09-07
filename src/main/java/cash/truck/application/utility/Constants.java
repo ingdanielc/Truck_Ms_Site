@@ -77,6 +77,13 @@ public class Constants {
 
     // Reportes
     public static final String TRIP_STATUS_IN_PROGRESS = "En Curso";
+    /**
+     * Baja logica de un viaje: se creo mal, era una prueba o nunca salio. La
+     * fila se conserva y el listado la sigue mostrando, pero no representa
+     * transporte alguno, asi que ningun agregado de reportes la cuenta —ni sus
+     * gastos, que tampoco se reclasifican como gasto suelto del periodo—.
+     */
+    public static final String TRIP_STATUS_CANCELLED = "Cancelado";
     public static final String REPORT_DASHBOARD_OK = "report.dashboard.ok";
     public static final String REPORT_GROUP_TRIPS_OK = "report.group.trips.ok";
     public static final String REPORT_KO = "report.ko";

@@ -19,6 +19,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
      * que se registro el gasto. Van por el conductor y propietario del viaje
      * —no por el vehiculo— para que el pie de la tarjeta cuadre con la barra
      * desde la que se abre.
+     *
+     * Los de un viaje cancelado quedan fuera: el viaje no ocurrio, asi que su
+     * gasto tampoco.
      */
     @Query(value = """
             SELECT e.vehicle_id                        AS vehicleId,
@@ -33,16 +36,22 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
                AND e.vehicle_id IN (:vehicleIds)
                AND YEAR(t.start_date)  = YEAR(e.expense_date)
                AND MONTH(t.start_date) = MONTH(e.expense_date)
+               AND (t.status IS NULL OR t.status <> :cancelledStatus)
              GROUP BY e.vehicle_id, t.driver_id, d.owner_id, MONTH(e.expense_date)
             """, nativeQuery = true)
     List<TripExpenseMonthRow> aggregateTripExpensesByMonth(@Param("year") int year,
-            @Param("vehicleIds") Collection<Long> vehicleIds);
+            @Param("vehicleIds") Collection<Long> vehicleIds,
+            @Param("cancelledStatus") String cancelledStatus);
 
     /**
      * El resto de gastos del mes, por expense_type_id. Incluye mantenimiento y
-     * cualquier gasto cuyo viaje caiga en otro mes: el NOT EXISTS cubre ambos
-     * casos y tambien el trip_id nulo. Solo puede imputarse por vehiculo, que es
-     * la unica via que da expense.
+     * cualquier gasto cuyo viaje caiga en otro mes: el primer NOT EXISTS cubre
+     * ambos casos y tambien el trip_id nulo. Solo puede imputarse por vehiculo,
+     * que es la unica via que da expense.
+     *
+     * El segundo NOT EXISTS deja fuera los gastos de un viaje cancelado en vez
+     * de dejarlos caer aqui: reclasificarlos solo moveria la cifra de sitio y
+     * seguiria restando utilidad al vehiculo.
      */
     @Query(value = """
             SELECT e.vehicle_id                        AS vehicleId,
@@ -57,10 +66,14 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
                                 WHERE t.id = e.trip_id
                                   AND YEAR(t.start_date)  = YEAR(e.expense_date)
                                   AND MONTH(t.start_date) = MONTH(e.expense_date))
+               AND NOT EXISTS (SELECT 1 FROM trip tc
+                                WHERE tc.id = e.trip_id
+                                  AND tc.status = :cancelledStatus)
              GROUP BY e.vehicle_id, MONTH(e.expense_date), c.expense_type_id
             """, nativeQuery = true)
     List<OtherExpenseMonthRow> aggregateOtherExpensesByMonth(@Param("year") int year,
-            @Param("vehicleIds") Collection<Long> vehicleIds);
+            @Param("vehicleIds") Collection<Long> vehicleIds,
+            @Param("cancelledStatus") String cancelledStatus);
 
     /** Mismo "resto" del mes anterior, acotado a un grupo y periodo. Mes -1 = ano completo. */
     @Query(value = """
@@ -74,6 +87,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
                                 WHERE t.id = e.trip_id
                                   AND YEAR(t.start_date)  = YEAR(e.expense_date)
                                   AND MONTH(t.start_date) = MONTH(e.expense_date))
+               AND NOT EXISTS (SELECT 1 FROM trip tc
+                                WHERE tc.id = e.trip_id
+                                  AND tc.status = :cancelledStatus)
                AND ((:groupType = 'vehicle' AND e.vehicle_id = :groupId)
                  OR (:groupType = 'driver'  AND v.current_driver_id = :groupId)
                  OR (:groupType = 'owner'   AND (SELECT vo.owner_id FROM vehicle_owner vo
@@ -84,7 +100,8 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long>, JpaSpec
             @Param("month") int month,
             @Param("groupType") String groupType,
             @Param("groupId") long groupId,
-            @Param("vehicleIds") Collection<Long> vehicleIds);
+            @Param("vehicleIds") Collection<Long> vehicleIds,
+            @Param("cancelledStatus") String cancelledStatus);
 
     /** Ver la nota de tipos en VehicleRepository.ScopeVehicleRow. */
     interface TripExpenseMonthRow {

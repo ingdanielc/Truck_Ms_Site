@@ -50,6 +50,12 @@ import java.util.stream.Collectors;
  * El alcance sale siempre de la identidad de quien consulta, nunca de los
  * parametros: el propietario ve sus vehiculos, el conductor los que tenga
  * asignados y el administrador todos.
+ *
+ * Los viajes cancelados no entran en ningun agregado —ni en freight, ni en
+ * tripsByType, ni en activity, ni en las filas del detalle— y sus gastos
+ * tampoco, sin reclasificarlos como gasto suelto del periodo. Se filtran en
+ * SQL, en las cinco consultas, para no traer filas que luego habria que
+ * descartar en memoria.
  */
 @Service
 @Transactional
@@ -111,7 +117,8 @@ public class ReportUseCase {
             }
         }
 
-        for (TripRepository.TripMonthRow row : tripRepository.aggregateTripsByMonth(year, scope.vehicleIds)) {
+        for (TripRepository.TripMonthRow row : tripRepository.aggregateTripsByMonth(year, scope.vehicleIds,
+                Constants.TRIP_STATUS_CANCELLED)) {
             Long vehicleId = toLong(row.getVehicleId());
             String key = groupKeyForTrip(dimension, toLong(row.getDriverId()), toLong(row.getDriverOwnerId()),
                     scope.byVehicleId.get(vehicleId));
@@ -127,7 +134,7 @@ public class ReportUseCase {
         }
 
         for (ExpenseRepository.TripExpenseMonthRow row : expenseRepository.aggregateTripExpensesByMonth(year,
-                scope.vehicleIds)) {
+                scope.vehicleIds, Constants.TRIP_STATUS_CANCELLED)) {
             Long vehicleId = toLong(row.getVehicleId());
             String key = groupKeyForTrip(dimension, toLong(row.getDriverId()), toLong(row.getDriverOwnerId()),
                     scope.byVehicleId.get(vehicleId));
@@ -142,7 +149,7 @@ public class ReportUseCase {
         }
 
         for (ExpenseRepository.OtherExpenseMonthRow row : expenseRepository.aggregateOtherExpensesByMonth(year,
-                scope.vehicleIds)) {
+                scope.vehicleIds, Constants.TRIP_STATUS_CANCELLED)) {
             Long vehicleId = toLong(row.getVehicleId());
             String key = groupKeyForVehicle(dimension, scope.byVehicleId.get(vehicleId));
             if (key == null) {
@@ -185,7 +192,8 @@ public class ReportUseCase {
 
         List<TripRepository.TripDetailRow> rows = scope.vehicleIds.isEmpty()
                 ? List.of()
-                : tripRepository.findGroupTrips(year, monthFilter, group.type(), group.id(), scope.vehicleIds);
+                : tripRepository.findGroupTrips(year, monthFilter, group.type(), group.id(), scope.vehicleIds,
+                        Constants.TRIP_STATUS_CANCELLED);
 
         // Un grupo que ni pertenece al alcance ni produjo viajes dentro de el no
         // se responde en vacio: eso confirmaria su existencia a quien no lo ve.
@@ -203,7 +211,7 @@ public class ReportUseCase {
         BigDecimal otherExpenses = scope.vehicleIds.isEmpty()
                 ? BigDecimal.ZERO
                 : nullSafe(expenseRepository.sumOtherExpensesForGroup(year, monthFilter, group.type(), group.id(),
-                        scope.vehicleIds));
+                        scope.vehicleIds, Constants.TRIP_STATUS_CANCELLED));
 
         String label = resolveLabels(group.type(), Set.of(group.key()), scope).getOrDefault(group.key(), group.key());
 
