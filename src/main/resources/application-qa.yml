@@ -6,6 +6,19 @@ truck:
         public-key: ${VAPID_PUBLIC_KEY:}
         private-key: ${VAPID_PRIVATE_KEY:}
         subject: mailto:soporte@ccsoluciones.com.co
+    # Cotizacion de peajes. Los valores por defecto del codigo son estos mismos;
+    # se declaran aqui para poder ajustarlos por ambiente sin recompilar.
+    tolls:
+        # Distancia maxima de un peaje al trazado real para darlo por transitado.
+        match-tolerance-km: 2.0
+        # Ancho del corredor cuando no llega trazado y se aproxima con la recta.
+        corridor-km: 30.0
+        # Cuanto mas larga es la carretera que la recta, solo en modo degradado.
+        sinuosity-factor: 1.4
+        # Velocidad promedio de carga para estimar la duracion del trayecto.
+        average-speed-kmh: 48.0
+        # Tope del trazado codificado que se acepta en el cuerpo; por encima, 413.
+        max-encoded-polyline-length: 200000
     parameter:
         jwt-expired: 5
         app-url: https://truck.ccsoluciones.com.co

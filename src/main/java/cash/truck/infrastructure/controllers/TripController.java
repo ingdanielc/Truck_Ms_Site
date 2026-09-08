@@ -1,12 +1,16 @@
 package cash.truck.infrastructure.controllers;
 
 import cash.truck.application.exception.PartnerException;
+import cash.truck.application.exception.RoutePayloadTooLargeException;
 import cash.truck.application.exception.TripValidationException;
+import cash.truck.application.usecases.TollUseCase;
 import cash.truck.application.usecases.TripUseCase;
 import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.ResponseErrorMessage;
 import cash.truck.application.utility.ResponseMessage;
 import cash.truck.application.utility.filters.FilterRequest;
+import cash.truck.domain.dtos.tolls.TollQuoteRequest;
+import cash.truck.domain.dtos.tolls.TollQuoteResponse;
 import cash.truck.domain.entities.Trip;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +29,9 @@ public class TripController {
 
     @Autowired
     private TripUseCase tripUseCase;
+
+    @Autowired
+    private TollUseCase tollUseCase;
 
     @GetMapping("/getAllTrips")
     public ResponseEntity<Object> getAllTrips() {
@@ -71,6 +78,46 @@ public class TripController {
             return new ResponseEntity<>(new ResponseErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                     HttpStatus.INTERNAL_SERVER_ERROR.name(), Constants.TRIP_SEARCH_KO),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Peajes de un trayecto y su costo para el vehiculo indicado.
+     *
+     * Es una consulta y no una mutacion —no toca el viaje ni deja rastro—, pero
+     * va por POST porque el trazado de la ruta llega en el cuerpo: codificado
+     * son decenas de miles de caracteres, muy por encima de lo que un servidor
+     * acepta en una URL.
+     *
+     * El bloque route es opcional: si el cliente no consiguio trazado, el caso
+     * de uso responde igual en modo CORRIDOR. Un trazado demasiado grande si se
+     * rechaza, con 413, para que el cliente reintente sin el en lugar de
+     * recibir una cotizacion a medias.
+     */
+    @PostMapping("/tolls")
+    public ResponseEntity<Object> tolls(@RequestBody TollQuoteRequest tollQuoteRequest) {
+        try {
+            TollQuoteResponse quote = tollUseCase.quote(tollQuoteRequest);
+            ResponseMessage responseMessage = new ResponseMessage(quote, HttpStatus.OK.value(),
+                    HttpStatus.OK.name(), null, Constants.TRIP_TOLLS_OK);
+            return new ResponseEntity<>(responseMessage, HttpStatus.OK);
+        } catch (RoutePayloadTooLargeException e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(
+                    HttpStatus.PAYLOAD_TOO_LARGE.value(), e.getMessage(), Constants.TRIP_TOLLS_TOO_LARGE);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.PAYLOAD_TOO_LARGE);
+        } catch (TripValidationException | IllegalArgumentException e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(HttpStatus.BAD_REQUEST.value(),
+                    e.getMessage(), Constants.TRIP_TOLLS_KO);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(HttpStatus.NOT_FOUND.value(),
+                    Constants.VEHICLE_SEARCH_NOT_FOUND_ME, Constants.VEHICLE_SEARCH_NOT_FOUND);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            ResponseErrorMessage responseErrorMessage = new ResponseErrorMessage(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    HttpStatus.INTERNAL_SERVER_ERROR.name(), Constants.TRIP_TOLLS_KO);
+            return new ResponseEntity<>(responseErrorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
