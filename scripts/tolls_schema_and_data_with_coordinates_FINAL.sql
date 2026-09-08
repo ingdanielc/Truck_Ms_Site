@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS toll_rate (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SELECT * FROM toll;
+SELECT * FROM toll WHERE latitude IS NULL;
 SELECT * FROM toll_rate;
 
 START TRANSACTION;
