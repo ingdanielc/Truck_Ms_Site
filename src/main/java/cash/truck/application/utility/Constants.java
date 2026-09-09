@@ -88,6 +88,16 @@ public class Constants {
      * gastos, que tampoco se reclasifican como gasto suelto del periodo—.
      */
     public static final String TRIP_STATUS_CANCELLED = "Cancelado";
+    /**
+     * Estados con los que un viaje deja de estar rodando. Son los dos a los que
+     * se espera que pase un viaje en curso; mientras no llegue a alguno, sigue
+     * contando como viaje estancado.
+     *
+     * Ojo con STATUS_PENDING y STATUS_COMPLETED, que estan en ingles y son de
+     * otro dominio: la columna trip.status es un ENUM en espanol.
+     */
+    public static final String TRIP_STATUS_PENDING = "Pendiente";
+    public static final String TRIP_STATUS_COMPLETED = "Completado";
     public static final String REPORT_DASHBOARD_OK = "report.dashboard.ok";
     public static final String REPORT_GROUP_TRIPS_OK = "report.group.trips.ok";
     public static final String REPORT_KO = "report.ko";
@@ -122,6 +132,8 @@ public class Constants {
     public static final String HEADER_USER_ID = "X-USER-ID";
     public static final String ZONE_BOGOTA = "America/Bogota";
     public static final Integer ROLE_ID_ADMIN = 1;
+    public static final Integer ROLE_ID_OWNER = 2;
+    public static final Integer ROLE_ID_DRIVER = 3;
     public static final String ROLE_NAME_ADMIN = "ADMINISTRADOR";
     public static final int SUBSCRIPTION_DEFAULT_MONTHS = 12;
     public static final String SUBSCRIPTION_EXPIRED_CODE = "SUBSCRIPTION_EXPIRED";
@@ -157,6 +169,39 @@ public class Constants {
     public static final java.util.List<Integer> DOCUMENT_EXPIRY_REMINDER_DAYS = java.util.List.of(10, 3, 0);
     /** Todos los dias a las 8:05 en Bogota, despues del aviso de suscripcion. */
     public static final String DOCUMENT_EXPIRY_REMINDER_CRON = "0 5 8 * * *";
+
+    // Avisos de inactividad (interno + push)
+    /**
+     * Viaje en curso sin un solo gasto registrado. El referenceId es el id del
+     * viaje, de modo que el aviso sale una vez por viaje y no una por hora.
+     */
+    public static final String EXPENSE_INACTIVITY_EVENT_TYPE = "EXPENSE_INACTIVITY_ALERT";
+    /**
+     * Viaje cerrado sin que se haya abierto el siguiente. El referenceId es el
+     * id del viaje cerrado, que es lo que hace el aviso irrepetible: en cuanto
+     * el conductor crea un viaje nuevo ese viaje deja de ser el ultimo y la
+     * fila sale de la consulta.
+     */
+    public static final String TRIP_INACTIVITY_EVENT_TYPE = "TRIP_INACTIVITY_ALERT";
+    /** Horas de viaje en curso sin gastos tras las que se avisa. */
+    public static final int EXPENSE_INACTIVITY_HOURS = 12;
+    /** Horas desde el cierre de un viaje sin abrir el siguiente. */
+    public static final int TRIP_INACTIVITY_HOURS = 24;
+    /**
+     * Viaje que sigue en curso mucho despues de lo razonable, sin que nadie lo
+     * haya pasado a Pendiente ni a Completado. El referenceId vuelve a ser el
+     * id del viaje: el aviso sale una sola vez por viaje estancado.
+     */
+    public static final String TRIP_STALLED_EVENT_TYPE = "TRIP_STALLED_ALERT";
+    /** Dias en curso tras los que se considera que el viaje quedo estancado. */
+    public static final int TRIP_STALLED_DAYS = 5;
+    /**
+     * Cada hora al minuto 15. No es diario porque el umbral es de horas: con un
+     * pase al dia un viaje que cumple 12 horas a las 09:00 esperaria hasta el
+     * dia siguiente. El pase es barato —dos consultas— y el reference_id evita
+     * que repetirlo genere avisos duplicados.
+     */
+    public static final String INACTIVITY_REMINDER_CRON = "0 15 * * * *";
 
     // Password Reset
     public static final String PASSWORD_RESET_MESSAGE_TYPE = "PASSWORD_RECOVERY";
@@ -243,8 +288,9 @@ public class Constants {
     public static final int AVAILABILITY_RATE_WINDOW_SECONDS = 60;
 
     // Tipos de evento de la notificacion interna. Son los que el backend emite
-    // hoy; EXPIRATION_EVENT, BIRTHDAY_EVENT, TRIP_INACTIVITY_ALERT y
-    // SYSTEM_EVENT existen solo en el front y aqui no los produce nadie.
+    // hoy; EXPIRATION_EVENT, BIRTHDAY_EVENT y SYSTEM_EVENT existen solo en el
+    // front y aqui no los produce nadie. TRIP_INACTIVITY_ALERT si se emite: lo
+    // crea el planificador de inactividad, mas abajo.
     public static final String TRIP_EVENT_TYPE = "TRIP_EVENT";
     public static final String EXPENSE_EVENT_TYPE = "EXPENSE_EVENT";
     public static final String VEHICLE_EVENT_TYPE = "VEHICLE_EVENT";

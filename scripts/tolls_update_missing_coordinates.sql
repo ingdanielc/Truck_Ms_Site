@@ -46,34 +46,20 @@ COMMIT;
 
 
 -- ============================================================
--- PENDIENTES: CHAPARRAL y RIO GRANDE
+-- CHAPARRAL y RIO GRANDE  ->  ver script aparte
 -- ============================================================
--- Estas dos estaciones siguen sin coordenadas y NO se completan aqui a
--- proposito: ninguna de las dos fuentes cargadas las trae, y ubicarlas a ojo
--- por el casco urbano de su municipio las dejaria a decenas de kilometros del
--- punto real. Con una tolerancia de 2 km eso no solo no las haria aparecer en
--- su ruta, sino que podria pegarlas a una via vecina y cobrar un peaje que el
--- camion no cruza. Un NULL se excluye y se reporta; una coordenada equivocada
--- cobra de mas en silencio.
+-- Estas dos siguen sin coordenadas y se completan en
+-- tolls_update_coordinates_chaparral_riogrande.sql, que trae el
+-- procedimiento y el cerco de validacion.
 --
--- Ademas hay una duda de vigencia previa a la de las coordenadas. El script
--- cashtruck_tolls_schema_and_data_definitive.sql excluyo ambas estaciones a
--- proposito, con esta nota:
---
---   "CHAPARRAL and RIO GRANDE are intentionally excluded because they are
---    historical stations associated with the former unidirectional collection
---    arrangement; the replacement/merged arrangement is represented by El Tigre."
---
--- El catalogo actual no tiene ninguna estacion 'EL TIGRE', asi que esa fusion
--- no esta representada. Antes de geolocalizarlas conviene confirmar con la ANI
--- si siguen recaudando.
---
--- Si se confirma que ya no operan, lo correcto es desactivarlas en vez de
--- darles coordenadas: findActiveGeoReferenced() solo mira estaciones activas,
--- asi que dejan de contarse tanto en el emparejamiento como en el aviso de
--- catalogo incompleto. Descomentar solo tras esa confirmacion:
---
--- UPDATE toll SET active = 0 WHERE toll_key IN ('CHAPARRAL', 'RIO GRANDE');
+-- CORRECCION: una version anterior de este archivo dejaba comentado un
+-- "UPDATE toll SET active = 0" para ambas, siguiendo la nota del script
+-- cashtruck_tolls_schema_and_data_definitive.sql que las daba por
+-- historicas y fusionadas en El Tigre. Esa nota esta desactualizada y
+-- desactivarlas seria un error: el reporte oficial de la ANI (OETR,
+-- corte junio 2026) las reporta recaudando con 95.903 y 103.401
+-- vehiculos en el mes, mas que sus vecinas Cirilo y Mutata.
+-- ============================================================
 
 
 -- ============================================================

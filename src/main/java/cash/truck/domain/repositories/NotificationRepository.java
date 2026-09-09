@@ -22,4 +22,14 @@ public interface NotificationRepository
     List<Notification> findByEventType(String eventType);
 
     List<Notification> findByIsRead(Boolean isRead);
+
+    /**
+     * Antirrepeticion de los avisos de inactividad. El planificador pasa cada
+     * hora sobre las mismas filas mientras la condicion siga vigente, asi que
+     * sin esto un viaje sin gastos generaria un aviso por hora.
+     *
+     * Cuenta tambien las borradas: que el propietario haya limpiado la bandeja
+     * no es razon para volver a avisarle lo mismo.
+     */
+    boolean existsByEventTypeAndReferenceId(String eventType, Long referenceId);
 }

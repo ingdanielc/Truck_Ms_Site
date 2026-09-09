@@ -69,16 +69,28 @@ public class PushRecipientResolver {
         return userId;
     }
 
+    /**
+     * El conductor solo cuenta como destinatario si tiene acceso a la app, y
+     * eso son dos condiciones: que tenga usuario y que ese usuario este activo.
+     *
+     * El estado se mira aqui y no solo en el login porque un usuario inactivo
+     * no puede entrar a leer nada: avisarle seria mandar el aviso a una bandeja
+     * que nadie va a abrir, y en el caso de los avisos de inactividad tambien
+     * significaria guardar una fila interna que su destinatario no puede ver.
+     */
     public Optional<Integer> resolveDriverUserId(Long driverId) {
         if (driverId == null) {
             return Optional.empty();
         }
-        Optional<Integer> userId = driverRepository.findById(driverId)
-                .map(Driver::getUser)
-                .map(Users::getId);
-        if (userId.isEmpty()) {
+        Optional<Users> user = driverRepository.findById(driverId).map(Driver::getUser);
+        if (user.isEmpty()) {
             logger.debug("El conductor {} no tiene usuario: no hay push que enviar", driverId);
+            return Optional.empty();
         }
-        return userId;
+        if (!Constants.STATUS_ACTIVE.equals(user.get().getStatus())) {
+            logger.debug("El usuario del conductor {} esta inactivo: no hay push que enviar", driverId);
+            return Optional.empty();
+        }
+        return user.map(Users::getId);
     }
 }

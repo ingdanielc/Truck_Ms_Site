@@ -30,7 +30,15 @@ public class PushPayloadFactory {
                  Constants.EXPENSE_EVENT_TYPE,
                  Constants.VEHICLE_EVENT_TYPE,
                  Constants.DRIVER_EVENT_TYPE,
-                 Constants.DOCUMENT_EXPIRY_EVENT_TYPE -> PushAudience.OWNER;
+                 Constants.DOCUMENT_EXPIRY_EVENT_TYPE,
+                 // Los dos avisos de inactividad se crean por duplicado: uno
+                 // para el propietario y otro para el conductor con
+                 // target_user_id. El del conductor sale por push porque el
+                 // oyente respeta ese usuario explicito antes de mirar aqui;
+                 // el del propietario cae en esta rama.
+                 Constants.EXPENSE_INACTIVITY_EVENT_TYPE,
+                 Constants.TRIP_INACTIVITY_EVENT_TYPE,
+                 Constants.TRIP_STALLED_EVENT_TYPE -> PushAudience.OWNER;
             // Se guarda sin owner_id porque avisa al administrador que hay una
             // cuenta nueva, venga del alta administrativa o del registro
             // publico. El propietario recien creado no es el destinatario: al
@@ -71,6 +79,9 @@ public class PushPayloadFactory {
             case Constants.DRIVER_EVENT_TYPE -> "Conductor";
             case Constants.DOCUMENT_EXPIRY_EVENT_TYPE -> "Documento por vencer";
             case Constants.OWNER_EVENT_TYPE -> "Cuenta nueva";
+            case Constants.EXPENSE_INACTIVITY_EVENT_TYPE -> "Viaje sin gastos";
+            case Constants.TRIP_INACTIVITY_EVENT_TYPE -> "Sin viaje en curso";
+            case Constants.TRIP_STALLED_EVENT_TYPE -> "Viaje sin cerrar";
             default -> "Aviso";
         };
     }
@@ -88,6 +99,15 @@ public class PushPayloadFactory {
             // alteraria el reference_id que ya guardan las filas existentes.
             case Constants.DOCUMENT_EXPIRY_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/vehicles";
             case Constants.OWNER_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/owners/" + referenceId;
+            // Lleva a registrar el gasto, que es la accion que se pide; el
+            // viaje al que pertenece ya viene nombrado en el mensaje.
+            case Constants.EXPENSE_INACTIVITY_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/expenses";
+            // Al viaje cerrado y no al listado: desde su detalle se ve con que
+            // vehiculo y conductor cerro antes de abrir el siguiente.
+            case Constants.TRIP_INACTIVITY_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/trips/" + referenceId;
+            // Al detalle del viaje estancado, que es donde se le cambia el
+            // estado a Pendiente o Completado.
+            case Constants.TRIP_STALLED_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/trips/" + referenceId;
             default -> Constants.PUSH_DEEP_LINK_BASE + "/home";
         };
     }

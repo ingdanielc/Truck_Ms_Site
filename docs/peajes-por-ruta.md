@@ -305,12 +305,14 @@ Orden de carga:
 3. `scripts/tolls_update_rate_scheme.sql` — agrega `toll.rate_scheme` y clasifica
    cada estación en su escala tarifaria. **Sin este paso las tarifas se cobran
    mal**: ver sección 7.
+4. `scripts/tolls_update_coordinates_chaparral_riogrande.sql` — completa las 2
+   últimas estaciones sin georreferenciar. Requiere pegar 4 coordenadas a mano.
 
 ### Lo que queda pendiente
 
 | Punto | Estado |
 | --- | --- |
-| `CHAPARRAL`, `RIO GRANDE` | Sin coordenadas en ninguna fuente. No se estiman: una coordenada equivocada cobraría un peaje que el camión no cruza, mientras que un `NULL` se excluye y se reporta |
+| `CHAPARRAL`, `RIO GRANDE` | Sin coordenadas en ninguna fuente pública. **Activas y de alto tráfico** (95.903 y 103.401 vehículos/mes según la ANI), así que no deben desactivarse. Mientras sigan en `NULL` no aparecen en ninguna ruta y su peaje falta del total. Script listo en el paso 4 |
 | `ETD 10 850` | Activa y con tarifas, pero el script anterior la excluía por ser *"counting station, not a toll station"*. Hoy suma al total de cualquier viaje por Rumichaca – Pasto |
 | Tarifas `VI` y `VII` | Solo las publican las estaciones `OETR_7`; en `INVIAS_5` esas categorías no existen. No es un hueco de datos |
 | 2 ejes bajo `OETR_7` | Se aplica `IV` por supuesto de tamaño de llanta. Requiere un atributo nuevo del vehículo. Ver sección 7 |
