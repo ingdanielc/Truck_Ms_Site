@@ -43,7 +43,10 @@ public class PushPayloadFactory {
             // cuenta nueva, venga del alta administrativa o del registro
             // publico. El propietario recien creado no es el destinatario: al
             // momento del alta ni siquiera tiene un dispositivo suscrito.
-            case Constants.OWNER_EVENT_TYPE -> PushAudience.ADMIN;
+            // Los dos avisan al administrador: uno de una cuenta nueva y otro
+            // de un pago que alguien tiene que comprobar a mano.
+            case Constants.OWNER_EVENT_TYPE,
+                 Constants.SUBSCRIPTION_EVENT_TYPE -> PushAudience.ADMIN;
             default -> PushAudience.NONE;
         };
     }
@@ -82,6 +85,7 @@ public class PushPayloadFactory {
             case Constants.EXPENSE_INACTIVITY_EVENT_TYPE -> "Viaje sin gastos";
             case Constants.TRIP_INACTIVITY_EVENT_TYPE -> "Sin viaje en curso";
             case Constants.TRIP_STALLED_EVENT_TYPE -> "Viaje sin cerrar";
+            case Constants.SUBSCRIPTION_EVENT_TYPE -> "Pago por comprobar";
             default -> "Aviso";
         };
     }
@@ -99,6 +103,9 @@ public class PushPayloadFactory {
             // alteraria el reference_id que ya guardan las filas existentes.
             case Constants.DOCUMENT_EXPIRY_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/vehicles";
             case Constants.OWNER_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/owners/" + referenceId;
+            // Al listado de pagos y no a una ficha por id: la revision se hace
+            // sobre la bandeja de pendientes, que es donde esta el comprobante.
+            case Constants.SUBSCRIPTION_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/subscriptions";
             // Lleva a registrar el gasto, que es la accion que se pide; el
             // viaje al que pertenece ya viene nombrado en el mensaje.
             case Constants.EXPENSE_INACTIVITY_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/expenses";

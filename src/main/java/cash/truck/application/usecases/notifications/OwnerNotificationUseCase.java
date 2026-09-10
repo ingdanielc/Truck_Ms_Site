@@ -18,8 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Mensajes de WhatsApp dirigidos al propietario: la bienvenida al crearlo y el
- * aviso de suscripcion proxima a vencer.
+ * Mensajes de WhatsApp dirigidos al propietario: la bienvenida al crearlo, el
+ * aviso de suscripcion proxima a vencer, la confirmacion de la renovacion y el
+ * aviso de que un pago no se pudo comprobar.
  *
  * Ambos metodos corren en una transaccion propia (REQUIRES_NEW) para que un
  * fallo guardando la trazabilidad del mensaje no arrastre a la transaccion que
@@ -85,6 +86,50 @@ public class OwnerNotificationUseCase {
 
         send(Constants.SUBSCRIPTION_REMINDER_MESSAGE_TYPE, phone, data);
         logger.info("Aviso de suscripcion enviado al propietario {}", owner.getId());
+    }
+
+    /**
+     * Confirmacion de que la renovacion quedo aplicada.
+     *
+     * Recibe la fecha ya calculada en vez de leerla del propietario porque se
+     * envia desde la misma operacion que la acaba de cambiar: releerla de una
+     * entidad que puede venir de otra sesion arriesga mostrar la fecha vieja.
+     */
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void sendSubscriptionRenewed(Owner owner, LocalDate endDate) {
+        String phone = PhoneUtils.toE164(owner.getCellPhone());
+        if (phone == null) {
+            logger.warn("Propietario {} sin celular: no se envia el aviso de renovacion", owner.getId());
+            return;
+        }
+
+        List<MessageRequest.KeyValue> data = new ArrayList<>();
+        data.add(keyValue("name", owner.getName()));
+        data.add(keyValue("endDate", endDate == null ? "" : endDate.format(DATE_FORMAT)));
+
+        send(Constants.SUBSCRIPTION_RENEWED_MESSAGE_TYPE, phone, data);
+        logger.info("Aviso de renovacion enviado al propietario {}", owner.getId());
+    }
+
+    /**
+     * El pago no se pudo comprobar. Lleva el motivo porque es lo unico que le
+     * permite al propietario corregir y volver a intentarlo; sin el, vuelve a
+     * registrar el mismo comprobante y el administrador lo rechaza otra vez.
+     */
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void sendSubscriptionRejected(Owner owner, String reason) {
+        String phone = PhoneUtils.toE164(owner.getCellPhone());
+        if (phone == null) {
+            logger.warn("Propietario {} sin celular: no se envia el aviso de rechazo", owner.getId());
+            return;
+        }
+
+        List<MessageRequest.KeyValue> data = new ArrayList<>();
+        data.add(keyValue("name", owner.getName()));
+        data.add(keyValue("reason", reason));
+
+        send(Constants.SUBSCRIPTION_REJECTED_MESSAGE_TYPE, phone, data);
+        logger.info("Aviso de pago rechazado enviado al propietario {}", owner.getId());
     }
 
     private void send(String messageType, String phone, List<MessageRequest.KeyValue> data) {

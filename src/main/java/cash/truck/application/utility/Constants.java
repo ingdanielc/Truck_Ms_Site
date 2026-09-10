@@ -159,6 +159,53 @@ public class Constants {
     /** Todos los dias a las 8:00 en Bogota. */
     public static final String SUBSCRIPTION_REMINDER_CRON = "0 0 8 * * *";
 
+    // Renovacion de suscripcion (pago manual por Nequi o Bancolombia)
+    public static final String SUBSCRIPTION_RENEWED_MESSAGE_TYPE = "SUBSCRIPTION_RENEWED";
+    public static final String SUBSCRIPTION_REJECTED_MESSAGE_TYPE = "SUBSCRIPTION_REJECTED";
+    /**
+     * Anualidades que se pueden comprar de una vez. No hay suscripcion menor a
+     * un ano, asi que el periodo se cuenta en anos: eso evita tener que definir
+     * cuanto vale un mes suelto, que no es la doceava parte del ano.
+     *
+     * El tope no es comercial sino defensivo: sin el, un cero de mas al teclear
+     * dejaria a alguien con la suscripcion pagada hasta el siglo que viene.
+     */
+    public static final int SUBSCRIPTION_MIN_YEARS = 1;
+    public static final int SUBSCRIPTION_MAX_YEARS = 5;
+    /** Estados del pago. Coinciden con el ENUM de subscription_payment. */
+    public static final String PAYMENT_STATUS_PENDING = "Pendiente";
+    public static final String PAYMENT_STATUS_CONFIRMED = "Confirmado";
+    public static final String PAYMENT_STATUS_REJECTED = "Rechazado";
+    /** Medios aceptados. Coinciden con el ENUM de la columna payment_method. */
+    public static final java.util.List<String> PAYMENT_METHODS =
+            java.util.List.of("Nequi", "Bancolombia", "Otro");
+
+    public static final String SUBSCRIPTION_QUOTE_OK = "subscription.quote.ok";
+    public static final String SUBSCRIPTION_PAYMENT_OK = "subscription.payment.ok";
+    public static final String SUBSCRIPTION_CONFIRMED_OK = "subscription.confirmed.ok";
+    public static final String SUBSCRIPTION_REJECTED_OK = "subscription.rejected.ok";
+    public static final String SUBSCRIPTION_PAYMENTS_OK = "subscription.payments.ok";
+    public static final String SUBSCRIPTION_KO = "subscription.ko";
+
+    public static final String SUBSCRIPTION_OWNER_REQUIRED = "Debe indicar el propietario.";
+    public static final String SUBSCRIPTION_OWNER_NOT_FOUND = "El propietario indicado no existe.";
+    public static final String SUBSCRIPTION_PLAN_NOT_FOUND = "No hay una tarifa vigente configurada.";
+    public static final String SUBSCRIPTION_METHOD_INVALID =
+            "El medio de pago debe ser Nequi, Bancolombia u Otro.";
+    public static final String SUBSCRIPTION_RECEIPT_REQUIRED = "Debe adjuntar el comprobante de pago.";
+    public static final String SUBSCRIPTION_PAYMENT_NOT_FOUND = "El pago indicado no existe.";
+    public static final String SUBSCRIPTION_PAYMENT_NOT_PENDING =
+            "El pago ya fue revisado y no admite otra decisión.";
+    public static final String SUBSCRIPTION_PAYMENT_DUPLICATED =
+            "Ya hay un pago pendiente de comprobación para este propietario.";
+    public static final String SUBSCRIPTION_REVIEWER_REQUIRED =
+            "Debe indicar el usuario que revisa el pago en el header X-USER-ID.";
+    public static final String SUBSCRIPTION_REJECTION_REASON_REQUIRED =
+            "Debe indicar el motivo del rechazo.";
+    public static final String SUBSCRIPTION_YEARS_INVALID =
+            "La renovación debe ser de " + SUBSCRIPTION_MIN_YEARS + " a " + SUBSCRIPTION_MAX_YEARS
+                    + " años. No hay suscripciones menores a un año.";
+
     // Vencimiento de documentos de vehiculo (aviso interno, sin WhatsApp ni push)
     public static final String DOCUMENT_EXPIRY_EVENT_TYPE = "DOCUMENT_EVENT";
     /**
@@ -296,6 +343,13 @@ public class Constants {
     public static final String VEHICLE_EVENT_TYPE = "VEHICLE_EVENT";
     public static final String DRIVER_EVENT_TYPE = "DRIVER_EVENT";
     public static final String OWNER_EVENT_TYPE = "OWNER_EVENT";
+    /**
+     * Pago de suscripcion esperando comprobacion. Es tipo propio y no
+     * OWNER_EVENT porque su referenceId es el id del pago, no el del
+     * propietario: reusar aquel mandaria el enlace del push a la ficha de un
+     * propietario que no existe con ese id.
+     */
+    public static final String SUBSCRIPTION_EVENT_TYPE = "SUBSCRIPTION_EVENT";
 
     // Notificaciones push (Web Push)
     /** El basePath es /truck y las vistas de la app cuelgan de /site. */

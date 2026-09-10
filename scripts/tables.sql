@@ -344,7 +344,8 @@ CREATE TABLE notification (
     FOREIGN KEY (owner_id) REFERENCES owner(id) ON DELETE CASCADE,
     
     -- Índices de optimización
-    INDEX idx_notif_lookup (target_user_id, target_role_id, is_read)
+    INDEX idx_notif_lookup (target_user_id, target_role_id, is_read),
+    INDEX idx_notif_event_reference (event_type, reference_id)
 );
 
 -- DROP TABLE IF EXISTS audit;

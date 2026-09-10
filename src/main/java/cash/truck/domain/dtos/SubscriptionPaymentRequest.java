@@ -1,5 +1,6 @@
 package cash.truck.domain.dtos;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 
 /**
@@ -17,7 +18,13 @@ public class SubscriptionPaymentRequest {
     /** Anualidades que se estan pagando. Nulo se toma como una. */
     private Integer years;
 
-    /** Nequi, Bancolombia u Otro. */
+    /**
+     * Nequi, Bancolombia u Otro.
+     *
+     * El front lo manda como "method", de ahi el alias: renombrarlo alla
+     * obligaria a tocar el formulario, y el nombre corto no estorba aqui.
+     */
+    @JsonAlias("method")
     private String paymentMethod;
 
     /** Numero de transaccion transcrito del comprobante; opcional. */

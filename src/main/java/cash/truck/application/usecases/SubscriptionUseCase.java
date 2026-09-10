@@ -114,6 +114,26 @@ public class SubscriptionUseCase {
     }
 
     /**
+     * Devuelve el medio de pago escrito como lo espera el ENUM de la columna.
+     *
+     * El front manda el valor en mayusculas, asi que comparar tal cual lo
+     * rechazaria y luego MySQL rechazaria el INSERT. Se busca sin distinguir
+     * mayusculas y se guarda la forma canonica, que es la unica que la columna
+     * admite.
+     */
+    private String normalizeMethod(String method) {
+        if (method != null) {
+            String trimmed = method.trim();
+            for (String canonical : Constants.PAYMENT_METHODS) {
+                if (canonical.equalsIgnoreCase(trimmed)) {
+                    return canonical;
+                }
+            }
+        }
+        throw new SubscriptionValidationException(Constants.SUBSCRIPTION_METHOD_INVALID);
+    }
+
+    /**
      * No hay suscripcion menor a un ano, asi que el periodo se cuenta en anos y
      * nunca en meses sueltos. Nulo se toma como uno para que el front pueda
      * omitirlo en el caso corriente.
@@ -161,10 +181,7 @@ public class SubscriptionUseCase {
         }
         Owner owner = requireOwner(request.getOwnerId());
 
-        String method = request.getPaymentMethod();
-        if (method == null || !Constants.PAYMENT_METHODS.contains(method)) {
-            throw new SubscriptionValidationException(Constants.SUBSCRIPTION_METHOD_INVALID);
-        }
+        String method = normalizeMethod(request.getPaymentMethod());
         // Sin comprobante no hay nada que comprobar, y la revision es manual.
         if (request.getReceiptUrl() == null || request.getReceiptUrl().isBlank()) {
             throw new SubscriptionValidationException(Constants.SUBSCRIPTION_RECEIPT_REQUIRED);
