@@ -56,6 +56,10 @@ public class ExpenseUseCase {
     }
 
     public Expense save(Expense expense) {
+        return save(expense, null);
+    }
+
+    public Expense save(Expense expense, Integer actorUserId) {
         Expense expenseNew;
         boolean isNew = expense.getId() == null;
 
@@ -133,7 +137,8 @@ public class ExpenseUseCase {
             messageBuilder.append(" del vehículo de placa: ").append(plate);
         }
 
-        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", messageBuilder.toString(), 1, null, ownerId, savedExpense.getId());
+        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", messageBuilder.toString(), 1, null, ownerId, savedExpense.getId(),
+                actorUserId);
 
         return savedExpense;
     }

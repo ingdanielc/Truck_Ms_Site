@@ -50,7 +50,11 @@ public class NotificationPushListener {
                 return;
             }
 
-            List<Integer> recipients = resolveRecipients(event);
+            // Quien hizo la accion no recibe push de ella: ya sabe lo que hizo.
+            // Si la hace el conductor, el propietario es otro usuario y le llega.
+            List<Integer> recipients = resolveRecipients(event).stream()
+                    .filter(userId -> !userId.equals(event.actorUserId()))
+                    .toList();
             if (recipients.isEmpty()) {
                 logger.debug("Notificacion {} sin destinatario push", event.notificationId());
                 return;

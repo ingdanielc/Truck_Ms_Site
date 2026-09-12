@@ -60,6 +60,15 @@ public class InAppNotificationUseCase {
      */
     public Notification createNotification(String eventType, String message, Integer targetRoleId,
             Integer targetUserId, Long ownerId, Long referenceId) {
+        return createNotification(eventType, message, targetRoleId, targetUserId, ownerId, referenceId, null);
+    }
+
+    /**
+     * Igual que la anterior, pero indicando quien hizo la accion. La
+     * notificacion interna no cambia; solo el push deja fuera a ese usuario.
+     */
+    public Notification createNotification(String eventType, String message, Integer targetRoleId,
+            Integer targetUserId, Long ownerId, Long referenceId, Integer actorUserId) {
         Notification notification = new Notification();
         notification.setEventType(eventType);
         notification.setMessage(message);
@@ -81,7 +90,7 @@ public class InAppNotificationUseCase {
         // Se publica despues de guardar y con los datos crudos: el oyente corre
         // tras el commit, fuera de esta sesion de Hibernate.
         eventPublisher.publishEvent(new NotificationCreatedEvent(saved.getId(), eventType, message,
-                ownerId, referenceId, targetUserId));
+                ownerId, referenceId, targetUserId, actorUserId));
 
         return saved;
     }

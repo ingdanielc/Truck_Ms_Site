@@ -160,12 +160,12 @@ UPDATE template SET provider_variables = 'name,reason'
 -- aqui y en la base ya desplegada, o Twilio responde 20404 por el HX viejo.
 
 -- cashtruck_suscripcion_renovada
--- UPDATE template SET provider_template_id = 'HX_PEGAR_AQUI_EL_SID'
---  WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_RENEWED';
+UPDATE template SET provider_template_id = 'HX5ead825ebfa0c116360042ff575e584c'
+WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_RENEWED';
 
 -- cashtruck_pago_no_confirmado
--- UPDATE template SET provider_template_id = 'HX_PEGAR_AQUI_EL_SID'
---  WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_REJECTED';
+UPDATE template SET provider_template_id = 'HX5b1a4448d7aa05ec8c33c1fbc07ca1fd'
+WHERE medium = 'WhatsApp' AND message_type = 'SUBSCRIPTION_REJECTED';
 
 -- Comprobacion rapida tras aplicar el script: las dos filas deben aparecer, y
 -- provider_template_id sigue en NULL hasta que se activen los UPDATE de arriba.

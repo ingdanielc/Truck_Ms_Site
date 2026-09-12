@@ -33,9 +33,11 @@ public class ExpenseController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Object> save(@RequestBody Expense expense) {
+    public ResponseEntity<Object> save(
+            @RequestHeader(value = Constants.HEADER_USER_ID, required = false) Integer actorUserId,
+            @RequestBody Expense expense) {
         try {
-            Expense saved = expenseUseCase.save(expense);
+            Expense saved = expenseUseCase.save(expense, actorUserId);
             ResponseMessage responseMessage = new ResponseMessage(saved, HttpStatus.CREATED.value(),
                     HttpStatus.CREATED.name(), null, Constants.EXPENSE_CREATED_OK);
             return new ResponseEntity<>(responseMessage, HttpStatus.CREATED);
