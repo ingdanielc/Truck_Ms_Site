@@ -25,9 +25,15 @@ truck:
         jwt-key: asdfSFS34wfsdfsdfSDSD32dfsddDDerQSNCK34SOWEK5354fdgdf4
 server:
     port: 8089
+    # Comprime solo JSON de mas de 2 KB; el cliente lo descomprime de forma transparente.
+    compression:
+        enabled: true
+        mime-types: application/json
+        min-response-size: 2048
 spring:
     datasource:
-        url: jdbc:mysql://168.231.93.145:3306/cashTruck?serverTimezone=America/Bogota
+        # cachePrepStmts: el driver reutiliza el analisis de las sentencias repetidas.
+        url: jdbc:mysql://168.231.93.145:3306/cashTruck?serverTimezone=America/Bogota&cachePrepStmts=true&prepStmtCacheSize=250&prepStmtCacheSqlLimit=2048
         username: cashTruck
         password: cashTruck2026
     application:
@@ -36,6 +42,19 @@ spring:
         multipart:
             max-file-size: 5MB
             max-request-size: 5MB
+    jpa:
+        properties:
+            hibernate:
+                # Carga las relaciones de varias filas en un solo IN en vez de una consulta por fila.
+                default_batch_fetch_size: 50
+                query:
+                    # Redondea el tamano de las listas IN para reutilizar planes de consulta.
+                    in_clause_parameter_padding: true
+    task:
+        scheduling:
+            # Un hilo por job programado, para que uno lento no retrase a los demas.
+            pool:
+                size: 3
 #    security:
 #        user:
 #            name: admin

@@ -51,6 +51,11 @@ public class GmailEmailNotificationProviders implements EmailNotificationStrateg
         props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         props.put("mail.smtp.host", host);
         props.put("mail.smtp.port", String.valueOf(port));
+        // Sin estos limites JavaMail espera indefinidamente: un SMTP que no responde
+        // dejaria tomado el hilo @Async que tambien usan WhatsApp y SMS. Si se
+        // agotan, el envio cae en el catch y queda marcado FAILED como cualquier error.
+        props.put("mail.smtp.connectiontimeout", "15000");
+        props.put("mail.smtp.timeout", "60000");
 
         // Autenticación
         Session session = Session.getInstance(props, new Authenticator() {

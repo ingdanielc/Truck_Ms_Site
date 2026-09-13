@@ -308,11 +308,13 @@ public class OwnerUseCase {
     }
 
     public VehicleOwner setVehicle(VehicleOwner vehicleOwner) {
-        // Validate duplicate assignment
-        boolean exists = vehicleOwnerRepository.findAll().stream()
-                .anyMatch(vo -> vo.getVehicleId().equals(vehicleOwner.getVehicleId())
-                        && vo.getOwnerId().equals(vehicleOwner.getOwnerId())
-                        && (vehicleOwner.getId() == null || !vo.getId().equals(vehicleOwner.getId())));
+        // Validate duplicate assignment. Se consulta en la BD en vez de cargar toda
+        // vehicle_owner en memoria; las condiciones son las mismas de antes.
+        boolean exists = vehicleOwner.getId() == null
+                ? vehicleOwnerRepository.existsByVehicleIdAndOwnerId(
+                        vehicleOwner.getVehicleId(), vehicleOwner.getOwnerId())
+                : vehicleOwnerRepository.existsByVehicleIdAndOwnerIdAndIdNot(
+                        vehicleOwner.getVehicleId(), vehicleOwner.getOwnerId(), vehicleOwner.getId());
         if (exists) {
             throw duplicateEntityException();
         }

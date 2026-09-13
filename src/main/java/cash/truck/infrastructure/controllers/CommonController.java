@@ -38,6 +38,25 @@ public class CommonController {
     @Autowired
     private CommonUseCase commonUseCase;
 
+    private static volatile boolean imageIoPluginsScanned = false;
+
+    /**
+     * scanForPlugins recorre el classpath y es sincronizado, asi que llamarlo en
+     * cada subida serializaba las peticiones. Los plugins registrados (el writer de
+     * WebP) no cambian en tiempo de ejecucion: basta con escanear la primera vez,
+     * en el mismo hilo de peticion en que se hacia antes.
+     */
+    private static void ensureImageIoPlugins() {
+        if (!imageIoPluginsScanned) {
+            synchronized (CommonController.class) {
+                if (!imageIoPluginsScanned) {
+                    ImageIO.scanForPlugins();
+                    imageIoPluginsScanned = true;
+                }
+            }
+        }
+    }
+
     @GetMapping("/getDocumentTypes")
     public ResponseEntity<Object> getAllDocuments() {
         ResponseMessage responseMessage = new ResponseMessage(commonUseCase.getAllDocumentTypes(),
@@ -166,7 +185,7 @@ public class CommonController {
             @RequestParam("type") String type,
             @RequestParam("id") Long id,
             @RequestParam("photo") MultipartFile photo) {
-        ImageIO.scanForPlugins();
+        ensureImageIoPlugins();
         try {
             String subDir;
             switch (type.toLowerCase()) {
