@@ -1,6 +1,7 @@
 package cash.truck.application.usecases;
 
 import cash.truck.application.exception.TripValidationException;
+import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
@@ -88,7 +89,8 @@ public class TripUseCase {
                     : "Se ha actualizado el viaje " + manifestLabel;
         }
 
-        inAppNotificationUseCase.createNotification("TRIP_EVENT", message, 1, null, ownerId, savedTrip.getId());
+        inAppNotificationUseCase.createNotification("TRIP_EVENT", message, Constants.ROLE_ID_OWNER, null, ownerId,
+                savedTrip.getId());
 
         return savedTrip;
     }

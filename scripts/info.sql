@@ -91,6 +91,1872 @@ INSERT INTO city (name, state) VALUES
 ('Pasto', 'Nariño'),
 ('Tulcán', 'Ecuador');
 
+INSERT INTO city (name, state)
+SELECT 'Leticia', 'Amazonas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Leticia' AND state = 'Amazonas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Nariño', 'Amazonas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Nariño' AND state = 'Amazonas'
+);
+
+-- =========================
+-- ANTIOQUIA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Carepa', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Carepa' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Chigorodó', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chigorodó' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Ceja', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Ceja' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Marinilla', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Marinilla' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Guarne', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Guarne' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Copacabana', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Copacabana' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Girardota', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Girardota' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sabaneta', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sabaneta' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Estrella', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Estrella' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Carmen de Viboral', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Carmen de Viboral' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Santa Rosa de Osos', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Santa Rosa de Osos' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Yarumal', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Yarumal' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Berrío', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Berrío' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sonsón', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sonsón' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Amalfi', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Amalfi' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Segovia', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Segovia' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Remedios', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Remedios' AND state = 'Antioquia'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Urrao', 'Antioquia'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Urrao' AND state = 'Antioquia'
+);
+
+-- =========================
+-- ARAUCA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Arauquita', 'Arauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Arauquita' AND state = 'Arauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tame', 'Arauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tame' AND state = 'Arauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Fortul', 'Arauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Fortul' AND state = 'Arauca'
+);
+
+-- =========================
+-- ATLÁNTICO
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Sabanalarga', 'Atlántico'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sabanalarga' AND state = 'Atlántico'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Colombia', 'Atlántico'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Colombia' AND state = 'Atlántico'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Baranoa', 'Atlántico'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Baranoa' AND state = 'Atlántico'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Galapa', 'Atlántico'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Galapa' AND state = 'Atlántico'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Santo Tomás', 'Atlántico'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Santo Tomás' AND state = 'Atlántico'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Juan de Acosta', 'Atlántico'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Juan de Acosta' AND state = 'Atlántico'
+);
+
+-- =========================
+-- BOLÍVAR
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Turbaco', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Turbaco' AND state = 'Bolívar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Arjona', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Arjona' AND state = 'Bolívar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Carmen de Bolívar', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Carmen de Bolívar' AND state = 'Bolívar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Mompox', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Mompox' AND state = 'Bolívar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Juan Nepomuceno', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Juan Nepomuceno' AND state = 'Bolívar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Santa Rosa del Sur', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Santa Rosa del Sur' AND state = 'Bolívar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Pablo', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Pablo' AND state = 'Bolívar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'María La Baja', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'María La Baja' AND state = 'Bolívar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Clemencia', 'Bolívar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Clemencia' AND state = 'Bolívar'
+);
+
+-- =========================
+-- BOYACÁ
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Chiquinquirá', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chiquinquirá' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Paipa', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Paipa' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Villa de Leyva', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villa de Leyva' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Boyacá', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Boyacá' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Moniquirá', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Moniquirá' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Garagoa', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Garagoa' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Soatá', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Soatá' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Samacá', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Samacá' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Nobsa', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Nobsa' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Monguí', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Monguí' AND state = 'Boyacá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tibasosa', 'Boyacá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tibasosa' AND state = 'Boyacá'
+);
+
+-- =========================
+-- CALDAS
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Chinchiná', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chinchiná' AND state = 'Caldas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Villamaría', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villamaría' AND state = 'Caldas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Riosucio', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Riosucio' AND state = 'Caldas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Anserma', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Anserma' AND state = 'Caldas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Supía', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Supía' AND state = 'Caldas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Aguadas', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Aguadas' AND state = 'Caldas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Salamina', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Salamina' AND state = 'Caldas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Neira', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Neira' AND state = 'Caldas'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Pensilvania', 'Caldas'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Pensilvania' AND state = 'Caldas'
+);
+
+-- =========================
+-- CAQUETÁ
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'San Vicente del Caguán', 'Caquetá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Vicente del Caguán' AND state = 'Caquetá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Rico', 'Caquetá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Rico' AND state = 'Caquetá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Doncello', 'Caquetá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Doncello' AND state = 'Caquetá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Montañita', 'Caquetá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Montañita' AND state = 'Caquetá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Belén de los Andaquíes', 'Caquetá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Belén de los Andaquíes' AND state = 'Caquetá'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Curillo', 'Caquetá'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Curillo' AND state = 'Caquetá'
+);
+
+-- =========================
+-- CASANARE
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Aguazul', 'Casanare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Aguazul' AND state = 'Casanare'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Villanueva', 'Casanare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villanueva' AND state = 'Casanare'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Paz de Ariporo', 'Casanare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Paz de Ariporo' AND state = 'Casanare'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tauramena', 'Casanare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tauramena' AND state = 'Casanare'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Monterrey', 'Casanare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Monterrey' AND state = 'Casanare'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Maní', 'Casanare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Maní' AND state = 'Casanare'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Hato Corozal', 'Casanare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Hato Corozal' AND state = 'Casanare'
+);
+
+-- =========================
+-- CAUCA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Patía', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Patía' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Piendamó', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Piendamó' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Guapi', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Guapi' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Tambo', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Tambo' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Cajibío', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Cajibío' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Villa Rica', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villa Rica' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Miranda', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Miranda' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Corinto', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Corinto' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Caloto', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Caloto' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Suárez', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Suárez' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Morales', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Morales' AND state = 'Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Timbío', 'Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Timbío' AND state = 'Cauca'
+);
+
+-- =========================
+-- CESAR
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Codazzi', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Codazzi' AND state = 'Cesar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Curumaní', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Curumaní' AND state = 'Cesar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Chiriguaná', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chiriguaná' AND state = 'Cesar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Jagua de Ibirico', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Jagua de Ibirico' AND state = 'Cesar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Becerril', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Becerril' AND state = 'Cesar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Alberto', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Alberto' AND state = 'Cesar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Martín', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Martín' AND state = 'Cesar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Copey', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Copey' AND state = 'Cesar'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Pelaya', 'Cesar'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Pelaya' AND state = 'Cesar'
+);
+
+-- =========================
+-- CHOCÓ
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Istmina', 'Chocó'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Istmina' AND state = 'Chocó'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tadó', 'Chocó'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tadó' AND state = 'Chocó'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Condoto', 'Chocó'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Condoto' AND state = 'Chocó'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Riosucio', 'Chocó'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Riosucio' AND state = 'Chocó'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Acandí', 'Chocó'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Acandí' AND state = 'Chocó'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Bahía Solano', 'Chocó'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Bahía Solano' AND state = 'Chocó'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Nuquí', 'Chocó'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Nuquí' AND state = 'Chocó'
+);
+
+-- =========================
+-- CÓRDOBA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Cereté', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Cereté' AND state = 'Córdoba'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sahagún', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sahagún' AND state = 'Córdoba'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Planeta Rica', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Planeta Rica' AND state = 'Córdoba'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tierralta', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tierralta' AND state = 'Córdoba'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Montelíbano', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Montelíbano' AND state = 'Córdoba'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Ciénaga de Oro', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Ciénaga de Oro' AND state = 'Córdoba'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Chinú', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chinú' AND state = 'Córdoba'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Libertador', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Libertador' AND state = 'Córdoba'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Pelayo', 'Córdoba'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Pelayo' AND state = 'Córdoba'
+);
+
+-- =========================
+-- CUNDINAMARCA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Chía', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chía' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Cajicá', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Cajicá' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Madrid', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Madrid' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sopó', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sopó' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Calera', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Calera' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Villeta', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villeta' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Ubaté', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Ubaté' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Guaduas', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Guaduas' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Mesa', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Mesa' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Anapoima', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Anapoima' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Cáqueza', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Cáqueza' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Pacho', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Pacho' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Chocontá', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chocontá' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sibaté', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sibaté' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Colegio', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Colegio' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tabio', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tabio' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tenjo', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tenjo' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Suesca', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Suesca' AND state = 'Cundinamarca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Nocaima', 'Cundinamarca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Nocaima' AND state = 'Cundinamarca'
+);
+
+-- =========================
+-- GUAINÍA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Inírida', 'Guainía'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Inírida' AND state = 'Guainía'
+);
+
+-- =========================
+-- GUAVIARE
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'San José del Guaviare', 'Guaviare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San José del Guaviare' AND state = 'Guaviare'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Calamar', 'Guaviare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Calamar' AND state = 'Guaviare'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Retorno', 'Guaviare'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Retorno' AND state = 'Guaviare'
+);
+
+-- =========================
+-- HUILA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'La Plata', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Plata' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Campoalegre', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Campoalegre' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Gigante', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Gigante' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Guadalupe', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Guadalupe' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Agustín', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Agustín' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Aipe', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Aipe' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Palermo', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Palermo' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Rivera', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Rivera' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Timaná', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Timaná' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Acevedo', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Acevedo' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tesalia', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tesalia' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Hobo', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Hobo' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Algeciras', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Algeciras' AND state = 'Huila'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Villavieja', 'Huila'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villavieja' AND state = 'Huila'
+);
+
+-- =========================
+-- LA GUAJIRA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Uribia', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Uribia' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Manaure', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Manaure' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Juan del Cesar', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Juan del Cesar' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Fonseca', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Fonseca' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Villanueva', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villanueva' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Barrancas', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Barrancas' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Albania', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Albania' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Hatonuevo', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Hatonuevo' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Distracción', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Distracción' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Dibulla', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Dibulla' AND state = 'La Guajira'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Molino', 'La Guajira'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Molino' AND state = 'La Guajira'
+);
+
+-- =========================
+-- MAGDALENA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Ciénaga', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Ciénaga' AND state = 'Magdalena'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Fundación', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Fundación' AND state = 'Magdalena'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Banco', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Banco' AND state = 'Magdalena'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Plato', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Plato' AND state = 'Magdalena'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Aracataca', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Aracataca' AND state = 'Magdalena'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Zona Bananera', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Zona Bananera' AND state = 'Magdalena'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Pivijay', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Pivijay' AND state = 'Magdalena'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Santa Ana', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Santa Ana' AND state = 'Magdalena'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Guamal', 'Magdalena'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Guamal' AND state = 'Magdalena'
+);
+
+-- =========================
+-- META
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Puerto López', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto López' AND state = 'Meta'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Gaitán', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Gaitán' AND state = 'Meta'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Martín', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Martín' AND state = 'Meta'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Cumaral', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Cumaral' AND state = 'Meta'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Restrepo', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Restrepo' AND state = 'Meta'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Guamal', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Guamal' AND state = 'Meta'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Castilla La Nueva', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Castilla La Nueva' AND state = 'Meta'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Vista Hermosa', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Vista Hermosa' AND state = 'Meta'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Macarena', 'Meta'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Macarena' AND state = 'Meta'
+);
+
+-- =========================
+-- NARIÑO
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Barbacoas', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Barbacoas' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Charco', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Charco' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sandoná', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sandoná' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Cruz', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Cruz' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Buesaco', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Buesaco' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Consacá', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Consacá' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Chachagüí', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chachagüí' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Tambo', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Tambo' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tangua', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tangua' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Yacuanquer', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Yacuanquer' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Aldana', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Aldana' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Cuaspud', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Cuaspud' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Pupiales', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Pupiales' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerres', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerres' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Funes', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Funes' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Gualmatán', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Gualmatán' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Ospina', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Ospina' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Ricaurte', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Ricaurte' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Linares', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Linares' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Policarpa', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Policarpa' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Leiva', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Leiva' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Los Andes', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Los Andes' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Florida', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Florida' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Taminango', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Taminango' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Lorenzo', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Lorenzo' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Mallama', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Mallama' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Mosquera', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Mosquera' AND state = 'Nariño'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Olaya Herrera', 'Nariño'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Olaya Herrera' AND state = 'Nariño'
+);
+
+-- =========================
+-- NORTE DE SANTANDER
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Villa del Rosario', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villa del Rosario' AND state = 'Norte de Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Los Patios', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Los Patios' AND state = 'Norte de Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Zulia', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Zulia' AND state = 'Norte de Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tibú', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tibú' AND state = 'Norte de Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Abrego', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Abrego' AND state = 'Norte de Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Convención', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Convención' AND state = 'Norte de Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Chinácota', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chinácota' AND state = 'Norte de Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sardinata', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sardinata' AND state = 'Norte de Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Toledo', 'Norte de Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Toledo' AND state = 'Norte de Santander'
+);
+
+-- =========================
+-- PUTUMAYO
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Valle del Guamuez', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Valle del Guamuez' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Hormiga', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Hormiga' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Villagarzón', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Villagarzón' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Caicedo', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Caicedo' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Guzmán', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Guzmán' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Miguel', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Miguel' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sibundoy', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sibundoy' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Colón', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Colón' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Santiago', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Santiago' AND state = 'Putumayo'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Francisco', 'Putumayo'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Francisco' AND state = 'Putumayo'
+);
+
+-- =========================
+-- QUINDÍO
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Montenegro', 'Quindío'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Montenegro' AND state = 'Quindío'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Tebaida', 'Quindío'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Tebaida' AND state = 'Quindío'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Quimbaya', 'Quindío'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Quimbaya' AND state = 'Quindío'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Circasia', 'Quindío'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Circasia' AND state = 'Quindío'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Filandia', 'Quindío'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Filandia' AND state = 'Quindío'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Salento', 'Quindío'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Salento' AND state = 'Quindío'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Génova', 'Quindío'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Génova' AND state = 'Quindío'
+);
+
+-- =========================
+-- RISARALDA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Santa Rosa de Cabal', 'Risaralda'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Santa Rosa de Cabal' AND state = 'Risaralda'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Virginia', 'Risaralda'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Virginia' AND state = 'Risaralda'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Belén de Umbría', 'Risaralda'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Belén de Umbría' AND state = 'Risaralda'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Marsella', 'Risaralda'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Marsella' AND state = 'Risaralda'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Santuario', 'Risaralda'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Santuario' AND state = 'Risaralda'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Apía', 'Risaralda'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Apía' AND state = 'Risaralda'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Quinchía', 'Risaralda'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Quinchía' AND state = 'Risaralda'
+);
+
+-- =========================
+-- SANTANDER
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Floridablanca', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Floridablanca' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Girón', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Girón' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Piedecuesta', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Piedecuesta' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Socorro', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Socorro' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Barbosa', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Barbosa' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Vélez', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Vélez' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Málaga', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Málaga' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sabana de Torres', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sabana de Torres' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Wilches', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Wilches' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Cimitarra', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Cimitarra' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Vicente de Chucurí', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Vicente de Chucurí' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Lebrija', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Lebrija' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Rionegro', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Rionegro' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Charalá', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Charalá' AND state = 'Santander'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Zapatoca', 'Santander'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Zapatoca' AND state = 'Santander'
+);
+
+-- =========================
+-- SUCRE
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Corozal', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Corozal' AND state = 'Sucre'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sampués', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sampués' AND state = 'Sucre'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Marcos', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Marcos' AND state = 'Sucre'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Tolú', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Tolú' AND state = 'Sucre'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Coveñas', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Coveñas' AND state = 'Sucre'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Onofre', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Onofre' AND state = 'Sucre'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Majagual', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Majagual' AND state = 'Sucre'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Ovejas', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Ovejas' AND state = 'Sucre'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sincé', 'Sucre'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sincé' AND state = 'Sucre'
+);
+
+-- =========================
+-- TOLIMA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Honda', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Honda' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Mariquita', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Mariquita' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Líbano', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Líbano' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Chaparral', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Chaparral' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Guamo', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Guamo' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Flandes', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Flandes' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Purificación', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Purificación' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Fresno', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Fresno' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Natagaima', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Natagaima' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Ortega', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Ortega' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Saldaña', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Saldaña' AND state = 'Tolima'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Venadillo', 'Tolima'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Venadillo' AND state = 'Tolima'
+);
+
+-- =========================
+-- VALLE DEL CAUCA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Yumbo', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Yumbo' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Candelaria', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Candelaria' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Dagua', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Dagua' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Florida', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Florida' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Pradera', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Pradera' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Zarzal', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Zarzal' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Roldanillo', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Roldanillo' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Sevilla', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Sevilla' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Caicedonia', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Caicedonia' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'El Cerrito', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'El Cerrito' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Guacarí', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Guacarí' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Andalucía', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Andalucía' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'San Pedro', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'San Pedro' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Ginebra', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Ginebra' AND state = 'Valle del Cauca'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Vijes', 'Valle del Cauca'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Vijes' AND state = 'Valle del Cauca'
+);
+
+-- =========================
+-- VAUPÉS
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Mitú', 'Vaupés'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Mitú' AND state = 'Vaupés'
+);
+
+-- =========================
+-- VICHADA
+-- =========================
+
+INSERT INTO city (name, state)
+SELECT 'Puerto Carreño', 'Vichada'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Puerto Carreño' AND state = 'Vichada'
+);
+
+INSERT INTO city (name, state)
+SELECT 'La Primavera', 'Vichada'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'La Primavera' AND state = 'Vichada'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Santa Rosalía', 'Vichada'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Santa Rosalía' AND state = 'Vichada'
+);
+
+INSERT INTO city (name, state)
+SELECT 'Cumaribo', 'Vichada'
+WHERE NOT EXISTS (
+    SELECT 1 FROM city WHERE name = 'Cumaribo' AND state = 'Vichada'
+);
+
 INSERT INTO gender (name) VALUES 
 ('Masculino'),
 ('Femenino');

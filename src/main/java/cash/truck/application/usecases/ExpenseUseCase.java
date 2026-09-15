@@ -1,5 +1,6 @@
 package cash.truck.application.usecases;
 
+import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
@@ -137,8 +138,8 @@ public class ExpenseUseCase {
             messageBuilder.append(" del vehículo de placa: ").append(plate);
         }
 
-        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", messageBuilder.toString(), 1, null, ownerId, savedExpense.getId(),
-                actorUserId);
+        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", messageBuilder.toString(), Constants.ROLE_ID_OWNER,
+                null, ownerId, savedExpense.getId(), actorUserId);
 
         return savedExpense;
     }

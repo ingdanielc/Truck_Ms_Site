@@ -94,7 +94,7 @@ public class DocumentExpiryReminderScheduler {
         String message = buildMessage(document, days);
         for (VehicleOwner owner : owners) {
             inAppNotificationUseCase.createNotification(Constants.DOCUMENT_EXPIRY_EVENT_TYPE, message,
-                    Constants.ROLE_ID_ADMIN, null, owner.getOwnerId(), document.getId());
+                    Constants.ROLE_ID_OWNER, null, owner.getOwnerId(), document.getId());
         }
         logger.info("Avisado a {} propietario(s) por el documento {} del vehiculo {}", owners.size(),
                 document.getId(), document.getVehicleId());

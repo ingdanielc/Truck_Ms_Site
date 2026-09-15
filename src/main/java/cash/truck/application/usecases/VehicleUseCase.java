@@ -1,5 +1,6 @@
 package cash.truck.application.usecases;
 
+import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
@@ -23,7 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 @Service
@@ -82,10 +85,28 @@ public class VehicleUseCase {
 
         String message = isNew ? "Se ha creado un nuevo vehículo de placa: " + savedVehicle.getPlate()
                 : "Se ha actualizado el vehículo de placa: " + savedVehicle.getPlate();
-        inAppNotificationUseCase.createNotification("VEHICLE_EVENT", message, 1, null, vehicle.getOwnerId(),
-                savedVehicle.getId().longValue());
+        for (Long ownerId : resolveOwnerIds(vehicle.getOwnerId(), savedVehicle.getId())) {
+            inAppNotificationUseCase.createNotification(Constants.VEHICLE_EVENT_TYPE, message,
+                    Constants.ROLE_ID_OWNER, null, ownerId, savedVehicle.getId());
+        }
 
         return savedVehicle;
+    }
+
+    /**
+     * El aviso es del propietario aunque el cambio lo haga el conductor, cuyo
+     * payload no trae ownerId. Por eso se toman los propietarios activos del
+     * vehiculo y se suma el que venga en la peticion, por si aun no quedo activo.
+     */
+    private Set<Long> resolveOwnerIds(Long requestOwnerId, Long vehicleId) {
+        Set<Long> ownerIds = new LinkedHashSet<>();
+        if (requestOwnerId != null) {
+            ownerIds.add(requestOwnerId);
+        }
+        for (VehicleOwner owner : vehicleOwnerRepository.findByVehicleIdAndIsActiveTrue(vehicleId)) {
+            ownerIds.add(owner.getOwnerId());
+        }
+        return ownerIds;
     }
 
     private void applyFields(Vehicle source, Vehicle target) {
