@@ -4,11 +4,14 @@ import cash.truck.application.usecases.push.PushAudience;
 import cash.truck.application.usecases.push.PushPayloadFactory;
 import cash.truck.domain.dtos.NotificationCreatedEvent;
 import cash.truck.domain.dtos.PushPayload;
+import cash.truck.domain.repositories.DocumentFileRepository;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Fija la matriz de canales: que evento sale por push y a que pantalla lleva.
@@ -20,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class PushPayloadFactoryTest {
 
-    private final PushPayloadFactory factory = new PushPayloadFactory();
+    private final DocumentFileRepository documentFileRepository = mock(DocumentFileRepository.class);
+    private final PushPayloadFactory factory = new PushPayloadFactory(documentFileRepository);
 
     private NotificationCreatedEvent event(String eventType) {
         return new NotificationCreatedEvent(99L, eventType, "Mensaje de prueba", 7L, 1234L, null);
@@ -30,12 +34,21 @@ class PushPayloadFactoryTest {
     void elVencimientoDeDocumentoVaAlPropietario() {
         // Sigue sin salir por WhatsApp; el push si, por decision posterior.
         assertEquals(PushAudience.OWNER, factory.audienceFor("DOCUMENT_EVENT"));
+        when(documentFileRepository.existsByIdAndVehicleIdIsNotNull(1234L)).thenReturn(true);
 
         PushPayload payload = factory.build(event("DOCUMENT_EVENT")).orElseThrow();
         assertEquals("Documento por vencer", payload.getTitle());
         // Al listado y no a la ficha: el referenceId aqui es el id del
         // documento, no el del vehiculo.
         assertEquals("/truck/site/vehicles", payload.getData().get("url"));
+    }
+
+    @Test
+    void elVencimientoDeDocumentoDeConductorOPropietarioLlevaAlInicio() {
+        when(documentFileRepository.existsByIdAndVehicleIdIsNotNull(1234L)).thenReturn(false);
+
+        assertEquals("/truck/site/home",
+                factory.build(event("DOCUMENT_EVENT")).orElseThrow().getData().get("url"));
     }
 
     @Test
@@ -77,6 +90,23 @@ class PushPayloadFactoryTest {
         assertEquals(Optional.empty(), factory.build(event("ALGO_NUEVO")));
         assertEquals(Optional.empty(), factory.build(null));
         assertEquals(PushAudience.NONE, factory.audienceFor(null));
+    }
+
+    @Test
+    void losAvisosProgramadosSalenPorPushConSuTituloYEnlace() {
+        assertEquals("¡Feliz cumpleaños!", factory.build(event("BIRTHDAY_EVENT")).orElseThrow().getTitle());
+        assertEquals("/truck/site/home",
+                factory.build(event("BIRTHDAY_EVENT")).orElseThrow().getData().get("url"));
+
+        assertEquals("Suscripción por vencer",
+                factory.build(event("SUBSCRIPTION_EXPIRATION")).orElseThrow().getTitle());
+
+        PushPayload balance = factory.build(event("PENDING_BALANCE_ALERT")).orElseThrow();
+        assertEquals("Saldo pendiente de cobro", balance.getTitle());
+        assertEquals("/truck/site/trips/1234", balance.getData().get("url"));
+
+        // El seguimiento de cartera para el administrador se retiro.
+        assertEquals(PushAudience.NONE, factory.audienceFor("PORTFOLIO_ALERT"));
     }
 
     @Test

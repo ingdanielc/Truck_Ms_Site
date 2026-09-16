@@ -106,11 +106,13 @@ public class ExpenseUseCase {
 
         // Retrieve trip number
         String tripNumber = null;
+        Long tripDriverId = null;
         try {
             if (savedExpense.getTripId() != null) {
                 Trip trip = tripRepository.findById(savedExpense.getTripId()).orElse(null);
                 if (trip != null) {
                     tripNumber = trip.getNumberTrip();
+                    tripDriverId = trip.getDriverId();
                 }
             }
         } catch (Exception e) {
@@ -138,8 +140,11 @@ public class ExpenseUseCase {
             messageBuilder.append(" del vehículo de placa: ").append(plate);
         }
 
-        inAppNotificationUseCase.createNotification("EXPENSE_EVENT", messageBuilder.toString(), Constants.ROLE_ID_OWNER,
-                null, ownerId, savedExpense.getId(), actorUserId);
+        // El conductor ve los gastos de sus viajes; un gasto sin viaje, como el
+        // mantenimiento del vehiculo, queda solo para el propietario.
+        inAppNotificationUseCase.notifyOwnersAndDrivers(Constants.EXPENSE_EVENT_TYPE, messageBuilder.toString(),
+                ownerId == null ? List.of() : List.of(ownerId), savedExpense.getId(),
+                tripDriverId == null ? List.of() : List.of(tripDriverId), actorUserId);
 
         return savedExpense;
     }

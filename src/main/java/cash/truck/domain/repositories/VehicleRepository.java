@@ -26,6 +26,15 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long>, JpaSpec
     Optional<String> findPlateById(@Param("id") Long id);
 
     /**
+     * Conductor asignado, solo si el vehiculo esta en el estado indicado: uno
+     * vendido o inactivo puede conservar su current_driver_id sin que esa
+     * asignacion siga vigente, igual que en Driver.currentVehicleId.
+     */
+    @Query("SELECT v.currentDriverId FROM Vehicle v WHERE v.id = :id AND v.status = :status")
+    Optional<Integer> findCurrentDriverIdByIdAndStatus(@Param("id") Long id,
+                                                       @Param("status") Vehicle.Status status);
+
+    /**
      * Alcance del tablero: un renglon por vehiculo con lo minimo para armar el
      * eje —placa, conductor actual y propietario—. El propietario se resuelve
      * con el vehicle_owner de menor id, que es el que el cliente lee hoy como

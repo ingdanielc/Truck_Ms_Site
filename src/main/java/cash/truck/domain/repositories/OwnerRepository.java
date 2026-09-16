@@ -18,6 +18,19 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
     /** Propietarios cuya suscripcion vence exactamente ese dia. */
     java.util.List<Owner> findBySubscriptionEndDate(java.time.LocalDate subscriptionEndDate);
 
+    /**
+     * Propietarios que cumplen anos en alguno de los dias dados, como MM-dd.
+     * Solo ids: la entidad trae columnas @Formula que una consulta nativa no
+     * puede llenar.
+     */
+    @org.springframework.data.jpa.repository.Query(value = """
+            SELECT o.id FROM owner o
+             WHERE o.birthdate IS NOT NULL
+               AND DATE_FORMAT(o.birthdate, '%m-%d') IN (:monthDays)
+            """, nativeQuery = true)
+    java.util.List<Number> findIdsByBirthdayIn(
+            @org.springframework.data.repository.query.Param("monthDays") java.util.Collection<String> monthDays);
+
     /** Validaciones de unicidad del registro publico. */
     boolean existsByDocumentNumber(String documentNumber);
 

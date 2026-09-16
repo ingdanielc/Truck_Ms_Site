@@ -113,7 +113,10 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
             @Param("cancelledStatus") String cancelledStatus);
 
     /**
-     * Viajes en curso que llevan mas de las horas indicadas sin un solo gasto.
+     * Viajes en curso cuya ultima actividad —el ultimo gasto registrado o, si
+     * no tiene, el inicio del viaje— es anterior al umbral. eventDate es esa
+     * ultima actividad: el planificador la usa para no repetir el aviso dentro
+     * del mismo silencio.
      *
      * El propietario se resuelve aqui y no en Java —driver.owner_id con
      * respaldo en vehicle_owner— por la misma regla que usa el detalle de
@@ -129,7 +132,8 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
                    t.number_trip                       AS numberTrip,
                    v.plate                             AS plate,
                    t.driver_id                         AS driverId,
-                   t.start_date                        AS eventDate,
+                   COALESCE((SELECT MAX(e.creation_date) FROM expense e
+                              WHERE e.trip_id = t.id), t.start_date) AS eventDate,
                    COALESCE(d.owner_id,
                        (SELECT vo.owner_id FROM vehicle_owner vo
                          WHERE vo.vehicle_id = v.id ORDER BY vo.id LIMIT 1)) AS ownerId
@@ -137,11 +141,11 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
               JOIN vehicle v ON v.id = t.vehicle_id
               LEFT JOIN driver d ON d.id = t.driver_id
              WHERE t.status = :inProgressStatus
-               AND t.start_date <= :threshold
-               AND NOT EXISTS (SELECT 1 FROM expense e WHERE e.trip_id = t.id)
-             ORDER BY t.start_date
+               AND COALESCE((SELECT MAX(e.creation_date) FROM expense e
+                              WHERE e.trip_id = t.id), t.start_date) <= :threshold
+             ORDER BY eventDate
             """, nativeQuery = true)
-    List<InactiveTripRow> findInProgressTripsWithoutExpenses(
+    List<InactiveTripRow> findInProgressTripsWithoutRecentExpenses(
             @Param("inProgressStatus") String inProgressStatus,
             @Param("threshold") Date threshold);
 
@@ -217,6 +221,53 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     List<InactiveTripRow> findStalledInProgressTrips(
             @Param("inProgressStatus") String inProgressStatus,
             @Param("threshold") Date threshold);
+
+    /**
+     * Viajes en Pendiente con saldo sin pagar desde antes de la fecha limite.
+     *
+     * Se mide con update_date, igual que el evento de base de datos al que
+     * reemplaza: no hay columna que guarde cuando paso a Pendiente. Cualquier
+     * edicion posterior del viaje reinicia la cuenta.
+     *
+     * El propietario sale del conductor con respaldo en el vehiculo, la misma
+     * regla de los avisos de inactividad.
+     */
+    @Query(value = """
+            SELECT t.id                                AS tripId,
+                   t.number_trip                       AS numberTrip,
+                   t.manifest_number                   AS manifestNumber,
+                   t.balance                           AS balance,
+                   t.driver_id                         AS driverId,
+                   t.update_date                       AS pendingSince,
+                   COALESCE(d.owner_id,
+                       (SELECT vo.owner_id FROM vehicle_owner vo
+                         WHERE vo.vehicle_id = t.vehicle_id ORDER BY vo.id LIMIT 1)) AS ownerId
+              FROM trip t
+              LEFT JOIN driver d ON d.id = t.driver_id
+             WHERE t.status = :pendingStatus
+               AND t.paid_balance = FALSE
+               AND t.balance > 0
+               AND DATE(t.update_date) <= :limitDate
+             ORDER BY t.update_date
+            """, nativeQuery = true)
+    List<PendingBalanceTripRow> findPendingBalanceTrips(@Param("pendingStatus") String pendingStatus,
+            @Param("limitDate") java.time.LocalDate limitDate);
+
+    interface PendingBalanceTripRow {
+        Number getTripId();
+
+        String getNumberTrip();
+
+        String getManifestNumber();
+
+        BigDecimal getBalance();
+
+        Number getDriverId();
+
+        Date getPendingSince();
+
+        Number getOwnerId();
+    }
 
     /**
      * Fila de los tres avisos de inactividad. eventDate es start_date en los de

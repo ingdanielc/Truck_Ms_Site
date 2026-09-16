@@ -52,6 +52,10 @@ SELECT * FROM expense_category where expense_type_id <> 4 and id = 23;
 #SET name = 'Impuesto 4x1000'
 #where expense_type_id <> 4 and id = 23;
 
+#UPDATE expense_category 
+#set owner_id = NULL
+#where expense_type_id = 4 AND id = 38;
+
 SELECT * FROM expense;
 -- DELETE FROM expense_category;
 -- ALTER TABLE expense_category AUTO_INCREMENT = 1;

@@ -71,9 +71,8 @@ public class NotificationPushListener {
     }
 
     private List<Integer> resolveRecipients(NotificationCreatedEvent event) {
-        // El usuario explicito manda cuando viene. Hoy no lo usa nadie —todas
-        // las notificaciones se direccionan por propietario o por rol— pero el
-        // dia que se use, el push tiene que respetarlo.
+        // El usuario explicito manda cuando viene: es la copia del aviso para un
+        // conductor, y su push es para el y no para el propietario.
         if (event.targetUserId() != null) {
             return List.of(event.targetUserId());
         }

@@ -56,6 +56,21 @@ public class PushRecipientResolver {
         return userIds;
     }
 
+    /**
+     * Usuario del propietario solo si puede entrar a la app. Es la regla de
+     * resolveDriverUserId aplicada al propietario, para los avisos que arman
+     * su propia lista de destinatarios.
+     */
+    public Optional<Integer> resolveActiveOwnerUserId(Long ownerId) {
+        if (ownerId == null) {
+            return Optional.empty();
+        }
+        return ownerRepository.findById(ownerId)
+                .map(Owner::getUser)
+                .filter(user -> Constants.STATUS_ACTIVE.equals(user.getStatus()))
+                .map(Users::getId);
+    }
+
     public Optional<Integer> resolveOwnerUserId(Long ownerId) {
         if (ownerId == null) {
             return Optional.empty();
@@ -82,15 +97,20 @@ public class PushRecipientResolver {
         if (driverId == null) {
             return Optional.empty();
         }
-        Optional<Users> user = driverRepository.findById(driverId).map(Driver::getUser);
-        if (user.isEmpty()) {
-            logger.debug("El conductor {} no tiene usuario: no hay push que enviar", driverId);
+        return driverRepository.findById(driverId).flatMap(this::resolveDriverUserId);
+    }
+
+    /** La misma regla, para quien ya tiene el conductor cargado. */
+    public Optional<Integer> resolveDriverUserId(Driver driver) {
+        Users user = driver.getUser();
+        if (user == null) {
+            logger.debug("El conductor {} no tiene usuario: no hay push que enviar", driver.getId());
             return Optional.empty();
         }
-        if (!Constants.STATUS_ACTIVE.equals(user.get().getStatus())) {
-            logger.debug("El usuario del conductor {} esta inactivo: no hay push que enviar", driverId);
+        if (!Constants.STATUS_ACTIVE.equals(user.getStatus())) {
+            logger.debug("El usuario del conductor {} esta inactivo: no hay push que enviar", driver.getId());
             return Optional.empty();
         }
-        return user.map(Users::getId);
+        return Optional.of(user.getId());
     }
 }

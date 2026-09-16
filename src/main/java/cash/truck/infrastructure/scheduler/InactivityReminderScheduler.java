@@ -1,7 +1,6 @@
 package cash.truck.infrastructure.scheduler;
 
 import cash.truck.application.usecases.InAppNotificationUseCase;
-import cash.truck.application.usecases.push.PushRecipientResolver;
 import cash.truck.application.utility.Constants;
 import cash.truck.domain.repositories.NotificationRepository;
 import cash.truck.domain.repositories.TripRepository;
@@ -15,27 +14,31 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Avisa cuando un viaje se queda quieto.
  *
- * Cubre dos silencios que hoy nadie detecta:
+ * Cubre tres silencios:
  *
- *  - un viaje en curso que lleva 12 horas sin un solo gasto registrado,
+ *  - un viaje en curso que lleva 12 horas sin registrar gastos, contadas desde
+ *    el ultimo gasto o, si no tiene ninguno, desde el inicio del viaje,
  *  - un viaje cerrado hace 24 horas sin que se haya abierto el siguiente, y
  *  - un viaje que lleva 5 dias en curso sin pasar a Pendiente ni a Completado.
  *
  * Los tres avisos van al propietario y al conductor a la vez, porque cualquiera
  * de los dos puede ser quien tenga que actuar: el conductor registra el gasto,
  * crea el viaje o lo cierra, y el propietario es quien nota que su vehiculo
- * esta parado. Al conductor solo se le avisa si tiene acceso a la app; si no lo
- * tiene no se le crea ni la notificacion interna ni el push.
+ * esta parado. Cada uno recibe su propia fila y su push; al conductor solo si
+ * tiene acceso a la app, y una sola vez si es el mismo propietario.
  *
- * Corre cada hora y no una vez al dia porque el umbral se mide en horas: con un
- * solo pase diario, un viaje que cumple las 12 horas por la manana esperaria
- * hasta el dia siguiente. Repetir el pase no duplica avisos: antes de crear
- * ninguno se comprueba que no exista ya uno del mismo tipo para ese viaje.
+ * Corre cada 6 horas y no una vez al dia porque el umbral se mide en horas:
+ * con un solo pase diario, un viaje que cumple las 12 horas por la manana
+ * esperaria hasta el dia siguiente. Repetir el pase no duplica avisos: el de viaje
+ * cerrado y el de viaje estancado salen una vez por viaje, y el de gastos una
+ * vez por cada silencio, es decir, se vuelve a avisar solo si el viaje registro
+ * gastos despues del ultimo aviso y otra vez se quedo quieto.
+ *
+ * Reemplaza al evento evt_check_trip_inactivity de la base de datos.
  *
  * El aviso es interno y sale ademas por push; no se envia por WhatsApp, igual
  * que el vencimiento de documentos.
@@ -48,16 +51,13 @@ public class InactivityReminderScheduler {
     private final TripRepository tripRepository;
     private final NotificationRepository notificationRepository;
     private final InAppNotificationUseCase inAppNotificationUseCase;
-    private final PushRecipientResolver pushRecipientResolver;
 
     public InactivityReminderScheduler(TripRepository tripRepository,
                                        NotificationRepository notificationRepository,
-                                       InAppNotificationUseCase inAppNotificationUseCase,
-                                       PushRecipientResolver pushRecipientResolver) {
+                                       InAppNotificationUseCase inAppNotificationUseCase) {
         this.tripRepository = tripRepository;
         this.notificationRepository = notificationRepository;
         this.inAppNotificationUseCase = inAppNotificationUseCase;
-        this.pushRecipientResolver = pushRecipientResolver;
     }
 
     @Scheduled(cron = "${truck.parameter.inactivity-reminder-cron:" + Constants.INACTIVITY_REMINDER_CRON + "}",
@@ -96,7 +96,7 @@ public class InactivityReminderScheduler {
     /** Viaje en curso que lleva 12 horas sin que nadie cargue un gasto. */
     private void notifyTripsWithoutExpenses() {
         Date threshold = hoursAgo(Constants.EXPENSE_INACTIVITY_HOURS);
-        List<InactiveTripRow> trips = tripRepository.findInProgressTripsWithoutExpenses(
+        List<InactiveTripRow> trips = tripRepository.findInProgressTripsWithoutRecentExpenses(
                 Constants.TRIP_STATUS_IN_PROGRESS, threshold);
 
         if (trips.isEmpty()) {
@@ -145,13 +145,8 @@ public class InactivityReminderScheduler {
     }
 
     /**
-     * Crea el aviso para el propietario y el del conductor, y devuelve si hubo
-     * algo que crear.
-     *
-     * Son dos filas y no una porque la bandeja de notificaciones se consulta
-     * por destinatario: una sola fila la veria uno de los dos. La del conductor
-     * lleva target_user_id, que es lo que hace que su push le llegue a el y no
-     * al propietario.
+     * Crea el aviso del propietario y el del conductor, y devuelve si hubo algo
+     * que crear.
      *
      * El corte por reference_id se hace antes de las dos y no dentro de cada
      * una: asi el estado es siempre el mismo, o estan las dos o no esta
@@ -162,24 +157,27 @@ public class InactivityReminderScheduler {
         if (tripId == null) {
             return false;
         }
-        if (notificationRepository.existsByEventTypeAndReferenceId(eventType, tripId)) {
+        if (alreadyNotified(trip, eventType, tripId)) {
             // Ya se aviso en un pase anterior; la condicion sigue vigente pero
             // el aviso no se repite.
             return false;
         }
 
-        Long ownerId = toLong(trip.getOwnerId());
-        inAppNotificationUseCase.createNotification(eventType, message, Constants.ROLE_ID_OWNER, null,
-                ownerId, tripId);
-
-        // Un conductor sin acceso a la app —sin usuario, o con el usuario
-        // inactivo— no recibe nada: ni push, porque no tiene dispositivo
-        // suscrito, ni notificacion interna, porque no puede entrar a leerla.
-        Optional<Integer> driverUserId = pushRecipientResolver.resolveDriverUserId(toLong(trip.getDriverId()));
-        driverUserId.ifPresent(userId -> inAppNotificationUseCase.createNotification(eventType, message,
-                Constants.ROLE_ID_DRIVER, userId, ownerId, tripId));
-
+        inAppNotificationUseCase.notifyOwnerAndDriver(eventType, message, toLong(trip.getOwnerId()), tripId,
+                toLong(trip.getDriverId()));
         return true;
+    }
+
+    /**
+     * El aviso de gastos se corta por la ultima actividad del viaje; los otros
+     * dos, por viaje. eventDate trae esa ultima actividad en el de gastos.
+     */
+    private boolean alreadyNotified(InactiveTripRow trip, String eventType, Long tripId) {
+        if (Constants.EXPENSE_INACTIVITY_EVENT_TYPE.equals(eventType) && trip.getEventDate() != null) {
+            return notificationRepository.existsByEventTypeAndReferenceIdAndCreationDateAfter(eventType, tripId,
+                    trip.getEventDate());
+        }
+        return notificationRepository.existsByEventTypeAndReferenceId(eventType, tripId);
     }
 
     /**
@@ -189,7 +187,7 @@ public class InactivityReminderScheduler {
     private String expenseMessage(InactiveTripRow trip) {
         return "El viaje " + trip.getNumberTrip() + " del vehículo de placa " + trip.getPlate()
                 + " lleva más de " + Constants.EXPENSE_INACTIVITY_HOURS
-                + " horas en curso sin gastos registrados.";
+                + " horas en curso sin registrar gastos.";
     }
 
     private String tripMessage(InactiveTripRow trip) {

@@ -206,7 +206,7 @@ public class Constants {
             "La renovación debe ser de " + SUBSCRIPTION_MIN_YEARS + " a " + SUBSCRIPTION_MAX_YEARS
                     + " años. No hay suscripciones menores a un año.";
 
-    // Vencimiento de documentos de vehiculo (aviso interno, sin WhatsApp ni push)
+    // Vencimiento de documentos de vehiculo, conductor y propietario (interno + push, sin WhatsApp)
     public static final String DOCUMENT_EXPIRY_EVENT_TYPE = "DOCUMENT_EVENT";
     /**
      * Antelacion con que se avisa cada vencimiento: 0 es el mismo dia en que
@@ -216,6 +216,14 @@ public class Constants {
     public static final java.util.List<Integer> DOCUMENT_EXPIRY_REMINDER_DAYS = java.util.List.of(10, 3, 0);
     /** Todos los dias a las 8:05 en Bogota, despues del aviso de suscripcion. */
     public static final String DOCUMENT_EXPIRY_REMINDER_CRON = "0 5 8 * * *";
+
+    /**
+     * Tipo de documento de la licencia, identificado por nombre porque el id
+     * depende del orden de carga del catalogo. Se usa para copiar el vencimiento
+     * del documento a driver.license_expiry y para no avisar dos veces cuando la
+     * licencia esta en la ficha del conductor y tambien como documento.
+     */
+    public static final String LICENSE_DOCUMENT_FILE_TYPE_NAME = "Licencia de Conducción";
 
     // Avisos de inactividad (interno + push)
     /**
@@ -243,12 +251,37 @@ public class Constants {
     /** Dias en curso tras los que se considera que el viaje quedo estancado. */
     public static final int TRIP_STALLED_DAYS = 5;
     /**
-     * Cada hora al minuto 15. No es diario porque el umbral es de horas: con un
-     * pase al dia un viaje que cumple 12 horas a las 09:00 esperaria hasta el
-     * dia siguiente. El pase es barato —dos consultas— y el reference_id evita
-     * que repetirlo genere avisos duplicados.
+     * Cada 6 horas al minuto 15: 00:15, 06:15, 12:15 y 18:15. No es diario
+     * porque el umbral es de horas, y no es cada hora para no cargar la base
+     * con un pase que casi nunca encuentra algo nuevo. Un aviso puede llegar
+     * hasta 6 horas despues de cumplirse el umbral. El reference_id evita que
+     * repetir el pase genere avisos duplicados.
      */
-    public static final String INACTIVITY_REMINDER_CRON = "0 15 * * * *";
+    public static final String INACTIVITY_REMINDER_CRON = "0 15 */6 * * *";
+
+    // Cumpleanos (interno + push)
+    /** Tipo que el front ya traduce como CUMPLEAÑOS. */
+    public static final String BIRTHDAY_EVENT_TYPE = "BIRTHDAY_EVENT";
+    /** Todos los dias a las 7:00 en Bogota: el saludo llega temprano. */
+    public static final String BIRTHDAY_REMINDER_CRON = "0 0 7 * * *";
+
+    // Saldo pendiente de cobro (interno + push)
+    /** Aviso al propietario y al conductor. El referenceId es el id del viaje. */
+    public static final String PENDING_BALANCE_EVENT_TYPE = "PENDING_BALANCE_ALERT";
+    /**
+     * Dias en Pendiente con saldo sin pagar tras los que se avisa. Se avisa
+     * cada dia mientras siga asi, como hacia el evento de base de datos.
+     */
+    public static final int PENDING_BALANCE_DAYS = 15;
+    /** Todos los dias a las 8:10 en Bogota, despues de los vencimientos. */
+    public static final String PENDING_BALANCE_REMINDER_CRON = "0 10 8 * * *";
+
+    // Vencimiento de suscripcion (interno + push). El WhatsApp sigue aparte.
+    /** Mismo tipo que usaba el evento de base de datos, para no partir el historico. */
+    public static final String SUBSCRIPTION_EXPIRATION_EVENT_TYPE = "SUBSCRIPTION_EXPIRATION";
+    public static final java.util.List<Integer> SUBSCRIPTION_EXPIRATION_NOTICE_DAYS = java.util.List.of(10, 5, 1);
+    /** Todos los dias a las 6:00 en Bogota, la hora del evento que reemplaza. */
+    public static final String SUBSCRIPTION_EXPIRATION_NOTICE_CRON = "0 0 6 * * *";
 
     // Password Reset
     public static final String PASSWORD_RESET_MESSAGE_TYPE = "PASSWORD_RECOVERY";
@@ -334,10 +367,10 @@ public class Constants {
     public static final int AVAILABILITY_RATE_LIMIT = 30;
     public static final int AVAILABILITY_RATE_WINDOW_SECONDS = 60;
 
-    // Tipos de evento de la notificacion interna. Son los que el backend emite
-    // hoy; EXPIRATION_EVENT, BIRTHDAY_EVENT y SYSTEM_EVENT existen solo en el
-    // front y aqui no los produce nadie. TRIP_INACTIVITY_ALERT si se emite: lo
-    // crea el planificador de inactividad, mas abajo.
+    // Tipos de evento de la notificacion interna. EXPIRATION_EVENT y
+    // SYSTEM_EVENT existen solo en el front y aqui no los produce nadie. Los
+    // avisos programados (cumpleanos, vencimientos, inactividad, saldo
+    // pendiente) tienen sus tipos junto a su planificador.
     public static final String TRIP_EVENT_TYPE = "TRIP_EVENT";
     public static final String EXPENSE_EVENT_TYPE = "EXPENSE_EVENT";
     public static final String VEHICLE_EVENT_TYPE = "VEHICLE_EVENT";
@@ -382,6 +415,22 @@ public class Constants {
     public static final int PUSH_CLEANUP_INACTIVE_DAYS = 30;
     /** Todos los domingos a las 3:00 en Bogota, fuera de horario de uso. */
     public static final String PUSH_CLEANUP_CRON = "0 0 3 * * SUN";
+
+    // Aseo de notificaciones internas
+    /** Dias que sobrevive una notificacion que el usuario ya borro de la bandeja. */
+    public static final int NOTIFICATION_CLEANUP_DELETED_DAYS = 30;
+    /** Dias que sobrevive cualquier notificacion, leida o no. */
+    public static final int NOTIFICATION_CLEANUP_RETENTION_DAYS = 90;
+    /** Filas por DELETE: lotes cortos para no bloquear la tabla mientras se usa. */
+    public static final int NOTIFICATION_CLEANUP_BATCH_SIZE = 1000;
+    /** Domingos a las 3:30 en Bogota, despues del aseo de push. */
+    public static final String NOTIFICATION_CLEANUP_CRON = "0 30 3 * * SUN";
+    /**
+     * Tipos que nunca se borran: los avisos de una sola vez por viaje usan su
+     * fila para no repetirse. Son pocas filas, una por viaje.
+     */
+    public static final java.util.List<String> NOTIFICATION_CLEANUP_EXCLUDED_EVENT_TYPES = java.util.List.of(
+            TRIP_INACTIVITY_EVENT_TYPE, TRIP_STALLED_EVENT_TYPE);
 
     public static final String EMAIL_PATTERN = "^[^@ ]+@[^@ .]+[.][^@ ]{2,}$";
 }

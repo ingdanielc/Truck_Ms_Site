@@ -85,10 +85,11 @@ public class VehicleUseCase {
 
         String message = isNew ? "Se ha creado un nuevo vehículo de placa: " + savedVehicle.getPlate()
                 : "Se ha actualizado el vehículo de placa: " + savedVehicle.getPlate();
-        for (Long ownerId : resolveOwnerIds(vehicle.getOwnerId(), savedVehicle.getId())) {
-            inAppNotificationUseCase.createNotification(Constants.VEHICLE_EVENT_TYPE, message,
-                    Constants.ROLE_ID_OWNER, null, ownerId, savedVehicle.getId());
-        }
+        // El conductor asignado ve los cambios de su vehiculo.
+        Integer driverId = savedVehicle.getCurrentDriverId();
+        inAppNotificationUseCase.notifyOwnersAndDrivers(Constants.VEHICLE_EVENT_TYPE, message,
+                resolveOwnerIds(vehicle.getOwnerId(), savedVehicle.getId()), savedVehicle.getId(),
+                driverId == null ? List.of() : List.of(driverId.longValue()), null);
 
         return savedVehicle;
     }

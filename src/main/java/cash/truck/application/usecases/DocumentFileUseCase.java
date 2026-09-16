@@ -1,6 +1,7 @@
 package cash.truck.application.usecases;
 
 import cash.truck.application.exception.DocumentValidationException;
+import cash.truck.application.utility.Constants;
 import cash.truck.application.utility.filters.FilterRequest;
 import cash.truck.application.utility.filters.GenericSpecification;
 import cash.truck.application.utility.filters.SearchCriteria;
@@ -107,7 +108,35 @@ public class DocumentFileUseCase {
             deactivatePrevious(target);
         }
 
-        return documentFileRepository.save(target);
+        DocumentFile saved = documentFileRepository.save(target);
+        syncDriverLicenseExpiry(saved, type);
+        return saved;
+    }
+
+    /**
+     * La licencia vive en dos lugares: el documento y la ficha del conductor
+     * (driver.license_expiry), que es la que muestran el formulario del
+     * conductor y el del propietario que conduce. Al cargar o renovar la
+     * licencia como documento se copia su vencimiento a la ficha para que las
+     * dos fechas no se contradigan.
+     *
+     * Solo el documento activo manda: editar uno historico, ya reemplazado, no
+     * puede devolver la ficha a una fecha vieja. Va en la misma transaccion que
+     * el documento, asi que o quedan las dos fechas o ninguna.
+     */
+    private void syncDriverLicenseExpiry(DocumentFile document, DocumentFileType type) {
+        if (document.getDriverId() == null
+                || !Boolean.TRUE.equals(document.getIsActive())
+                || document.getExpiryDate() == null
+                || !Constants.LICENSE_DOCUMENT_FILE_TYPE_NAME.equals(type.getName())) {
+            return;
+        }
+        driverRepository.findById(document.getDriverId()).ifPresent(driver -> {
+            // java.sql.Date y no un Instant: la columna es DATE y asi no se
+            // corre un dia por la zona horaria.
+            driver.setLicenseExpiry(java.sql.Date.valueOf(document.getExpiryDate()));
+            driverRepository.save(driver);
+        });
     }
 
     /** Exactamente un portador: ni cero ni dos. */

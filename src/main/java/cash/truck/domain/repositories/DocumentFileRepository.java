@@ -28,6 +28,9 @@ public interface DocumentFileRepository extends JpaRepository<DocumentFile, Long
 
     List<DocumentFile> findByOwnerIdAndDocumentFileTypeIdAndIsActiveTrue(Long ownerId, Integer documentFileTypeId);
 
+    /** Si el documento es de un vehiculo; el push de vencimiento elige pantalla con esto. */
+    boolean existsByIdAndVehicleIdIsNotNull(Long id);
+
     /**
      * Vencimientos de un dia exacto. Es la consulta del recordatorio, que compara
      * la fecha puntual —no un rango— para no necesitar una columna que registre

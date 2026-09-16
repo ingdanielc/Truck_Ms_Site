@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -61,6 +62,7 @@ public class TripUseCase {
 
         String message;
         Long ownerId = null;
+        Integer vehicleDriverId = null;
         try {
             if (savedTrip.getVehicleId() != null) {
                 var vehicle = vehicleRepository.findById(savedTrip.getVehicleId()).orElse(null);
@@ -76,6 +78,7 @@ public class TripUseCase {
                     if (vehicle.getOwners() != null && !vehicle.getOwners().isEmpty()) {
                         ownerId = vehicle.getOwners().get(0).getOwnerId();
                     }
+                    vehicleDriverId = vehicle.getCurrentDriverId();
                 } else {
                     message = isNew ? "Se ha creado un nuevo viaje " + manifestLabel
                             : "Se ha actualizado el viaje " + manifestLabel;
@@ -89,8 +92,13 @@ public class TripUseCase {
                     : "Se ha actualizado el viaje " + manifestLabel;
         }
 
-        inAppNotificationUseCase.createNotification("TRIP_EVENT", message, Constants.ROLE_ID_OWNER, null, ownerId,
-                savedTrip.getId());
+        // El conductor ve los viajes de su vehiculo: el del viaje y el que
+        // tiene asignado el vehiculo, que suelen ser el mismo.
+        List<Long> driverIds = new ArrayList<>();
+        driverIds.add(savedTrip.getDriverId());
+        driverIds.add(vehicleDriverId == null ? null : vehicleDriverId.longValue());
+        inAppNotificationUseCase.notifyOwnersAndDrivers(Constants.TRIP_EVENT_TYPE, message,
+                ownerId == null ? List.of() : List.of(ownerId), savedTrip.getId(), driverIds, null);
 
         return savedTrip;
     }

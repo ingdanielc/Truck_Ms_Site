@@ -3,6 +3,7 @@ package cash.truck.application.usecases.push;
 import cash.truck.application.utility.Constants;
 import cash.truck.domain.dtos.NotificationCreatedEvent;
 import cash.truck.domain.dtos.PushPayload;
+import cash.truck.domain.repositories.DocumentFileRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -19,6 +20,12 @@ import java.util.Optional;
  */
 @Component
 public class PushPayloadFactory {
+
+    private final DocumentFileRepository documentFileRepository;
+
+    public PushPayloadFactory(DocumentFileRepository documentFileRepository) {
+        this.documentFileRepository = documentFileRepository;
+    }
 
     /** A quien va cada evento. Lo que no este aqui no sale por push. */
     public PushAudience audienceFor(String eventType) {
@@ -38,7 +45,12 @@ public class PushPayloadFactory {
                  // el del propietario cae en esta rama.
                  Constants.EXPENSE_INACTIVITY_EVENT_TYPE,
                  Constants.TRIP_INACTIVITY_EVENT_TYPE,
-                 Constants.TRIP_STALLED_EVENT_TYPE -> PushAudience.OWNER;
+                 Constants.TRIP_STALLED_EVENT_TYPE,
+                 // Estos arman su propia lista de destinatarios; la audiencia
+                 // solo decide que salgan por push.
+                 Constants.BIRTHDAY_EVENT_TYPE,
+                 Constants.PENDING_BALANCE_EVENT_TYPE,
+                 Constants.SUBSCRIPTION_EXPIRATION_EVENT_TYPE -> PushAudience.OWNER;
             // Se guarda sin owner_id porque avisa al administrador que hay una
             // cuenta nueva, venga del alta administrativa o del registro
             // publico. El propietario recien creado no es el destinatario: al
@@ -86,8 +98,23 @@ public class PushPayloadFactory {
             case Constants.TRIP_INACTIVITY_EVENT_TYPE -> "Sin viaje en curso";
             case Constants.TRIP_STALLED_EVENT_TYPE -> "Viaje sin cerrar";
             case Constants.SUBSCRIPTION_EVENT_TYPE -> "Pago por comprobar";
+            case Constants.BIRTHDAY_EVENT_TYPE -> "¡Feliz cumpleaños!";
+            case Constants.PENDING_BALANCE_EVENT_TYPE -> "Saldo pendiente de cobro";
+            case Constants.SUBSCRIPTION_EXPIRATION_EVENT_TYPE -> "Suscripción por vencer";
             default -> "Aviso";
         };
+    }
+
+    /**
+     * El documento de un vehiculo lleva al listado de vehiculos y no a su
+     * ficha: el referenceId de este evento es el id del documento, no el del
+     * vehiculo, y cambiarlo alteraria el reference_id que ya guardan las filas
+     * existentes. El de un conductor o un propietario lleva al inicio.
+     */
+    private String documentLink(Long referenceId) {
+        boolean vehicleDocument = referenceId != null
+                && documentFileRepository.existsByIdAndVehicleIdIsNotNull(referenceId);
+        return Constants.PUSH_DEEP_LINK_BASE + (vehicleDocument ? "/vehicles" : "/home");
     }
 
     /** Ruta real de la app: el basePath es /truck y las vistas cuelgan de /site. */
@@ -98,10 +125,7 @@ public class PushPayloadFactory {
             case Constants.DRIVER_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/drivers/" + referenceId;
             // El listado de gastos no tiene vista de detalle por id.
             case Constants.EXPENSE_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/expenses";
-            // Al listado y no a la ficha del vehiculo: el referenceId de este
-            // evento es el id del documento, no el del vehiculo, y cambiarlo
-            // alteraria el reference_id que ya guardan las filas existentes.
-            case Constants.DOCUMENT_EXPIRY_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/vehicles";
+            case Constants.DOCUMENT_EXPIRY_EVENT_TYPE -> documentLink(referenceId);
             case Constants.OWNER_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/owners/" + referenceId;
             // Al listado de pagos y no a una ficha por id: la revision se hace
             // sobre la bandeja de pendientes, que es donde esta el comprobante.
@@ -115,6 +139,9 @@ public class PushPayloadFactory {
             // Al detalle del viaje estancado, que es donde se le cambia el
             // estado a Pendiente o Completado.
             case Constants.TRIP_STALLED_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/trips/" + referenceId;
+            // Al viaje, que es donde se marca el saldo como pagado.
+            case Constants.PENDING_BALANCE_EVENT_TYPE -> Constants.PUSH_DEEP_LINK_BASE + "/trips/" + referenceId;
+            // Cumpleanos y suscripcion por vencer van al inicio por el default.
             default -> Constants.PUSH_DEEP_LINK_BASE + "/home";
         };
     }
